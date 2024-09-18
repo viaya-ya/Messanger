@@ -1,24 +1,126 @@
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route } from "react-router-dom";
+import "./App.css";
+import Main from "./UI/app/MainPage/Main";
+import Header from "./UI/app/MessagesPage/header/Header";
+import Content from "./UI/app/MessagesPage/content/Content";
+import Block from "./UI/app/MessagesPage/block/Block";
+import VKAuth from "./UI/VKAuth";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+    <VKAuth 
+    apiId="your_api_id"
+    callback={(response) => console.log('Авторизация успешна:', response)}
+    containerStyle={{ margin: '20px' }}
+  />
+
+
+    // <div>
+    //   <Routes>
+
+    //   <Route
+    //       path="/vk"
+    //       element={
+    //         <div className="wrapper">
+    //           <VKAuth></VKAuth>
+    //         </div>
+    //       }
+    //     ></Route>
+
+    //     <Route
+    //       path="/main"
+    //       element={
+    //         <div className="wrapper">
+    //           <Main></Main>
+    //         </div>
+    //       }
+    //     ></Route>
+    //   </Routes>
+
+    //   <Routes>
+    //     <Route
+    //       path="/start"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //     <Route
+    //       path="/goal"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //       <Route
+    //       path="/policy"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //        <Route
+    //       path="/posts"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //     <Route
+    //       path="/speedgoal"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //     <Route
+    //       path="/strateg"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //     <Route
+    //       path="/statistics"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //       <Route
+    //       path="/project"
+    //       element={
+    //         <div className="messages">
+    //           <Header></Header>
+    //           <Content></Content>
+    //           <Block></Block>
+    //         </div>
+    //       }
+    //     ></Route>
+    //   </Routes>
+    // </div>
   );
 }
 

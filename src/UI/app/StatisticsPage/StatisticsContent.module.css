@@ -1,0 +1,105 @@
+.dialog {
+    width: 75%;
+    border-radius: 0px 8px 8px 0px;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffff;
+    box-shadow: 0px 0px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.header {
+    height: 11%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
+    z-index: 2;
+}
+
+.fon {
+    height: 40%;
+    background-color: #005475;
+    border-radius: 0px 8px 0px 0px;
+}
+
+.pomoshnikSearch {
+    height: 60%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+.pomoshnik {
+    display: flex;
+    flex-direction: row;
+    column-gap: 30px;
+    align-items: center;
+}
+
+.iconBack:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.search {
+    -webkit-appearance: none;
+    /* Удаляет стандартные стили WebKit */
+    width: 10vw;
+    /* Регулирует ширину */
+    height: 50%;
+    /* Регулирует высоту */
+    border-bottom: 1px solid #ccc;
+    /* Добавляет границу */
+}
+
+input[type="search"]::-webkit-input-placeholder {
+    background-image: url('../../image/search.svg');
+    /* Укажите здесь путь к вашему изображению */
+    background-repeat: no-repeat;
+    /* Предотвращает повторение изображения */
+    background-position: right center;
+    /* Располагает изображение слева от текста */
+    font-family: "Montserrat";
+    font-size: 14px;
+    color: #B4B4B4;
+    /* Необязательно: меняет цвет текста плейсхолдера */
+    font-style: italic;
+}
+
+.spanPomoshnik {
+    align-self: flex-start;
+    font-family: "Montserrat";
+    font-size: 12px;
+    position: relative;
+}
+
+.spanPomoshnik span {
+    color: rgb(58, 58, 58);
+}
+
+.spanPomoshnik::after {
+    content: 'СТАТИСТИКА';
+    position: absolute;
+    left: 0;
+    bottom: -15px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.main {
+    height: 84%;
+    max-height: 80vh;
+    overflow-y: auto;
+    /* scrollbar-width: thin;
+    scrollbar-color: #005475 #FFFFFF; */
+    background-color:  #ffff;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 1%;
+}

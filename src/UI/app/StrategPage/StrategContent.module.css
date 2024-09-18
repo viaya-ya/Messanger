@@ -1,0 +1,222 @@
+.dialog {
+    width: 75%;
+    border-radius: 0px 8px 8px 0px;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffff;
+    box-shadow: 0px 0px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.header {
+    height: 16%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
+    z-index: 2;
+}
+
+.fon {
+    height: 25%;
+    background-color: #005475;
+    border-radius: 0px 8px 0px 0px;
+}
+
+.pomoshnikSearch {
+    height: 45%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+.pomoshnik {
+    display: flex;
+    flex-direction: row;
+    column-gap: 30px;
+    align-items: center;
+}
+
+.iconBack:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.search {
+    -webkit-appearance: none;
+    /* Удаляет стандартные стили WebKit */
+    width: 10vw;
+    /* Регулирует ширину */
+    height: 50%;
+    /* Регулирует высоту */
+    border-bottom: 1px solid #ccc;
+    /* Добавляет границу */
+}
+
+input[type="search"]::-webkit-input-placeholder {
+    background-image: url('../../image/search.svg');
+    /* Укажите здесь путь к вашему изображению */
+    background-repeat: no-repeat;
+    /* Предотвращает повторение изображения */
+    background-position: right center;
+    /* Располагает изображение слева от текста */
+    font-family: "Montserrat";
+    font-size: 14px;
+    color: #B4B4B4;
+    /* Необязательно: меняет цвет текста плейсхолдера */
+    font-style: italic;
+}
+
+.spanPomoshnik {
+    align-self: flex-start;
+    font-family: "Montserrat";
+    font-size: 12px;
+    position: relative;
+}
+
+.spanPomoshnik span {
+    color: rgb(58, 58, 58);
+}
+
+.spanPomoshnik::after {
+    content: 'СТРАТЕГИЯ';
+    position: absolute;
+    left: 0;
+    bottom: -15px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.editText {
+    padding: 0.1% 2%;
+    height: 30%;
+    width: 100%;
+    background-color: #ffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.two img:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 20%;
+}
+.iconSavetmp:hover{
+    background-color: rgb(240, 240, 240);
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+.select {
+    height: auto;
+    cursor: pointer;
+}
+
+.select:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 20%;
+}
+
+.blockSelect {
+    position: relative;
+}
+
+.option{
+    position: absolute;
+    display: none;
+    white-space: nowrap; 
+    right: 1%;
+    background-color: #ffff;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    padding: 5px;
+    padding-bottom: 8px;
+}
+
+.option img{
+margin-right: 10px;
+}
+
+.option li:first-child {
+    margin-top: 0px;
+  }
+.option li{
+    margin-top: 7px;
+    position: relative;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    font-size: 12px;
+}
+.option li:hover {
+background-color: rgb(240, 240, 240)
+}
+
+.option li:before {
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 90%;
+    bottom: -4px;
+    right: 0;
+    background-color: rgb(240, 240, 240);
+}
+
+.blockSelect:hover .option{
+    display: block;
+}
+.two {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    margin-left: 2%;
+}
+
+.date {
+    height: 60%;
+    min-width: 30%;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin-right: 1%;
+    margin-left: 2%;
+}
+
+.main {
+    height: 84%;
+    max-height: 80vh;
+    overflow-y: auto;
+    /* scrollbar-width: thin;
+    scrollbar-color: #005475 #FFFFFF; */
+    background-color: #F0F0F0;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 1%;
+}
+
+.Teaxtaera {
+    min-width: 50%;
+    min-height: 10vw;
+    background-color: #FFFFFF;
+    padding: 1%;
+    padding: 1%;
+    resize: none;
+}
+
+textarea::placeholder {
+    color: #B4B4B4;
+    font-style: italic;
+    font-size: 12px;
+    font-family: 'Montserrat';
+    padding-top: 3%;
+    padding-left: 3%;
+}

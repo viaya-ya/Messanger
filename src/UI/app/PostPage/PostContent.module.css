@@ -1,0 +1,250 @@
+.dialog {
+    width: 75%;
+    border-radius: 0px 8px 8px 0px;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffff;
+    box-shadow: 0px 0px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.header {
+    height: 18%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
+    z-index: 2;
+}
+
+.fon {
+    height: 25%;
+    background-color: #005475;
+    border-radius: 0px 8px 0px 0px;
+}
+
+.pomoshnikSearch {
+    height: 41%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+.pomoshnik {
+    display: flex;
+    flex-direction: row;
+    column-gap: 30px;
+    align-items: center;
+}
+
+.iconBack:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.search {
+    -webkit-appearance: none;
+    /* Удаляет стандартные стили WebKit */
+    width: 10vw;
+    /* Регулирует ширину */
+    height: 50%;
+    /* Регулирует высоту */
+    border-bottom: 1px solid #ccc;
+    /* Добавляет границу */
+}
+
+input[type="search"]::-webkit-input-placeholder {
+    background-image: url('../../image/search.svg');
+    /* Укажите здесь путь к вашему изображению */
+    background-repeat: no-repeat;
+    /* Предотвращает повторение изображения */
+    background-position: right center;
+    /* Располагает изображение слева от текста */
+    font-family: "Montserrat";
+    font-size: 14px;
+    color: #B4B4B4;
+    /* Необязательно: меняет цвет текста плейсхолдера */
+    font-style: italic;
+}
+
+.spanPomoshnik {
+    align-self: flex-start;
+    font-family: "Montserrat";
+    font-size: 12px;
+    position: relative;
+}
+
+.spanPomoshnik span {
+    color: rgb(58, 58, 58);
+}
+
+.spanPomoshnik::after {
+    content: 'ПОСТЫ';
+    position: absolute;
+    left: 0;
+    bottom: -15px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.editText {
+    padding: 0.1% 2%;
+    height: 34%;
+    width: 100%;
+    background-color: #ffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: 10%;
+}
+
+.itemName span {
+    font-style: italic;
+    font-size: 12px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+}
+
+.select {
+    position: relative;
+    font-family: 'Montserrat';
+    font-weight: 600;
+}
+
+.div {
+    position: relative;
+}
+
+.div:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: rgb(240, 240, 240);
+    z-index: 100;
+}
+
+.main {
+    height: 82%;
+    max-height: 80vh;
+    overflow-y: auto;
+    /* scrollbar-width: thin;
+    scrollbar-color: #005475 #FFFFFF; */
+    background-color: #F0F0F0;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 3%;
+}
+
+.productTeaxtaera {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.productTeaxtaera:before {
+    content: 'Продукт поста';
+    position: absolute;
+    color: black;
+    font-weight: 600;
+    font-family: 'Montserrat';
+    font-size: 12px;
+    left: 26.5%;
+}
+
+.destinyTeaxtaera {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.destinyTeaxtaera:before {
+    content: 'Предназначение поста';
+    position: absolute;
+    color: black;
+    font-weight: 600;
+    font-family: 'Montserrat';
+    font-size: 12px;
+    left: 26.5%;
+}
+
+.Teaxtaera {
+    width: 50%;
+    min-height: 10vh;
+    background-color: #FFFFFF;
+    padding: 1%;
+    padding: 1%;
+    resize: none;
+}
+
+textarea::placeholder {
+    color: #B4B4B4;
+    font-style: italic;
+    font-size: 12px;
+    font-family: 'Montserrat';
+    padding-top: 2%;
+    padding-left: 1%;
+}
+
+.post {
+    height: 5vh;
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: white;
+    border-radius: 10px;
+    padding-left: 5px;
+    column-gap: 5px;
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.post:hover {
+    background-color: #B4B4B4;
+    color: #FFFF;
+}
+
+.post:hover span {
+    color: #FFFF;
+}
+
+.nameButton {
+    font-size: 12px;
+    font-family: 'Montserrat';
+    color: #3A3A3A;
+    font-weight: 400;
+}
+
+.button {
+    width:15%;
+    height: 8%;
+    text-align: center;
+    background-color: #005475;
+    color: #FFFF;
+    font-weight: 600;
+    font-family: 'Montserrat';
+    font-size: 22px;
+    align-self: flex-end;
+    margin-right: 2%;
+    border-radius: 35px;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.5s ease;
+}
+.button:hover{
+    background-color:#61a3bd;
+}

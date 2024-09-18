@@ -9,118 +9,118 @@ import VKAuth from "./UI/VKAuth";
 function App() {
   return (
 
-    <VKAuth 
-    apiId="your_api_id"
-    callback={(response) => console.log('Авторизация успешна:', response)}
-    containerStyle={{ margin: '20px' }}
-  />
+  //   <VKAuth 
+  //   apiId="your_api_id"
+  //   callback={(response) => console.log('Авторизация успешна:', response)}
+  //   containerStyle={{ margin: '20px' }}
+  // />
 
 
-    // <div>
-    //   <Routes>
+    <div>
+      <Routes>
 
-    //   <Route
-    //       path="/vk"
-    //       element={
-    //         <div className="wrapper">
-    //           <VKAuth></VKAuth>
-    //         </div>
-    //       }
-    //     ></Route>
+      <Route
+          path="/vk"
+          element={
+            <div className="wrapper">
+              <VKAuth></VKAuth>
+            </div>
+          }
+        ></Route>
 
-    //     <Route
-    //       path="/main"
-    //       element={
-    //         <div className="wrapper">
-    //           <Main></Main>
-    //         </div>
-    //       }
-    //     ></Route>
-    //   </Routes>
+        <Route
+          path="/main"
+          element={
+            <div className="wrapper">
+              <Main></Main>
+            </div>
+          }
+        ></Route>
+      </Routes>
 
-    //   <Routes>
-    //     <Route
-    //       path="/start"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //     <Route
-    //       path="/goal"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //       <Route
-    //       path="/policy"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //        <Route
-    //       path="/posts"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //     <Route
-    //       path="/speedgoal"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //     <Route
-    //       path="/strateg"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //     <Route
-    //       path="/statistics"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //       <Route
-    //       path="/project"
-    //       element={
-    //         <div className="messages">
-    //           <Header></Header>
-    //           <Content></Content>
-    //           <Block></Block>
-    //         </div>
-    //       }
-    //     ></Route>
-    //   </Routes>
-    // </div>
+      <Routes>
+        <Route
+          path="/start"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/goal"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+          <Route
+          path="/:userId/policy"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+           <Route
+          path="/posts"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/speedgoal"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/strateg"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/statistics"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+          <Route
+          path="/project"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+      </Routes>
+    </div>
   );
 }
 

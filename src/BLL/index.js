@@ -1,8 +1,10 @@
-import { configureStore } from "@reduxjs/toolkit";
-import authReducer from './authSlice.js';
+import { configureStore } from '@reduxjs/toolkit';
+import { policyApi } from './policyApi';
 
-export default configureStore({
-  reducer: {
-    auth: authReducer,
-  },
+export const store = configureStore({
+    reducer: {
+        [policyApi.reducerPath]: policyApi.reducer,
+    },
+    middleware: (getDefaultMiddlware) => getDefaultMiddlware().concat(policyApi.middleware)
 });
+export default store;

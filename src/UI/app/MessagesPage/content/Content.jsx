@@ -20,7 +20,7 @@ export default function Content() {
       <Contact></Contact>
       {location.pathname === "/start" && <Dialog />}
       {location.pathname === "/goal" && <GoalContent />}
-      {location.pathname === "/3b809c42-2824-46c1-9686-dd666403402a/policy" && <PolicyContent />}
+      {location.pathname === "/" + userId + "/policy" && <PolicyContent />}
       {location.pathname === "/posts" && <PostContent />}
       {location.pathname === "/speedgoal" && <SpeedGoalContent />}
       {location.pathname === "/strateg" && <StrategContent />}

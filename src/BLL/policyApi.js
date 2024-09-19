@@ -6,7 +6,9 @@ export const policyApi = createApi({
     baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:5000/'}),
     endpoints: (build) => ({
         getPolicies: build.query({
-            query: (userId = '') => `${userId}/policies`,
+            query: (userId = '') => ({
+                url: `${userId}/policies`,
+              }),
             providesTags: (result) => result
               ? [
                   ...result.map(({ id }) => ({ type: 'Policy', id })),

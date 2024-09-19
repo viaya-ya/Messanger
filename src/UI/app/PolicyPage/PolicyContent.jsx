@@ -21,6 +21,8 @@ import iconSavetmp from "../../image/iconSavetmp.svg";
 import email from "../../image/email.svg";
 import iconGroup from "../../image/iconGroup.svg";
 import greySavetmp from "../../image/greySavetmp.svg";
+import error from "../../image/error.svg";
+import iconAdd from "../../image/iconAdd.svg";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetPoliciesQuery,
@@ -34,8 +36,8 @@ export default function PolicyContent() {
   };
 
   const { userId } = useParams();
-  const { data = [], isLoading } = useGetPoliciesQuery(userId);
-  const [postPolicy, { isError }] = usePostPoliciesMutation();
+  const { data = [], isLoading, isError } = useGetPoliciesQuery(userId);
+  const [postPolicy, { isErrorPost }] = usePostPoliciesMutation();
   const savePolicy = async () => {
     await postPolicy({
       userId,
@@ -43,10 +45,9 @@ export default function PolicyContent() {
       state: "Черновик",
       type: "Директива",
       content: "попа",
-      policyToOrganizations: ["865a8a3f-8197-41ee-b4cf-ba432d7fd51f"]
+      policyToOrganizations: ["865a8a3f-8197-41ee-b4cf-ba432d7fd51f"],
     }).unwrap();
   };
-  if (isLoading) return <div>Loading....</div>;
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -81,7 +82,7 @@ export default function PolicyContent() {
         </div>
 
         <div className={classes.editText}>
-          <div className={classes.one}>
+          {/* <div className={classes.one}>
             <img src={L} alt="L" />
             <img src={E} alt="E" />
             <img src={R} alt="R" />
@@ -90,8 +91,8 @@ export default function PolicyContent() {
           <div className={classes.two}>
             <img src={numeration} alt="numeration" />
             <img src={bulet} alt="bulet" />
-          </div>
-          <div className={classes.three}>
+          </div> */}
+          {/* <div className={classes.three}>
             <img src={Bold} alt="Bold" />
             <img src={Italic} alt="Italic" />
             <img src={Underline} alt="Underline" />
@@ -101,7 +102,7 @@ export default function PolicyContent() {
           <div className={classes.four}>
             <img src={mountain} alt="mountain" />
             <img src={oval} alt="oval" />
-          </div>
+          </div> */}
 
           <div className={classes.five}>
             <select name="mySelect">
@@ -117,40 +118,62 @@ export default function PolicyContent() {
             </div>
           </div>
 
-          <div className={classes.blockSelect}>
-            <img src={Select} alt="Select" className={classes.select} />
-            <ul className={classes.option}>
-              <li>
-                {" "}
-                <img src={email} alt="email" /> Отправить сотруднику для
-                прочтения
-              </li>
-              <li>
-                {" "}
-                <img src={iconGroup} alt="iconGroup" /> В должностную инструкцию
-                постам
-              </li>
-              <li>
-                {" "}
-                <img src={greySavetmp} alt="greySavetmp" /> Сохранить и издать{" "}
-              </li>
-            </ul>
+          <div className={classes.imageButton}>
+            <div className={classes.blockIconAdd}>
+              <img src={iconAdd} alt="iconAdd" className={classes.iconAdd} />
+            </div>
+            <div className={classes.blockSelect}>
+              <img src={Select} alt="Select" className={classes.select} />
+              <ul className={classes.option}>
+                <li>
+                  <img src={email} alt="email" /> Отправить сотруднику для
+                  прочтения
+                </li>
+                <li>
+                  <img src={iconGroup} alt="iconGroup" /> В должностную
+                  инструкцию постам
+                </li>
+                <li>
+                  <img src={greySavetmp} alt="greySavetmp" /> Сохранить и издать{" "}
+                </li>
+              </ul>
+            </div>
+            <div className={classes.blockIconSavetmp}>
+              <img
+                src={iconSavetmp}
+                alt="iconSavetmp"
+                className={classes.iconSavetmp}
+                style={{ marginLeft: "0.5%" }}
+              />
+            </div>
           </div>
-          <img
-            src={iconSavetmp}
-            alt="iconSavetmp"
-            className={classes.iconSavetmp}
-            style={{ marginLeft: "0.5%" }}
-          />
         </div>
       </div>
 
-      <div className={classes.main}>
-        {data.map((item) => {
-          <textarea className={classes.Teaxtaera} />;
-        })}
-        <button onClick={() => savePolicy()}>Save</button>
-      </div>
+      {isError ? (
+        <div className={classes.error}>
+          <img src={error} alt="Error" className={classes.errorImage} />
+          <span className={classes.spanError}>Ошибка</span>
+        </div>
+      ) : (
+        <>
+          {isLoading ? (
+            <div className={classes.load}>
+              <img src={icon} alt="Loading..." className={classes.loadImage} />
+              <div>
+                <span className={classes.spanLoad}>Идет загрузка...</span>
+              </div>
+            </div>
+          ) : (
+            <div className={classes.main}>
+              {data.map((item) => {
+                <textarea className={classes.Teaxtaera} />;
+              })}
+              <button onClick={() => savePolicy()}>Save</button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

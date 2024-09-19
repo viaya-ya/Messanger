@@ -100,6 +100,12 @@ input[type="search"]::-webkit-input-placeholder {
     align-items: center;
 }
 
+.imageButton {
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+}
+
 .one {
     display: flex;
     flex-direction: row;
@@ -113,12 +119,58 @@ input[type="search"]::-webkit-input-placeholder {
     background-color: rgb(240, 240, 240);
     border-radius: 20%;
 }
-.iconSavetmp:hover{
+
+.iconSavetmp:hover {
     background-color: rgb(240, 240, 240);
     border-radius: 20%;
     cursor: pointer;
 }
 
+.blockIconAdd {
+    position: relative;
+}
+
+.iconAdd:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+.blockIconAdd:hover::after {
+    content: "Создать политику";
+    white-space: nowrap;
+    position: absolute;
+    width: 120px;
+    height: 20px;
+    bottom: -120%;
+    left: -170%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3A3A3A;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+.blockIconSavetmp{
+    position: relative;
+}
+.blockIconSavetmp:hover::after {
+    content: "Сохранить";
+    white-space: nowrap;
+    position: absolute;
+    width: 80px;
+    height: 20px;
+    bottom: -120%;
+    left: -120%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3A3A3A;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
 .select {
     height: auto;
     cursor: pointer;
@@ -133,10 +185,10 @@ input[type="search"]::-webkit-input-placeholder {
     position: relative;
 }
 
-.option{
+.option {
     position: absolute;
     display: none;
-    white-space: nowrap; 
+    white-space: nowrap;
     right: 1%;
     background-color: #ffff;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
@@ -145,22 +197,24 @@ input[type="search"]::-webkit-input-placeholder {
     padding-bottom: 8px;
 }
 
-.option img{
-margin-right: 10px;
+.option img {
+    margin-right: 10px;
 }
 
 .option li:first-child {
     margin-top: 0px;
-  }
-.option li{
+}
+
+.option li {
     margin-top: 7px;
     position: relative;
     font-family: 'Montserrat';
     font-weight: 400;
     font-size: 12px;
 }
+
 .option li:hover {
-background-color: rgb(240, 240, 240)
+    background-color: rgb(240, 240, 240)
 }
 
 .option li:before {
@@ -173,9 +227,10 @@ background-color: rgb(240, 240, 240)
     background-color: rgb(240, 240, 240);
 }
 
-.blockSelect:hover .option{
+.blockSelect:hover .option {
     display: block;
 }
+
 .two {
     display: flex;
     flex-direction: row;
@@ -211,7 +266,7 @@ background-color: rgb(240, 240, 240)
     margin-left: 2%;
 }
 
-.sixth{
+.sixth {
     height: 60%;
     width: 60%;
     display: flex;
@@ -225,6 +280,7 @@ background-color: rgb(240, 240, 240)
     margin-left: 1%;
     column-gap: 5px;
 }
+
 .four span {
     font-weight: 600;
     font-family: 'Montserrat';
@@ -296,4 +352,84 @@ mark {
     background-color: yellow;
     padding: 2px 5px;
     border-radius: 3px;
+}
+
+.load {
+    height: 84%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 18%;
+    align-items: center;
+    background-color: #F0F0F0;
+    row-gap: 15px;
+}
+
+.loadImage {
+    width: 33px;
+    height: 33px;
+    animation: rotate 1s linear infinite;
+    /* Анимация вращения */
+}
+
+.spanLoad {
+    font-weight: 600;
+    font-family: 'Montserrat';
+    color: #005475;
+    font-size: 14px;
+}
+
+
+.error {
+    height: 84%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 18%;
+    align-items: center;
+    background-color: #F0F0F0;
+    row-gap: 15px;
+}
+
+.errorImage {
+    width: 33px;
+    height: 33px;
+    animation: error 2s ease-in-out infinite;
+    /* Анимация вращения */
+}
+
+.spanError {
+    font-weight: 600;
+    font-family: 'Montserrat';
+    color: red;
+    font-size: 16px;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+        /* Начальное положение */
+    }
+
+    to {
+        transform: rotate(360deg);
+        /* Конечное положение */
+    }
+}
+
+@keyframes error {
+    0% {
+        transform: scale(1);
+        /* Исходный размер */
+    }
+
+    50% {
+        transform: scale(1.5);
+        /* Увеличение на 50% */
+    }
+
+    100% {
+        transform: scale(1);
+        /* Возвращение к исходному размеру */
+    }
 }

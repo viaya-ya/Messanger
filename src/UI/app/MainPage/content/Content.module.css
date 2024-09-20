@@ -8,19 +8,19 @@
     justify-content: center;
     align-items: center;
 }
-span{
+.text{
     color: black;
     font-weight: 600;
     margin-bottom: 20px;
 }
-a{
+.link{
     position: relative;
     font-weight: 600;
     font-style: italic;
     color:rgb(0, 84, 117);
     text-shadow: 0px 8px 10px;
 }
-a:before{
+.link:before{
     content:'';
     position: absolute;
     bottom:-2px;

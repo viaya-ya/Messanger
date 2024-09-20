@@ -1,0 +1,17 @@
+.demo-wrapper {
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  
+  .demo-editor {
+    background-color: #f0f8ff; /* Смените цвет фона на нужный */
+    padding: 10px;
+    min-height: 300px; /* Высота редактора */
+    color: #000; /* Цвет текста */
+  }
+  
+  .demo-toolbar {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+  

@@ -28,6 +28,10 @@ import {
   useGetPoliciesQuery,
   usePostPoliciesMutation,
 } from "../../../BLL/policyApi";
+import MyEditor from "../../Custom/MyEditor";
+import { EditorState, convertFromHTML, ContentState } from "draft-js"; 
+import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
+import { convertToRaw } from "draft-js";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
@@ -36,18 +40,31 @@ export default function PolicyContent() {
   };
 
   const { userId } = useParams();
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [htmlContent, setHtmlContent] = useState();
+
+  useEffect(() => {
+    const rawContent = draftToHtml(
+      convertToRaw(editorState.getCurrentContent())
+    );
+    setHtmlContent(rawContent);
+    console.log(rawContent);
+  }, [editorState]);
+
   const { data = [], isLoading, isError } = useGetPoliciesQuery(userId);
   const [postPolicy, { isErrorPost }] = usePostPoliciesMutation();
+
   const savePolicy = async () => {
     await postPolicy({
       userId,
       policyName: "Пипка",
       state: "Черновик",
       type: "Директива",
-      content: "попа",
+      content: htmlContent,
       policyToOrganizations: ["865a8a3f-8197-41ee-b4cf-ba432d7fd51f"],
     }).unwrap();
   };
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -165,9 +182,23 @@ export default function PolicyContent() {
               </div>
             </div>
           ) : (
+
             <div className={classes.main}>
-              {data.map((item) => {
-                <textarea className={classes.Teaxtaera} />;
+       
+         {data.map((item) => {
+                if (item.content) {
+                  const { contentBlocks, entityMap } = convertFromHTML(item.content);
+                  const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
+                  const newEditorState = EditorState.createWithContent(contentState);
+                  return (
+                    <MyEditor
+                      key={item.id} // Убедитесь, что используется уникальный ключ для каждого элемента
+                      editorState={newEditorState}
+                      setEditorState={setEditorState}
+                    />
+                  );
+                }
+                return null;
               })}
               <button onClick={() => savePolicy()}>Save</button>
             </div>

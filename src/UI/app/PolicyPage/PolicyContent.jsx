@@ -1,27 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import classes from "./PolicyContent.module.css";
 import icon from "../../image/iconHeader.svg";
-import add from "../../image/add.svg";
-import L from "../../image/L.svg";
-import E from "../../image/E.svg";
-import R from "../../image/R.svg";
-import J from "../../image/J.svg";
-import numeration from "../../image/numeration.svg";
-import bulet from "../../image/bulet.svg";
-import Bold from "../../image/Bold.svg";
-import Italic from "../../image/Italic.svg";
-import Underline from "../../image/Underline.svg";
-import Crosed from "../../image/Crosed.svg";
 import Select from "../../image/Select.svg";
 import iconBack from "../../image/iconBack.svg";
-import mountain from "../../image/mountain.svg";
-import oval from "../../image/oval.svg";
 import subbarSearch from "../../image/subbarSearch.svg";
 import iconSavetmp from "../../image/iconSavetmp.svg";
 import email from "../../image/email.svg";
 import iconGroup from "../../image/iconGroup.svg";
 import greySavetmp from "../../image/greySavetmp.svg";
-import error from "../../image/error.svg";
 import iconAdd from "../../image/iconAdd.svg";
 import folder from "../../image/folder.svg";
 import iconSublist from "../../image/iconSublist.svg";
@@ -36,6 +22,8 @@ import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
+import HandlerMutation from "../../Custom/HandlerMutation.jsx";
+import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
@@ -62,10 +50,12 @@ export default function PolicyContent() {
     directives = [],
     isLoadingGetPolicies,
     isErrorGetPolicies,
+    isFetchingGetPolicies
   } = useGetPoliciesQuery(userId, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
+    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
       isLoadingGetPolicies: isLoading,
       isErrorGetPolicies: isError,
+      isFetchingGetPolicies: isFetching,
       instructions: data?.instructions || [],
       directives: data?.directives || [],
     }),
@@ -231,25 +221,30 @@ export default function PolicyContent() {
                   <div className={classes.listUL}>
                     <img src={folder} alt="folder" />
                     <div className={classes.listText}>Директивы</div>
-                    <img src={iconSublist} alt="iconSublist" style={{marginLeft:'50px'}}/>
+                    <img
+                      src={iconSublist}
+                      alt="iconSublist"
+                      style={{ marginLeft: "50px" }}
+                    />
                   </div>
                   <ul className={classes.listULElement}>
-                    
-                       {directives?.map((item) => (
+                    {directives?.map((item) => (
                       <li key={item.id} onClick={() => getPolicyId(item.id)}>
                         {item.policyName}
                       </li>
-                    ))} 
-                
-                  
+                    ))}
                   </ul>
                 </li>
 
                 <li className={classes.policySearchItem}>
-                  <div  className={classes.listUL}>
+                  <div className={classes.listUL}>
                     <img src={folder} alt="folder" />
-                    <div  className={classes.listText}>Инструкции</div>
-                    <img src={iconSublist} alt="iconSublist" style={{marginLeft:'45px'}}/>
+                    <div className={classes.listText}>Инструкции</div>
+                    <img
+                      src={iconSublist}
+                      alt="iconSublist"
+                      style={{ marginLeft: "45px" }}
+                    />
                   </div>
                   <ul className={classes.listULElement}>
                     {instructions?.map((item) => (
@@ -312,80 +307,53 @@ export default function PolicyContent() {
           </div>
         </div>
       </div>
+      <div className={classes.main}>
+        {isErrorGetPolicies ? (
+          <>
+            <HandlerQeury Error={isErrorGetPolicies}></HandlerQeury>
+          </>
+        ) : (
+          <>
+            {isErrorGetPoliciesId ? (
+              <HandlerQeury Error={isErrorGetPoliciesId}></HandlerQeury>
+            ) : (
+              <>
+                <HandlerQeury
+                  Loading={isLoadingGetPolicies}
+                  Fetching={isFetchingGetPolicies}
+                ></HandlerQeury>
 
-      {isErrorGetPoliciesId ? (
-        <div className={classes.error}>
-          <img src={error} alt="Error" className={classes.errorImage} />
-          <span className={classes.spanError}>Ошибка</span>
-        </div>
-      ) : (
-        <>
-          {isFetchingGetPoliciesId || isLoadingGetPoliciesId ? (
-            <div className={classes.load}>
-              <img src={icon} alt="Loading..." className={classes.loadImage} />
-              <div>
-                <span className={classes.spanLoad}>Идет загрузка...</span>
-              </div>
-            </div>
-          ) : (
-            <div className={classes.main}>
-              {currentPolicy.content ? (
-                <MyEditor
-                  key={currentPolicy.id}
-                  editorState={editorState}
-                  setEditorState={setEditorState}
-                />
-              ) : (
-                <> Выберите политику </>
-              )}
-            </div>
-          )}
-        </>
-      )}
+                {isFetchingGetPoliciesId || isLoadingGetPoliciesId ? (
+                  <HandlerQeury
+                    Loading={isLoadingGetPoliciesId}
+                    Fetching={isFetchingGetPoliciesId}
+                  ></HandlerQeury>
+                ) : (
+                  <>
+                    {currentPolicy.content ? (
+                      <>
+                        <MyEditor
+                          key={currentPolicy.id}
+                          editorState={editorState}
+                          setEditorState={setEditorState}
+                        />
+                        <HandlerMutation
+                          Loading={isLoadingUpdatePoliciesMutation}
+                          Error={isErrorUpdatePoliciesMutation}
+                          Success={isSuccessUpdatePoliciesMutation}
+                          textSuccess={"Политика обновлена"}
+                        ></HandlerMutation>
+                      </>
+                    ) : (
+                      <> Выберите политику </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
-}
-
-{
-  /* {isErrorGetPolicies ? (
-        <div className={classes.error}>
-          <img src={error} alt="Error" className={classes.errorImage} />
-          <span className={classes.spanError}>Ошибка</span>
-        </div>
-      ) : (
-        <>
-          {isLoadingGetPolicies ? (
-            <div className={classes.load}>
-              <img src={icon} alt="Loading..." className={classes.loadImage} />
-              <div>
-                <span className={classes.spanLoad}>Идет загрузка...</span>
-              </div>
-            </div>
-          ) : (
-            <div className={classes.main}>
-              {data.map((item) => {
-                if (item.content) {
-                  const { contentBlocks, entityMap } = convertFromHTML(
-                    item.content
-                  );
-                  const contentState = ContentState.createFromBlockArray(
-                    contentBlocks,
-                    entityMap
-                  );
-                  const newEditorState =
-                    EditorState.createWithContent(contentState);
-                  return (
-                    <MyEditor
-                      key={item.id} // Убедитесь, что используется уникальный ключ для каждого элемента
-                      editorState={newEditorState}
-                      setEditorState={setEditorState}
-                    />
-                  );
-                }
-                return null;
-              })}
-            </div>
-          )}
-        </>
-      )} */
 }

@@ -292,11 +292,10 @@ input[type="search"]::-webkit-input-placeholder {
 
 
 .main {
+    position: relative;
     height: 84%;
     max-height: 80vh;
     overflow-y: auto;
-    /* scrollbar-width: thin;
-    scrollbar-color: #005475 #FFFFFF; */
     background-color: #F0F0F0;
     padding-top: 1%;
     padding-bottom: 1%;
@@ -357,14 +356,13 @@ mark {
 }
 
 .load {
-    height: 84%;
-    max-height: 80vh;
+    position: absolute;
     display: flex;
     flex-direction: column;
-    padding-top: 18%;
     align-items: center;
-    background-color: #F0F0F0;
+    top:25%;
     row-gap: 15px;
+    z-index: 10000;
 }
 
 .loadImage {
@@ -383,14 +381,13 @@ mark {
 
 
 .error {
-    height: 84%;
-    max-height: 80vh;
+    position: absolute;
     display: flex;
     flex-direction: column;
-    padding-top: 18%;
     align-items: center;
-    background-color: #F0F0F0;
+    top:25%;
     row-gap: 15px;
+    z-index: 10000;
 }
 
 
@@ -409,14 +406,13 @@ mark {
 }
 
 .success {
-    height: 84%;
-    max-height: 80vh;
+    position: absolute;
     display: flex;
     flex-direction: column;
-    padding-top: 18%;
     align-items: center;
-    background-color: #F0F0F0;
+    top:25%;
     row-gap: 15px;
+    z-index: 10000;
 }
 
 .successImage {

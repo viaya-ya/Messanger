@@ -50,7 +50,17 @@ function App() {
           }
         ></Route>
         <Route
-          path="/goal"
+          path="/:userId/goal"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/:userId/goal/newGoal"
           element={
             <div className="messages">
               <Header></Header>
@@ -61,6 +71,16 @@ function App() {
         ></Route>
           <Route
           path="/:userId/policy"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+          <Route
+          path="/:userId/policy/newPolicy"
           element={
             <div className="messages">
               <Header></Header>

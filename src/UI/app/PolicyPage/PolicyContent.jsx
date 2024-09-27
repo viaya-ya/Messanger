@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classes from "./PolicyContent.module.css";
 import icon from "../../image/iconHeader.svg";
 import add from "../../image/add.svg";
@@ -23,25 +23,95 @@ import iconGroup from "../../image/iconGroup.svg";
 import greySavetmp from "../../image/greySavetmp.svg";
 import error from "../../image/error.svg";
 import iconAdd from "../../image/iconAdd.svg";
-import { useNavigate, useParams } from "react-router-dom";
+import folder from "../../image/folder.svg";
+import iconSublist from "../../image/iconSublist.svg";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   useGetPoliciesQuery,
-  usePostPoliciesMutation,
+  useGetPoliciesIdQuery,
+  useUpdatePoliciesMutation,
 } from "../../../BLL/policyApi";
 import MyEditor from "../../Custom/MyEditor";
-import { EditorState, convertFromHTML, ContentState } from "draft-js"; 
+import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
+import CustomSelect from "../../Custom/CustomSelect.jsx";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const back = () => {
     navigate("/start");
   };
-
+  const pathNewPolicy = () => {
+    navigate(`${location.pathname}/newPolicy`);
+  };
   const { userId } = useParams();
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
+  const [isOpenSearch, setIsOpenSearch] = useState(false);
+  const [selectedPolicyId, setSelectedPolicyId] = useState(null);
+  const [policyName, setPolicyName] = useState(null);
+  const [type, setType] = useState(null);
+  const [state, setState] = useState(null);
+  const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
+  const selectRef = useRef(null); // Для отслеживания кликов вне компонента
+
+  const {
+    instructions = [],
+    directives = [],
+    isLoadingGetPolicies,
+    isErrorGetPolicies,
+  } = useGetPoliciesQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      isLoadingGetPolicies: isLoading,
+      isErrorGetPolicies: isError,
+      instructions: data?.instructions || [],
+      directives: data?.directives || [],
+    }),
+  });
+
+  const {
+    currentPolicy = {},
+    organizations = [],
+    isLoadingGetPoliciesId,
+    isFetchingGetPoliciesId,
+    isErrorGetPoliciesId,
+  } = useGetPoliciesIdQuery(
+    { userId, policyId: selectedPolicyId },
+    {
+      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+        currentPolicy: data?.currentPolicy || {},
+        organizations: data?.organizations || [],
+        isLoadingGetPoliciesId: isLoading,
+        isErrorGetPoliciesId: isError,
+        isFetchingGetPoliciesId: isFetching,
+      }),
+      skip: !selectedPolicyId,
+    }
+  );
+
+  const [
+    updatePolicy,
+    {
+      isLoading: isLoadingUpdatePoliciesMutation,
+      isSuccess: isSuccessUpdatePoliciesMutation,
+      isError: isErrorUpdatePoliciesMutation,
+    },
+  ] = useUpdatePoliciesMutation();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpenSearch(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const rawContent = draftToHtml(
@@ -51,20 +121,42 @@ export default function PolicyContent() {
     console.log(rawContent);
   }, [editorState]);
 
-  const { data = [], isLoading, isError } = useGetPoliciesQuery(userId);
-  const [postPolicy, { isErrorPost }] = usePostPoliciesMutation();
+  useEffect(() => {
+    if (currentPolicy.content) {
+      const { contentBlocks, entityMap } = convertFromHTML(
+        currentPolicy.content
+      );
+      const contentState = ContentState.createFromBlockArray(
+        contentBlocks,
+        entityMap
+      );
+      const oldEditorState = EditorState.createWithContent(contentState);
+      setEditorState(oldEditorState);
+    }
+  }, [currentPolicy.content]); // This effect runs only when currentPolicy.content changes
 
-  const savePolicy = async () => {
-    await postPolicy({
+  const saveUpdatePolicy = async () => {
+    await updatePolicy({
       userId,
-      policyName: "Пипка",
-      state: "Черновик",
-      type: "Директива",
+      policyId: selectedPolicyId,
+      id: userId,
+      policyName: policyName,
+      state: state,
+      type: type,
       content: htmlContent,
-      policyToOrganizations: ["865a8a3f-8197-41ee-b4cf-ba432d7fd51f"],
-    }).unwrap();
+      policyToOrganizations: policyToOrganizations,
+    })
+      .unwrap()
+      .catch((error) => {
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
   };
 
+  const getPolicyId = (id) => {
+    setSelectedPolicyId(id);
+    console.log(id);
+  };
+  console.log(organizations);
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -99,45 +191,98 @@ export default function PolicyContent() {
         </div>
 
         <div className={classes.editText}>
-          {/* <div className={classes.one}>
-            <img src={L} alt="L" />
-            <img src={E} alt="E" />
-            <img src={R} alt="R" />
-            <img src={J} alt="J" />
-          </div>
-          <div className={classes.two}>
-            <img src={numeration} alt="numeration" />
-            <img src={bulet} alt="bulet" />
-          </div> */}
-          {/* <div className={classes.three}>
-            <img src={Bold} alt="Bold" />
-            <img src={Italic} alt="Italic" />
-            <img src={Underline} alt="Underline" />
-            <img src={Crosed} alt="Crosed" />
-          </div>
-
-          <div className={classes.four}>
-            <img src={mountain} alt="mountain" />
-            <img src={oval} alt="oval" />
-          </div> */}
-
           <div className={classes.five}>
-            <select name="mySelect">
-              <option value="">Директива</option>
-              <option value="option1">Инструкция</option>
+            <select
+              name="type"
+              value={type || currentPolicy.type}
+              onChange={(e) => setType(e.target.value)}
+            >
+              <option value="Директива">Директива</option>
+              <option value="Инструкция">Инструкция</option>
             </select>
           </div>
+          <div className={classes.five}>
+            <select
+              name="state"
+              value={state || currentPolicy.state}
+              onChange={(e) => setState(e.target.value)}
+            >
+              <option value="Черновик">Черновик</option>
+              <option value="Активный">Активный</option>
+            </select>
+          </div>
+          <div className={classes.five}>
+            <CustomSelect
+              organizations={organizations}
+              selectOrganizations={currentPolicy.policyToOrganizations}
+              setPolicyToOrganizations={setPolicyToOrganizations}
+            ></CustomSelect>
+          </div>
 
-          <div className={classes.sixth}>
-            <img src={subbarSearch} alt="subbarSearch" />
+          <div className={classes.sixth} ref={selectRef}>
+            <img
+              src={subbarSearch}
+              alt="subbarSearch"
+              onClick={() => setIsOpenSearch(true)}
+            />
+            {isOpenSearch && (
+              <ul className={classes.policySearch}>
+                <li className={classes.policySearchItem}>
+                  <div className={classes.listUL}>
+                    <img src={folder} alt="folder" />
+                    <div className={classes.listText}>Директивы</div>
+                    <img src={iconSublist} alt="iconSublist" style={{marginLeft:'50px'}}/>
+                  </div>
+                  <ul className={classes.listULElement}>
+                    
+                       {directives?.map((item) => (
+                      <li key={item.id} onClick={() => getPolicyId(item.id)}>
+                        {item.policyName}
+                      </li>
+                    ))} 
+                
+                  
+                  </ul>
+                </li>
+
+                <li className={classes.policySearchItem}>
+                  <div  className={classes.listUL}>
+                    <img src={folder} alt="folder" />
+                    <div  className={classes.listText}>Инструкции</div>
+                    <img src={iconSublist} alt="iconSublist" style={{marginLeft:'45px'}}/>
+                  </div>
+                  <ul className={classes.listULElement}>
+                    {instructions?.map((item) => (
+                      <li key={item.id} onClick={() => getPolicyId(item.id)}>
+                        {item.policyName}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              </ul>
+            )}
             <div>
-              <span>Политика 97</span>
+              <input
+                type="text"
+                value={
+                  policyName
+                    ? policyName
+                    : currentPolicy.policyName || "Название политики"
+                }
+                onChange={(e) => setPolicyName(e.target.value)}
+                title="Название политики"
+              ></input>
             </div>
           </div>
 
           <div className={classes.imageButton}>
             <div className={classes.blockIconAdd}>
-              <img src={iconAdd} alt="iconAdd" className={classes.iconAdd} />
+              <img
+                src={iconAdd}
+                alt="iconAdd"
+                className={classes.iconAdd}
+                onClick={() => pathNewPolicy()}
+              />
             </div>
             <div className={classes.blockSelect}>
               <img src={Select} alt="Select" className={classes.select} />
@@ -161,20 +306,21 @@ export default function PolicyContent() {
                 alt="iconSavetmp"
                 className={classes.iconSavetmp}
                 style={{ marginLeft: "0.5%" }}
+                onClick={() => saveUpdatePolicy()}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {isError ? (
+      {isErrorGetPoliciesId ? (
         <div className={classes.error}>
           <img src={error} alt="Error" className={classes.errorImage} />
           <span className={classes.spanError}>Ошибка</span>
         </div>
       ) : (
         <>
-          {isLoading ? (
+          {isFetchingGetPoliciesId || isLoadingGetPoliciesId ? (
             <div className={classes.load}>
               <img src={icon} alt="Loading..." className={classes.loadImage} />
               <div>
@@ -182,14 +328,52 @@ export default function PolicyContent() {
               </div>
             </div>
           ) : (
-
             <div className={classes.main}>
-       
-         {data.map((item) => {
+              {currentPolicy.content ? (
+                <MyEditor
+                  key={currentPolicy.id}
+                  editorState={editorState}
+                  setEditorState={setEditorState}
+                />
+              ) : (
+                <> Выберите политику </>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+{
+  /* {isErrorGetPolicies ? (
+        <div className={classes.error}>
+          <img src={error} alt="Error" className={classes.errorImage} />
+          <span className={classes.spanError}>Ошибка</span>
+        </div>
+      ) : (
+        <>
+          {isLoadingGetPolicies ? (
+            <div className={classes.load}>
+              <img src={icon} alt="Loading..." className={classes.loadImage} />
+              <div>
+                <span className={classes.spanLoad}>Идет загрузка...</span>
+              </div>
+            </div>
+          ) : (
+            <div className={classes.main}>
+              {data.map((item) => {
                 if (item.content) {
-                  const { contentBlocks, entityMap } = convertFromHTML(item.content);
-                  const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
-                  const newEditorState = EditorState.createWithContent(contentState);
+                  const { contentBlocks, entityMap } = convertFromHTML(
+                    item.content
+                  );
+                  const contentState = ContentState.createFromBlockArray(
+                    contentBlocks,
+                    entityMap
+                  );
+                  const newEditorState =
+                    EditorState.createWithContent(contentState);
                   return (
                     <MyEditor
                       key={item.id} // Убедитесь, что используется уникальный ключ для каждого элемента
@@ -200,11 +384,8 @@ export default function PolicyContent() {
                 }
                 return null;
               })}
-              <button onClick={() => savePolicy()}>Save</button>
             </div>
           )}
         </>
-      )}
-    </div>
-  );
+      )} */
 }

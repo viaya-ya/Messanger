@@ -10,6 +10,8 @@ import SpeedGoalContent from "../../SpeedGoalPage/SpeedGoalContent";
 import StrategContent from "../../StrategPage/StrategContent";
 import StatisticsContent from "../../StatisticsPage/StatisticsContent";
 import ProjectContent from "../../ProjectPage/ProjectContent";
+import NewPolicy from "../../PolicyPage/NewPolicy";
+import NewGoal from "../../GoalPage/NewGoal";
 
 export default function Content() {
   const location = useLocation();
@@ -19,8 +21,10 @@ export default function Content() {
     <div className={classes.content}>
       <Contact></Contact>
       {location.pathname === "/start" && <Dialog />}
-      {location.pathname === "/goal" && <GoalContent />}
+      {location.pathname === "/" + userId + "/goal" && <GoalContent />}
+      {location.pathname === "/" + userId + "/goal/newGoal" && <NewGoal />}
       {location.pathname === "/" + userId + "/policy" && <PolicyContent />}
+      {location.pathname === "/" + userId + "/policy/newPolicy" && <NewPolicy />}
       {location.pathname === "/posts" && <PostContent />}
       {location.pathname === "/speedgoal" && <SpeedGoalContent />}
       {location.pathname === "/strateg" && <StrategContent />}

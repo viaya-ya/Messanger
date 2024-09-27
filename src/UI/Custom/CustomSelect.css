@@ -1,0 +1,47 @@
+.custom-select {
+    position: relative;
+    width: 150px;
+  }
+  
+  .select-header {
+    background-color: #fff;
+    padding: 3px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .arrow {
+    margin-left: 10px;
+  }
+  
+  .arrow.open {
+    transform: rotate(180deg);
+  }
+  
+  .select-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .select-list li {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .select-list li:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .select-list input {
+    margin-right: 10px;
+  }
+  

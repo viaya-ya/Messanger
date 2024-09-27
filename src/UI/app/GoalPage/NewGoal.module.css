@@ -99,7 +99,6 @@ input[type="search"]::-webkit-input-placeholder {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    column-gap: 2%;
 }
 
 .one {
@@ -120,76 +119,21 @@ input[type="search"]::-webkit-input-placeholder {
     cursor: pointer;
 }
 
-.five{
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    align-items: center;
-    column-gap: 10%;
-    margin-left: 5%;
-    margin-right: 20px !important;
-}
-.seven{
-    height: 60%;
-    width:20%;
-    display: flex;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
-    padding-left: 5px;
-}
-.sixth{
-    height: 60%;
-    display: flex;
-    flex-direction: row;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-}
-.iconAdd{
-    position: relative;
-}
-.iconAdd:hover::after {
-    content: "Создать";
-    white-space: nowrap;
-    position: absolute;
-    width: 80px;
-    height: 20px;
-    bottom: -120%;
-    left: -120%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3A3A3A;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+.image:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 20%;
 }
 
-.iconSave{
-    position: relative;
+.image {
+    height: auto;
+    cursor: pointer;
+    margin-right: 0.5%;
 }
-.iconSave:hover::after {
-    content: "Сохранить";
-    white-space: nowrap;
-    position: absolute;
-    width: 80px;
-    height: 20px;
-    bottom: -120%;
-    left: -120%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3A3A3A;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+.blockIconPrint{
+    position: relative;
 }
 
-.iconPrint{
-    position: relative;
-}
-.iconPrint:hover::after {
+.blockIconPrint:hover::after {
     content: "Печатать";
     white-space: nowrap;
     position: absolute;
@@ -205,17 +149,25 @@ input[type="search"]::-webkit-input-placeholder {
     border-radius: 10px;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
-.image:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
+.blockIconSavetmp{
+    position: relative;
 }
-
-.image {
-    height: auto;
-    cursor: pointer;
-    margin-right: 0.5%;
+.blockIconSavetmp:hover::after {
+    content: "Сохранить";
+    white-space: nowrap;
+    position: absolute;
+    width: 80px;
+    height: 20px;
+    bottom: -120%;
+    left: -120%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3A3A3A;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
-
 .select:hover {
     background-color: rgb(240, 240, 240);
     border-radius: 20%;
@@ -275,10 +227,9 @@ background-color: rgb(240, 240, 240)
     cursor: pointer;
     margin-left: 2%;
 }
-
-.four {
+.five {
     height: 60%;
-    width: 50%;
+    width: 10%;
     display: flex;
     flex-direction: row;
     box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
@@ -286,13 +237,22 @@ background-color: rgb(240, 240, 240)
     flex-direction: row;
     justify-content: center;
     align-items: center;
-
-    & select{
-        max-width: 300px;
-    }
-   
+    margin-right: 1%;
+    margin-left: 2%;
 }
-
+.four {
+    height: 60%;
+    width: 75%;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-right: 1%;
+    margin-left: 2%;
+}
 
 .four span {
     font-weight: 600;

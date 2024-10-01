@@ -14,6 +14,8 @@ import draftToHtml from "draftjs-to-html"; // Импортируем конве�
 import { convertToRaw } from "draft-js";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
 import classNames from 'classnames';
+import HandlerMutation from "../../Custom/HandlerMutation.jsx";
+import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 
 export default function GoalContent() {
   const navigate = useNavigate();
@@ -40,8 +42,11 @@ export default function GoalContent() {
     }),
   });
 
-  console.log(organizations);
-  const [postGoal, {}] = usePostGoalMutation();
+  const [postGoal,     {
+    isLoading: isLoadingPostGoalMutation,
+    isSuccess: isSuccessPostGoalMutation,
+    isError: isErrorPostGoalMutation,
+  },] = usePostGoalMutation();
 
   useEffect(() => {
     const rawContent = draftToHtml(
@@ -285,8 +290,30 @@ export default function GoalContent() {
         </div>
       </div>
 
+
       <div className={classes.main}>
-        <MyEditor editorState={editorState} setEditorState={setEditorState} />
+        {isErrorNewGoal ? (
+          <HandlerQeury Error={isErrorNewGoal}></HandlerQeury>
+        ) : (
+          <>
+            {isLoadingNewGoal ? (
+              <HandlerQeury Loading={isLoadingNewGoal}></HandlerQeury>
+            ) : (
+              <>
+                <MyEditor
+                  editorState={editorState}
+                  setEditorState={setEditorState}
+                />
+                <HandlerMutation
+                  Loading={isLoadingPostGoalMutation}
+                  Error={isErrorPostGoalMutation}
+                  Success={isSuccessPostGoalMutation}
+                  textSuccess={"Цель успешно создана."}
+                ></HandlerMutation>
+              </>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

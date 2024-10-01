@@ -44,13 +44,16 @@ export default function PolicyContent() {
   const [state, setState] = useState(null);
   const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
   const selectRef = useRef(null); // Для отслеживания кликов вне компонента
+  // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
+  const [manualSuccessReset, setManualSuccessReset] = useState(false);
+  const [manualErrorReset, setManualErrorReset] = useState(false);
 
   const {
     instructions = [],
     directives = [],
     isLoadingGetPolicies,
     isErrorGetPolicies,
-    isFetchingGetPolicies
+    isFetchingGetPolicies,
   } = useGetPoliciesQuery(userId, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
       isLoadingGetPolicies: isLoading,
@@ -137,6 +140,11 @@ export default function PolicyContent() {
       policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
+      .then(() => {
+        // После успешного обновления сбрасываем флаги
+        setManualSuccessReset(false);
+        setManualErrorReset(false);
+      })
       .catch((error) => {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
@@ -144,9 +152,9 @@ export default function PolicyContent() {
 
   const getPolicyId = (id) => {
     setSelectedPolicyId(id);
-    console.log(id);
+    setManualSuccessReset(true);
+    setManualErrorReset(true);
   };
-  console.log(organizations);
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -339,8 +347,13 @@ export default function PolicyContent() {
                         />
                         <HandlerMutation
                           Loading={isLoadingUpdatePoliciesMutation}
-                          Error={isErrorUpdatePoliciesMutation}
-                          Success={isSuccessUpdatePoliciesMutation}
+                          Error={
+                            isErrorUpdatePoliciesMutation && !manualErrorReset
+                          }
+                          Success={
+                            isSuccessUpdatePoliciesMutation &&
+                            !manualSuccessReset
+                          }
                           textSuccess={"Политика обновлена"}
                         ></HandlerMutation>
                       </>

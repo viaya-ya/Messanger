@@ -100,7 +100,17 @@ function App() {
           }
         ></Route>
         <Route
-          path="/speedgoal"
+          path="/:userId/speedgoal"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+                 <Route
+          path="/:userId/speedgoal/newSpeedGoal"
           element={
             <div className="messages">
               <Header></Header>

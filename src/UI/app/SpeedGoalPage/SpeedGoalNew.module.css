@@ -8,27 +8,27 @@
 }
 
 .header {
-    height: 16%;
+    height: 22%;
     display: flex;
     flex-direction: column;
-    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
-    z-index: 2;
 }
 
 .fon {
-    height: 25%;
+    height: 20%;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
 
 .pomoshnikSearch {
-    height: 45%;
+    height: 35%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding-left: 2%;
     padding-right: 2%;
+    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
+    z-index: 2;
 }
 
 .pomoshnik {
@@ -82,22 +82,24 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .spanPomoshnik::after {
-    content: 'ЦЕЛИ';
+    content: 'СОЗДАТЬ КРАТКОСРОЧНУЮ ЦЕЛЬ';
     position: absolute;
+    width: 200px;
     left: 0;
     bottom: -15px;
     font-weight: 600;
     font-size: 12px;
+    white-space: nowrap;
 }
 
 .editText {
     padding: 0.1% 2%;
-    height: 30%;
+    height: 20%;
     width: 100%;
     background-color: #ffff;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
 }
 
@@ -119,6 +121,89 @@ input[type="search"]::-webkit-input-placeholder {
     cursor: pointer;
 }
 
+.select:hover {
+    background-color: rgb(240, 240, 240);
+    border-radius: 20%;
+}
+
+.blockSelect {
+    position: relative;
+}
+
+.option {
+    position: absolute;
+    display: none;
+    white-space: nowrap;
+    right: 1%;
+    background-color: #ffff;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    padding: 5px;
+    padding-bottom: 8px;
+}
+
+.option li:first-child {
+    margin-top: 0px;
+}
+
+.option li {
+    margin-top: 7px;
+    position: relative;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    font-size: 12px;
+    z-index: 10000;
+}
+
+.option li:hover {
+    background-color: rgb(240, 240, 240);
+    z-index: 10000;
+}
+
+.option li:before {
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    bottom: -4px;
+    left: 0;
+    background-color: rgb(240, 240, 240);
+    z-index: 10000;
+}
+
+.blockSelect:hover .option {
+    display: block;
+    z-index: 10000;
+}
+
+.two {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    margin-left: 2%;
+}
+
+.three {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    margin-left: 2%;
+}
+
+.date {
+    height: 60%;
+    min-width: 30%;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin-right: 1%;
+    margin-left: 2%;
+}
+
 .image:hover {
     background-color: rgb(240, 240, 240);
     border-radius: 20%;
@@ -129,30 +214,12 @@ input[type="search"]::-webkit-input-placeholder {
     cursor: pointer;
     margin-right: 0.5%;
 }
-.blockIconPrint{
+.iconSave{
     position: relative;
+    z-index: 10000;
 }
-
-.blockIconPrint:hover::after {
-    content: "Печатать";
-    white-space: nowrap;
-    position: absolute;
-    width: 80px;
-    height: 20px;
-    bottom: -120%;
-    left: -120%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3A3A3A;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
-}
-.blockIconSavetmp{
-    position: relative;
-}
-.blockIconSavetmp:hover::after {
+.iconSave:hover::after {
+    z-index: 10000;
     content: "Сохранить";
     white-space: nowrap;
     position: absolute;
@@ -168,103 +235,9 @@ input[type="search"]::-webkit-input-placeholder {
     border-radius: 10px;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
 }
-.select:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
-}
-.blockSelect {
-    position: relative;
-}
-
-.option{
-    position: absolute;
-    display: none;
-    white-space: nowrap; 
-    right: 1%;
-    background-color: #ffff;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
-    cursor: pointer;
-    padding: 5px;
-    padding-bottom: 8px;
-}
-
-.option li:first-child {
-    margin-top: 0px;
-  }
-.option li{
-    margin-top: 7px;
-    position: relative;
-    font-family: 'Montserrat';
-    font-weight: 400;
-    font-size: 12px;
-}
-.option li:hover{
-background-color: rgb(240, 240, 240)
-}
-.option li:before {
-    content: '';
-    position: absolute;
-    height: 1px;
-    width: 100%;
-    bottom: -4px;
-    left: 0;
-    background-color: rgb(240, 240, 240);
-}
-
-.blockSelect:hover .option{
-    display: block;
-}
-.two {
-    display: flex;
-    flex-direction: row;
-    cursor: pointer;
-    margin-left: 2%;
-}
-
-.three {
-    display: flex;
-    flex-direction: row;
-    cursor: pointer;
-    margin-left: 2%;
-}
-.five {
-    height: 60%;
-    width: 10%;
-    display: flex;
-    flex-direction: row;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin-right: 1%;
-    margin-left: 2%;
-}
-.four {
-    height: 60%;
-    width: 75%;
-    display: flex;
-    flex-direction: row;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin-right: 1%;
-    margin-left: 2%;
-}
-
-.four span {
-    font-weight: 600;
-    font-family: 'Montserrat';
-    color: rgb(58, 58, 58);
-    font-size: 14px;
-}
-
-
 .main {
     position: relative;
-    height: 84%;
+    height: 78%;
     max-height: 80vh;
     overflow-y: auto;
     background-color: #F0F0F0;
@@ -274,6 +247,7 @@ background-color: rgb(240, 240, 240)
     flex-direction: column;
     align-items: center;
     row-gap: 1%;
+    z-index: 0;
 }
 
 .Teaxtaera {
@@ -308,13 +282,41 @@ textarea::placeholder {
     box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.25);
     align-self: flex-start;
     margin-left: 25%;
+    cursor: pointer;
+    transition: all 0.5s ease;
 }
-
+.add:hover {
+    background-color: #B4B4B4;
+    color: #FFFF;
+}
+.nameButton {
+    font-size: 14px;
+    font-family: 'Montserrat';
+    color: #3A3A3A;
+    font-weight: 400;
+}
+.add:hover span {
+    font-size: 14px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    color: #FFFF;
+}
 .add div {
     color: #3A3A3A;
     font-size: 14px;
+    font-family: 'Montserrat';
+    font-weight: 400;
 }
 
+.add svg {
+    transition: fill 0.3s ease;
+    /* Добавляем анимацию для цвета SVG */
+}
+
+.add:hover svg path {
+    fill: #FFFFFF;
+    /* Меняем цвет SVG при наведении */
+}
 mark {
     background-color: lightblue;
     color: black;
@@ -325,30 +327,62 @@ mark {
     padding: 2px 5px;
     border-radius: 3px;
 }
-.selectImage{
-    margin-right: 5px;
+
+.text {
+    font-family: "Montserrat";
+    font-size: 12px;
 }
 
-
-input[type="search"]:focus {
-    color: #005475;
-    border-bottom: 1px solid rgb(0, 84, 117);
-}
-input[type="search"]:focus::placeholder {
-    position: absolute;
-    font-style: normal;
-    font-weight: 100;
-    top: -2px;
-    left: 5%;
-    color: #005475;
-    background-image:none;
-}
-
-input[type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
+.selectHeader {
+    height: 25%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
     cursor: pointer;
-    height: 20px;
-    width: 20px;
-    background-image: url('../../image/iconСlose.svg');
-    background-position: center;
+}
+
+.textSelectHeader:hover .textSelectHeaderSpan {
+    color: #388cad;
+    font-weight: 600;
+    transition: all 0.5s ease;
+}
+
+.textSelectHeader:before {
+    display: none;
+    content: '';
+    width: 100%;
+    height: 15%;
+    position: absolute;
+    bottom: -50%;
+    left: 0;
+    background-color: #388cad;
+}
+
+.textSelectHeader:hover::before {
+    display: block;
+}
+
+.textSelectHeader {
+    position: relative;
+}
+
+.textSelectHeaderSpan {
+    color: rgb(58, 58, 58);
+    font-size: 16px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    transition: all 0.5s ease;
+}
+
+.active {
+    font-size: 16px;
+    font-family: 'Montserrat';
+    color: #005475 !important;
+    font-weight: 600 !important;
+}
+
+.activeTextSelectHeader::before {
+    display: block;
+    background-color: #005475;
 }

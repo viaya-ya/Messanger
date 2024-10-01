@@ -18,7 +18,8 @@ import {
   useUpdateGoalMutation,
 } from "../../../BLL/goalApi";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
-import error from "../../image/error.svg";
+import HandlerMutation from "../../Custom/HandlerMutation.jsx";
+import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 
 export default function GoalContent() {
   const navigate = useNavigate();
@@ -29,13 +30,29 @@ export default function GoalContent() {
   const [htmlContent, setHtmlContent] = useState();
   const [selectedGoalId, setSelectedGoalId] = useState(null);
   const [goalToOrganizations, setGoalToOrganizations] = useState([]);
+   // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
+   const [manualSuccessReset, setManualSuccessReset] = useState(false);
+   const [manualErrorReset, setManualErrorReset] = useState(false);
   const back = () => {
     navigate("/start");
   };
   const newGoal = () => {
     navigate("newGoal");
   };
-  const { data = [] } = useGetGoalQuery(userId);
+
+  const {
+    data = [],
+    isErrorGetGoal,
+    isLoadingGetGoal,
+    isFetchingGetGoal,
+  } = useGetGoalQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+      data: data || [],
+      isErrorGetGoal: isError,
+      isLoadingGetGoal: isLoading,
+      isFetchingGetGoal: isFetching,
+    }),
+  });
 
   const {
     currentGoal = {},
@@ -77,15 +94,22 @@ export default function GoalContent() {
     })
       .unwrap()
       .then(() => {
+         // После успешного обновления сбрасываем флаги
+         setManualSuccessReset(false);
+         setManualErrorReset(false);
         setUpdateName("");
       })
       .catch((error) => {
+         // При ошибке также сбрасываем флаги
+         setManualErrorReset(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
   const getGoalId = (id) => {
     setSelectedGoalId(id);
-    console.log(id);
+   // Сбрасываем флаги состояния успеха и ошибки при смене цели
+   setManualSuccessReset(true);
+   setManualErrorReset(true);
   };
 
   useEffect(() => {
@@ -163,7 +187,7 @@ export default function GoalContent() {
               {data.map((item) => {
                 return (
                   <option key={item.id} value={item.id}>
-                    {item.goalName} 
+                    {item.goalName}
                   </option>
                 );
               })}
@@ -356,35 +380,53 @@ export default function GoalContent() {
         </div>
       </div>
 
-      {isErrorGetGoalId ? (
-        <div className={classes.error}>
-          <img src={error} alt="Error" className={classes.errorImage} />
-          <span className={classes.spanError}>Ошибка</span>
-        </div>
-      ) : (
-        <>
-          {isFetchingGetGoalId || isLoadingGetGoalId ? (
-            <div className={classes.load}>
-              <img src={icon} alt="Loading..." className={classes.loadImage} />
-              <div>
-                <span className={classes.spanLoad}>Идет загрузка...</span>
-              </div>
-            </div>
-          ) : (
-            <div className={classes.main}>
-              {currentGoal.content ? (
-                <MyEditor
-                  key={currentGoal.id}
-                  editorState={editorState}
-                  setEditorState={setEditorState}
-                />
-              ) : (
-                <> Выберите цель </>
-              )}
-            </div>
-          )}
-        </>
-      )}
+      <div className={classes.main}>
+        {isErrorGetGoal ? (
+          <>
+            <HandlerQeury Error={isErrorGetGoal}></HandlerQeury>
+          </>
+        ) : (
+          <>
+            {isErrorGetGoalId ? (
+              <HandlerQeury Error={isErrorGetGoalId}></HandlerQeury>
+            ) : (
+              <>
+                <HandlerQeury
+                  Loading={isLoadingGetGoal}
+                  Fetching={isFetchingGetGoal}
+                ></HandlerQeury>
+
+                {isFetchingGetGoalId || isLoadingGetGoalId ? (
+                  <HandlerQeury
+                    Loading={isLoadingGetGoalId}
+                    Fetching={isFetchingGetGoalId}
+                  ></HandlerQeury>
+                ) : (
+                  <>
+                    {currentGoal.content ? (
+                      <>
+                        <MyEditor
+                          key={currentGoal.id}
+                          editorState={editorState}
+                          setEditorState={setEditorState}
+                        />
+                        <HandlerMutation
+                          Loading={isLoadingUpdateGoalMutation}
+                          Error={isErrorUpdateGoalMutation && !manualErrorReset} // Учитываем ручной сброс
+                          Success={isSuccessUpdateGoalMutation && !manualSuccessReset} // Учитываем ручной сброс
+                          textSuccess={"Цель обновлена"}
+                        ></HandlerMutation>
+                      </>
+                    ) : (
+                      <> Выберите цель </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

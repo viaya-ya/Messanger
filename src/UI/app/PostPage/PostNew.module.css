@@ -22,7 +22,7 @@
 }
 
 .pomoshnikSearch {
-    height: 41%;
+    height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -82,7 +82,8 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .spanPomoshnik::after {
-    content: 'ПОСТЫ';
+    content: 'СОЗДАТЬ НОВЫЙ ПОСТ';
+    white-space: nowrap;
     position: absolute;
     left: 0;
     bottom: -15px;
@@ -103,7 +104,14 @@ input[type="search"]::-webkit-input-placeholder {
     row-gap: 10px;
 }
 
+.item{
+    width:175px;
+    overflow: hidden;         
+}
+
 .itemName span {
+    max-width:100%;
+    white-space: nowrap;
     font-style: italic;
     font-size: 12px;
     font-family: 'Montserrat';
@@ -111,16 +119,22 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .select {
+    max-width:100%;
     position: relative;
     font-family: 'Montserrat';
     font-weight: 600;
+    overflow: hidden;         
+    text-overflow: ellipsis;          
 }
 
 .div {
-    position: relative;
+    max-width:100%;
+    position: relative;    
+    z-index: 100;
 }
 
 .div:before {
+    max-width:100%;
     content: '';
     position: absolute;
     bottom: 0;
@@ -131,36 +145,9 @@ input[type="search"]::-webkit-input-placeholder {
     z-index: 100;
 }
 
-.actionButton{
-    margin-left: auto;
-    display: flex;
-    column-gap: 20px;
-}
-
-.iconAdd{
-    position: relative;
-  
-}
-
-.iconAdd:hover::after {
-    content: "Создать";
-    white-space: nowrap;
-    position: absolute;
-    width: 80px;
-    height: 20px;
-    bottom: -120%;
-    left: -120%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3A3A3A;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
-}
-
 .iconSave{
     position: relative;
+    margin-left: auto;
 }
 
 .iconSave:hover::after {
@@ -178,6 +165,7 @@ input[type="search"]::-webkit-input-placeholder {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
 }
 
 .image:hover {

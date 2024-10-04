@@ -24,7 +24,7 @@ export default function SpeedGoalContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => navigate("/start");
-  const newSpeedGoal = () => navigate("newSpeedGoal");
+  const newSpeedGoal = () => navigate("new");
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [nameStrateg, setNameStrateg] = useState("");

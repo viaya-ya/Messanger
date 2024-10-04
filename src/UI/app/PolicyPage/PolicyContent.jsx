@@ -11,7 +11,7 @@ import greySavetmp from "../../image/greySavetmp.svg";
 import iconAdd from "../../image/iconAdd.svg";
 import folder from "../../image/folder.svg";
 import iconSublist from "../../image/iconSublist.svg";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetPoliciesQuery,
   useGetPoliciesIdQuery,
@@ -27,12 +27,11 @@ import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
-  const location = useLocation();
   const back = () => {
     navigate("/start");
   };
   const pathNewPolicy = () => {
-    navigate(`${location.pathname}/newPolicy`);
+    navigate('new');
   };
   const { userId } = useParams();
   const [editorState, setEditorState] = useState(EditorState.createEmpty());

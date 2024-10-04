@@ -269,8 +269,8 @@ textarea::placeholder {
 }
 
 .add {
-    height: 7%;
-    width: 16vw;
+    height: 50px;
+    width: 250px;
     background-color: #ffff;
     border-radius: 10px;
     display: flex;

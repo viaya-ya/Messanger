@@ -13,6 +13,7 @@ import ProjectContent from "../../ProjectPage/ProjectContent";
 import NewPolicy from "../../PolicyPage/NewPolicy";
 import NewGoal from "../../GoalPage/NewGoal";
 import SpeedGoalNew from "../../SpeedGoalPage/SpeedGoalNew";
+import PostNew from "../../PostPage/PostNew";
 
 export default function Content() {
   const location = useLocation();
@@ -23,12 +24,13 @@ export default function Content() {
       <Contact></Contact>
       {location.pathname === "/start" && <Dialog />}
       {location.pathname === "/" + userId + "/goal" && <GoalContent />}
-      {location.pathname === "/" + userId + "/goal/newGoal" && <NewGoal />}
+      {location.pathname === "/" + userId + "/goal/new" && <NewGoal />}
       {location.pathname === "/" + userId + "/policy" && <PolicyContent />}
-      {location.pathname === "/" + userId + "/policy/newPolicy" && <NewPolicy />}
-      {location.pathname === "/posts" && <PostContent />}
+      {location.pathname === "/" + userId + "/policy/new" && <NewPolicy />}
+      {location.pathname === "/" + userId +"/posts" && <PostContent />}
+      {location.pathname === "/" + userId + "/posts/new" && <PostNew />}
       {location.pathname ===  "/" + userId +"/speedgoal" && <SpeedGoalContent />}
-      {location.pathname === "/" + userId + "/speedgoal/newSpeedGoal" && <SpeedGoalNew />}
+      {location.pathname === "/" + userId + "/speedgoal/new" && <SpeedGoalNew />}
       {location.pathname === "/strateg" && <StrategContent />}
       {location.pathname === "/statistics" && <StatisticsContent />}
       {location.pathname === "/project" && <ProjectContent />}

@@ -8,18 +8,15 @@ import VKAuth from "./UI/VKAuth";
 
 function App() {
   return (
-
-  //   <VKAuth 
-  //   apiId="your_api_id"
-  //   callback={(response) => console.log('Авторизация успешна:', response)}
-  //   containerStyle={{ margin: '20px' }}
-  // />
-
+    //   <VKAuth
+    //   apiId="your_api_id"
+    //   callback={(response) => console.log('Авторизация успешна:', response)}
+    //   containerStyle={{ margin: '20px' }}
+    // />
 
     <div>
       <Routes>
-
-      <Route
+        <Route
           path="/vk"
           element={
             <div className="wrapper">
@@ -60,7 +57,7 @@ function App() {
           }
         ></Route>
         <Route
-          path="/:userId/goal/newGoal"
+          path="/:userId/goal/new"
           element={
             <div className="messages">
               <Header></Header>
@@ -69,7 +66,7 @@ function App() {
             </div>
           }
         ></Route>
-          <Route
+        <Route
           path="/:userId/policy"
           element={
             <div className="messages">
@@ -79,8 +76,8 @@ function App() {
             </div>
           }
         ></Route>
-          <Route
-          path="/:userId/policy/newPolicy"
+        <Route
+          path="/:userId/policy/new"
           element={
             <div className="messages">
               <Header></Header>
@@ -89,8 +86,18 @@ function App() {
             </div>
           }
         ></Route>
-           <Route
-          path="/posts"
+        <Route
+          path="/:userId/posts"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/:userId/posts/new"
           element={
             <div className="messages">
               <Header></Header>
@@ -109,8 +116,8 @@ function App() {
             </div>
           }
         ></Route>
-                 <Route
-          path="/:userId/speedgoal/newSpeedGoal"
+        <Route
+          path="/:userId/speedgoal/new"
           element={
             <div className="messages">
               <Header></Header>
@@ -139,7 +146,7 @@ function App() {
             </div>
           }
         ></Route>
-          <Route
+        <Route
           path="/project"
           element={
             <div className="messages">

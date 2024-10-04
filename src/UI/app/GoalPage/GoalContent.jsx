@@ -37,7 +37,7 @@ export default function GoalContent() {
     navigate("/start");
   };
   const newGoal = () => {
-    navigate("newGoal");
+    navigate("new");
   };
 
   const {

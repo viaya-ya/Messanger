@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import classes from "./ProjectContent.module.css";
+import classes from "./ProjectNew.module.css";
 import icon from "../../image/iconHeader.svg";
 import iconBack from "../../image/iconBack.svg";
 import Select from "../../image/Select.svg";
@@ -12,22 +12,38 @@ import galka from "../../image/galka.svg";
 import tgBlack from "../../image/tgBlack.svg";
 import glazikInvisible from "../../image/glazikInvisible.svg";
 import blackStrategy from "../../image/blackStrategy.svg";
-import { useNavigate } from "react-router-dom";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
-import iconAdd from "../../image/iconAdd.svg";
+import CustomSelect from "../../Custom/CustomSelect.jsx";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetProjectNewQuery } from "../../../BLL/projectApi";
 
-export default function ProjectContent() {
+export default function ProjectNew() {
   const navigate = useNavigate();
+  const { userId } = useParams();
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/project`);
   };
-const newProject = () => {
-  navigate("new");
-}
-
-const saveUpdateProject = () => {
-
-}
+  const [type, setType] = useState("");
+  const [worker, setWorker] = useState("");
+  const [strategiya, setStrategiya] = useState("");
+  const [goalToOrganizations, setGoalToOrganizations] = useState([]);
+  const [isGoalToOrganizations, setIsGoalToOrganizations] = useState(false);
+  const {
+    workers = [],
+    strategies = [],
+    organizations = [],
+    isLoadingGetNew,
+    isErrorGetNew,
+  } = useGetProjectNewQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      workers: data?.workers || [],
+      strategies: data?.strategies || [],
+      organizations: data?.organizations || [],
+      isLoadingGetNew: isLoading,
+      isErrorGetNew: isError,
+    }),
+  });
+  const saveProject = () => {};
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -61,34 +77,63 @@ const saveUpdateProject = () => {
               <span>Тип</span>
             </div>
             <div className={classes.div}>
-              <select name="mySelect" className={classes.select}>
-                <option value="">Выберите опцию</option>
-                <option value="option1">Опция 1</option>
-                <option value="option2">Опция 2</option>
+              <select
+                className={classes.select}
+                value={type}
+                onChange={(e) => {
+                  setType(e.target.value);
+                }}
+              >
+                <option value="">Выбрать опцию</option>
+                <option value="Проект">Проект</option>
+                <option value="Программа">Программа</option>
               </select>
             </div>
           </div>
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Создать или выбрать</span>
+              <span>Выбрать стратегию</span>
             </div>
             <div className={classes.div}>
-              <select name="mySelect" className={classes.select}>
+              <select
+                name="mySelect"
+                value={strategiya}
+                onChange={(e) => {
+                  setStrategiya(e.target.value);
+                }}
+                className={classes.select}
+              >
                 <option value="">Выберите опцию</option>
-                <option value="option1">Опция 1</option>
-                <option value="option2">Опция 2</option>
+                {strategies.map((item) => {
+                  return <option value={item.id}>{item.strategyName}</option>;
+                })}
               </select>
             </div>
+          </div>
+          <div className={classes.item}>
+            <CustomSelect
+              organizations={organizations}
+              setPolicyToOrganizations={setGoalToOrganizations}
+              isPolicyToOrganizations={isGoalToOrganizations}
+            ></CustomSelect>
           </div>
           <div className={classes.itemLast}>
             <div className={classes.itemName}>
               <span>Ответственный за выполнение </span>
             </div>
             <div className={classes.div}>
-              <select name="mySelect" className={classes.select}>
+            <select
+                name="mySelect"
+                value={worker}
+                onChange={(e) => {
+                  setWorker(e.target.value);
+                }}
+                className={classes.select}
+              >
                 <option value="">Выберите опцию</option>
-                <option value="option1">Опция 1</option>
-                <option value="option2">Опция 2</option>
+                {workers.map((item) => {
+                  return <option value={item.id}>{`${item.firstName} ${item.lastName} `}</option>;
+                })}
               </select>
             </div>
           </div>
@@ -96,8 +141,13 @@ const saveUpdateProject = () => {
           <div className={classes.blockSelect}>
             <img src={Addlink} alt="Addlink" className={classes.select} />
             <ul className={`${classes.optionNumber}`}>
-              <div className={classes.nameList}>СВЯЗЬ ПРОЕКТА С ЗАДАЧЕЙ ПРОГРАММЫ</div>
-              <div className={classes.blackStrategy}> <img src={blackStrategy} alt="blackStrategy" /> Программа 1 </div>
+              <div className={classes.nameList}>
+                СВЯЗЬ ПРОЕКТА С ЗАДАЧЕЙ ПРОГРАММЫ
+              </div>
+              <div className={classes.blackStrategy}>
+                {" "}
+                <img src={blackStrategy} alt="blackStrategy" /> Программа 1{" "}
+              </div>
               <li> Арендовать помещение под новый </li>
               <li> Разработать дизайн помещения</li>
               <li> Разработать меню для нового </li>
@@ -178,24 +228,14 @@ const saveUpdateProject = () => {
               </li>
             </ul>
           </div>
-         
-          <div className={classes.actionButton}>
-            <div className={classes.iconAdd}>
-              <img
-                src={iconAdd}
-                alt="iconAdd"
-                className={classes.image}
-                onClick={() => newProject()}
-              />
-            </div>
-            <div className={classes.iconSave}>
-              <img
-                src={Blacksavetmp}
-                alt="Blacksavetmp"
-                className={classes.image}
-                onClick={() => saveUpdateProject()}
-              />
-            </div>
+
+          <div className={classes.iconSave}>
+            <img
+              src={Blacksavetmp}
+              alt="Blacksavetmp"
+              className={classes.image}
+              onClick={() => saveProject()}
+            />
           </div>
         </div>
       </div>
@@ -212,7 +252,9 @@ const saveUpdateProject = () => {
                 Готовое к использованию меню нового ресторана
               </td>
               <td className={classes.imageTableColumn}>image</td>
-              <td className={classes.dateTableColumn}><input type="date" /></td>
+              <td className={classes.dateTableColumn}>
+                <input type="date" />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -228,7 +270,9 @@ const saveUpdateProject = () => {
                 Разработать блюда, десерты и напитки для меню нового ресторана.
               </td>
               <td className={classes.imageTableColumn}>image</td>
-              <td className={classes.dateTableColumn}><input type="date" /></td>
+              <td className={classes.dateTableColumn}>
+                <input type="date" />
+              </td>
             </tr>
           </tbody>
         </table>

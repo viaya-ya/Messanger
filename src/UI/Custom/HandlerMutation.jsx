@@ -3,7 +3,7 @@ import classes from "./HandlerMutation.module.css";
 import icon from "../image/iconHeader.svg";
 import error from "../image/error.svg";
 import success from "../image/success.svg";
-export default function HandlerMutation({Loading, Error, Success, textSuccess}) {
+export default function HandlerMutation({Loading, Error, Success, textSuccess, textError}) {
 
   const [showSuccessMutation, setShowSuccessMutation] = useState(false);
   const [showErrorMutation, setShowErrorMutation] = useState(false);
@@ -31,7 +31,7 @@ export default function HandlerMutation({Loading, Error, Success, textSuccess}) 
       // Убираем сообщение через 1 секунду
       const timer = setTimeout(() => {
         setShowErrorMutation(false);
-      }, 1500);
+      }, 2000);
 
       // Чистим таймер при размонтировании компонента или повторном запуске
       return () => clearTimeout(timer);
@@ -52,7 +52,7 @@ export default function HandlerMutation({Loading, Error, Success, textSuccess}) 
         <div className={classes.error}>
           <img src={error} alt="Error" className={classes.errorImage} />
           <span className={classes.spanError}>
-            Ошибка
+            {textError}
           </span>
         </div>
       )}

@@ -10,6 +10,7 @@ import SpeedGoalContent from "../../SpeedGoalPage/SpeedGoalContent";
 import StrategContent from "../../StrategPage/StrategContent";
 import StatisticsContent from "../../StatisticsPage/StatisticsContent";
 import ProjectContent from "../../ProjectPage/ProjectContent";
+import ProjectNew from "../../ProjectPage/ProjectNew";
 import NewPolicy from "../../PolicyPage/NewPolicy";
 import NewGoal from "../../GoalPage/NewGoal";
 import SpeedGoalNew from "../../SpeedGoalPage/SpeedGoalNew";
@@ -33,7 +34,8 @@ export default function Content() {
       {location.pathname === "/" + userId + "/speedgoal/new" && <SpeedGoalNew />}
       {location.pathname === "/strateg" && <StrategContent />}
       {location.pathname === "/statistics" && <StatisticsContent />}
-      {location.pathname === "/project" && <ProjectContent />}
+      {location.pathname === "/" + userId + "/project" && <ProjectContent />}
+      {location.pathname === "/" + userId + "/project/new" && < ProjectNew/>}
     </div>
   );
 }

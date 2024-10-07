@@ -25,9 +25,12 @@ export default function PostContent() {
     navigate("new");
   };
   const [postName, setPostName] = useState(null);
+  const [postNameChanges, setPostNameChanges] = useState(false);
   const [divisionName, setDivisionName] = useState(null);
   const [product, setProduct] = useState(null);
+  const [isProductChanges, setIsProductChanges] = useState(false);
   const [purpose, setPurpose] = useState(null);
+  const [isPurposeChanges, setIsPurposeChanges] = useState(false);
   const [worker, setWorker] = useState(null);
   const [organization, setOrganization] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -79,6 +82,7 @@ export default function PostContent() {
       isLoading: isLoadingUpdatePostMutation,
       isSuccess: isSuccessUpdatePostMutation,
       isError: isErrorUpdatePostMutation,
+      error: ErrorUpdatePostMutation
     },
   ] = useUpdatePostsMutation();
   
@@ -89,6 +93,9 @@ const reset = () => {
   setPurpose(null);
   setWorker(null);
   setOrganization(null);
+  setIsProductChanges(false);
+  setIsPurposeChanges(false);
+  setPostNameChanges(false);
 }
   const saveUpdatePost = async () => {
     // Создаем объект с измененными полями
@@ -101,10 +108,10 @@ const reset = () => {
     if (divisionName !== currentPost.divisionName && divisionName !== null) {
       updatedData.divisionName = divisionName;
     }
-    if (product !== currentPost.product && product !== null) {
+    if (isProductChanges || ( product !== currentPost.product && product !== null)) {
       updatedData.product = product;
     }
-    if (purpose !== currentPost.purpose && purpose !== null) {
+    if (isPurposeChanges || (purpose !== currentPost.purpose && purpose !== null)) {
       updatedData.purpose = purpose;
     }
     if (worker !== currentPost?.user?.id && worker !== null) {
@@ -133,6 +140,7 @@ const reset = () => {
          reset();
         })
         .catch((error) => {
+          reset();
           setManualErrorReset(false);
           console.error("Ошибка:", JSON.stringify(error, null, 2));
         });
@@ -140,7 +148,8 @@ const reset = () => {
       console.log("Нет изменений для обновления");
     }
   };
-
+  console.log(ErrorUpdatePostMutation);
+  console.log(ErrorUpdatePostMutation?.data?.errors[0]?.errors);
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -208,9 +217,10 @@ const reset = () => {
             <div className={classes.div}>
               <input
                 type="text"
-                value={postName || currentPost.postName}
+                value={ postNameChanges ? postName : (postName || currentPost.postName)}
                 onChange={(e) => {
                   setPostName(e.target.value);
+                  setPostNameChanges(true);
                 }}
               />
             </div>
@@ -356,9 +366,10 @@ const reset = () => {
                           <textarea
                             className={classes.Teaxtaera}
                             placeholder="описание продукта поста"
-                            value={product || currentPost.product}
+                            value={ isProductChanges ? product : (product || currentPost.product)}
                             onChange={(e) => {
                               setProduct(e.target.value);
+                              setIsProductChanges(true);
                             }}
                           />
                         </div>
@@ -367,9 +378,10 @@ const reset = () => {
                           <textarea
                             className={classes.Teaxtaera}
                             placeholder="описнаие предназначения поста"
-                            value={purpose || currentPost.purpose}
+                            value={ isPurposeChanges ? purpose : (purpose  || currentPost.purpose)}
                             onChange={(e) => {
                               setPurpose(e.target.value);
+                              setIsPurposeChanges(true);
                             }}
                           />
                         </div>
@@ -390,6 +402,7 @@ const reset = () => {
                             isSuccessUpdatePostMutation && !manualSuccessReset
                           } // Учитываем ручной сброс
                           textSuccess={"Пост обновлен"}
+                          textError={ErrorUpdatePostMutation?.data?.errors[0]?.errors}
                         ></HandlerMutation>
                       </>
                     ) : (

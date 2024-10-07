@@ -59,6 +59,7 @@ export default function PostNew() {
       isLoading: isLoadingPostMutation,
       isSuccess: isSuccessPostMutation,
       isError: isErrorPostMutation,
+      error: ErrorPostMutation
     },
   ] = usePostPostsMutation();
 
@@ -319,6 +320,7 @@ export default function PostNew() {
                     }}
                   />
                 </div>
+                
                 <div className={classes.post}>
                   <img src={blackStatistic} alt="blackStatistic" />
                   <div>
@@ -329,9 +331,10 @@ export default function PostNew() {
                 </div>
                 <HandlerMutation
                   Loading={isLoadingPostMutation}
-                  Error={isErrorPostMutation}isErrorPostMutation
+                  Error={isErrorPostMutation}
                   Success={isSuccessPostMutation}
                   textSuccess={"Пост успешно создан."}
+                  textError={ErrorPostMutation?.data?.errors[0]?.errors}
                 ></HandlerMutation>
               </>
             )}

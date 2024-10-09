@@ -4,6 +4,7 @@ import { goalApi } from './goalApi';
 import { speedGoalApi } from './speedGoalApi';
 import { postApi } from './postApi';
 import { projectApi } from './projectApi';
+import { strategApi } from './strategApi';
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
         [speedGoalApi.reducerPath]: speedGoalApi.reducer,
         [postApi.reducerPath]: postApi.reducer,
         [projectApi.reducerPath]: projectApi.reducer,
+        [strategApi.reducerPath]: strategApi.reducer,
     },
     middleware: (getDefaultMiddlware) => getDefaultMiddlware()
                                                                 .concat(policyApi.middleware)
@@ -19,5 +21,6 @@ export const store = configureStore({
                                                                 .concat(speedGoalApi.middleware)
                                                                 .concat(postApi.middleware)
                                                                 .concat(projectApi.middleware)
+                                                                .concat(strategApi.middleware)
 });
 export default store;

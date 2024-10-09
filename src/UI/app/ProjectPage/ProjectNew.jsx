@@ -13,9 +13,13 @@ import tgBlack from "../../image/tgBlack.svg";
 import glazikInvisible from "../../image/glazikInvisible.svg";
 import blackStrategy from "../../image/blackStrategy.svg";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
+import addCircle from "../../image/addCircle.svg";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetProjectNewQuery } from "../../../BLL/projectApi";
+import {
+  useGetProjectNewQuery,
+  usePostProjectMutation,
+} from "../../../BLL/projectApi";
 
 export default function ProjectNew() {
   const navigate = useNavigate();
@@ -26,8 +30,14 @@ export default function ProjectNew() {
   const [type, setType] = useState("");
   const [worker, setWorker] = useState("");
   const [strategiya, setStrategiya] = useState("");
-  const [goalToOrganizations, setGoalToOrganizations] = useState([]);
-  const [isGoalToOrganizations, setIsGoalToOrganizations] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [statistics, setStatistics] = useState([]);
+  const [commons, setCommons] = useState([]);
+  const [projectToOrganizations, setProjectToOrganizations] = useState([]);
+  const [isProjectToOrganizations, setIsProjectToOrganizations] =
+    useState(false);
+
   const {
     workers = [],
     strategies = [],
@@ -43,7 +53,112 @@ export default function ProjectNew() {
       isErrorGetNew: isError,
     }),
   });
-  const saveProject = () => {};
+
+  const [
+    postProject,
+    {
+      isLoading: isLoadingProjectMutation,
+      isSuccess: isSuccessProjectMutation,
+      isError: isErrorProjectMutation,
+    },
+  ] = usePostProjectMutation();
+
+  const reset = () => {
+    setIsProjectToOrganizations(true);
+  };
+
+  const saveProject = async () => {
+    await postProject({
+      userId,
+      programId: "b6ed2664-9510-4a47-9117-6ce89903b4b5",
+      content: "null",
+      type: type,
+      projectToOrganizations: projectToOrganizations,
+      strategyId: strategiya,
+      targetCreateDtos: [...products, ...tasks, ...statistics, ...commons],
+    })
+      .unwrap()
+      .then(() => {
+        reset();
+      })
+      .catch((error) => {
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
+  };
+
+  const addProducts = () => {
+    setProducts((prevState) => {
+      const index = prevState.length + 1; // Генерация index на основе длины массива
+
+      return [
+        ...prevState,
+        {
+          id: index - 1,
+          type: "Продукт",
+          productNumber: index,
+          content: "",
+          holderUserId: "",
+          deadline: "",
+        },
+      ];
+    });
+  };
+
+  const addTasks = () => {
+    setTasks((prevState) => {
+      const index = prevState.length + 1; // Генерация index на основе длины массива
+
+      return [
+        ...prevState,
+        {
+          id: index - 1,
+          type: "Задачи",
+          ruleNumber: index,
+          content: "",
+          holderUserId: "",
+          deadline: "",
+        },
+      ];
+    });
+  };
+
+  const addCommon = () => {
+    setCommons((prevState) => {
+      const index = prevState.length + 1; // Генерация index на основе длины массива
+
+      return [
+        ...prevState,
+        {
+          id: index - 1,
+          type: "Обычная",
+          commonNumber: index,
+          content: "",
+          holderUserId: "",
+          deadline: "",
+        },
+      ];
+    });
+  };
+
+  const addStatistics = () => {
+    setStatistics((prevState) => {
+      const index = prevState.length + 1; // Генерация index на основе длины массива
+
+      return [
+        ...prevState,
+        {
+          id: index - 1,
+          type: "Сатистика",
+          statisticNumber: index,
+          content: "",
+          holderUserId: "",
+          deadline: "",
+        },
+      ];
+    });
+  };
+
+  // console.log(JSON.stringify(products));
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -113,29 +228,9 @@ export default function ProjectNew() {
           <div className={classes.item}>
             <CustomSelect
               organizations={organizations}
-              setPolicyToOrganizations={setGoalToOrganizations}
-              isPolicyToOrganizations={isGoalToOrganizations}
+              setPolicyToOrganizations={setProjectToOrganizations}
+              isPolicyToOrganizations={isProjectToOrganizations}
             ></CustomSelect>
-          </div>
-          <div className={classes.itemLast}>
-            <div className={classes.itemName}>
-              <span>Ответственный за выполнение </span>
-            </div>
-            <div className={classes.div}>
-            <select
-                name="mySelect"
-                value={worker}
-                onChange={(e) => {
-                  setWorker(e.target.value);
-                }}
-                className={classes.select}
-              >
-                <option value="">Выберите опцию</option>
-                {workers.map((item) => {
-                  return <option value={item.id}>{`${item.firstName} ${item.lastName} `}</option>;
-                })}
-              </select>
-            </div>
           </div>
 
           <div className={classes.blockSelect}>
@@ -243,37 +338,258 @@ export default function ProjectNew() {
       <div className={classes.main}>
         <table className={classes.table}>
           <caption>
-            <div>ПРОДУКТ</div>
+            <div className={classes.nameRow}>
+              <div>ПРОДУКТ</div>
+              <img
+                src={addCircle}
+                alt="addCircle"
+                onClick={() => addProducts()}
+              />
+            </div>
           </caption>
           <tbody>
-            <tr>
-              <td className={classes.numberTableColumn}>1</td>
-              <td className={classes.nameTableColumn}>
-                Готовое к использованию меню нового ресторана
-              </td>
-              <td className={classes.imageTableColumn}>image</td>
-              <td className={classes.dateTableColumn}>
-                <input type="date" />
-              </td>
-            </tr>
+            {products.map((item) => {
+              return (
+                <tr>
+                  <td className={classes.numberTableColumn}>
+                    {item.productNumber}
+                  </td>
+                  <td className={classes.nameTableColumn}>
+                    <input
+                      type="text"
+                      value={item.content}
+                      onChange={(e) => {
+                        const updatedProducts = [...products];
+                        updatedProducts[item.id].content = e.target.value;
+                        setProducts(updatedProducts);
+                      }}
+                    />
+                  </td>
+                  <td className={classes.imageTableColumn}>
+                    <select
+                      name="mySelect"
+                      value={item.holderUserId}
+                      onChange={(e) => {
+                        const updatedProducts = [...products];
+                        updatedProducts[item.id].holderUserId = e.target.value;
+                        setProducts(updatedProducts);
+                      }}
+                      className={classes.select}
+                    >
+                      <option value="">Выберите опцию</option>
+                      {workers.map((item) => {
+                        return (
+                          <option
+                            value={item.id}
+                          >{`${item.firstName} ${item.lastName} `}</option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                  <td className={classes.dateTableColumn}>
+                    <input
+                      type="date"
+                      value={item.deadline}
+                      onChange={(e) => {
+                        const updatedProducts = [...products];
+                        updatedProducts[item.id].deadline = e.target.value;
+                        setProducts(updatedProducts);
+                      }}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
         <table className={classes.table}>
           <caption>
-            <div>ЗАДАЧИ</div>
+            <div className={classes.nameRow}>
+              <div>ЗАДАЧИ</div>
+              <img src={addCircle} alt="addCircle" onClick={() => addTasks()} />
+            </div>
           </caption>
           <tbody>
-            <tr>
-              <td className={classes.numberTableColumn}>1</td>
-              <td className={classes.nameTableColumn}>
-                Разработать блюда, десерты и напитки для меню нового ресторана.
-              </td>
-              <td className={classes.imageTableColumn}>image</td>
-              <td className={classes.dateTableColumn}>
-                <input type="date" />
-              </td>
-            </tr>
+            {tasks.map((item) => {
+              return (
+                <tr>
+                  <td className={classes.numberTableColumn}>
+                    {item.ruleNumber}
+                  </td>
+                  <td className={classes.nameTableColumn}>
+                    <input
+                      type="text"
+                      value={item.content}
+                      onChange={(e) => {
+                        const updated = [...tasks];
+                        updated[item.id].content = e.target.value;
+                        setTasks(updated);
+                      }}
+                    />
+                  </td>
+                  <td className={classes.imageTableColumn}>
+                    <select
+                      name="mySelect"
+                      value={item.holderUserId}
+                      onChange={(e) => {
+                        const updated = [...tasks];
+                        updated[item.id].holderUserId = e.target.value;
+                        setTasks(updated);
+                      }}
+                      className={classes.select}
+                    >
+                      <option value="">Выберите опцию</option>
+                      {workers.map((item) => {
+                        return (
+                          <option
+                            value={item.id}
+                          >{`${item.firstName} ${item.lastName} `}</option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                  <td className={classes.dateTableColumn}>
+                    <input
+                      type="date"
+                      value={item.deadline}
+                      onChange={(e) => {
+                        const updated = [...tasks];
+                        updated[item.id].deadline = e.target.value;
+                        setTasks(updated);
+                      }}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <table className={classes.table}>
+          <caption>
+
+            <div className={classes.nameRow}>
+              <div>Обычная</div>
+              <img src={addCircle} alt="addCircle" onClick={() => addCommon()} />
+            </div>
+          </caption>
+          <tbody>
+            {commons.map((item) => {
+              return (
+                <tr>
+                  <td className={classes.numberTableColumn}>
+                    {item.commonNumber}
+                  </td>
+                  <td className={classes.nameTableColumn}>
+                    <input
+                      type="text"
+                      value={item.content}
+                      onChange={(e) => {
+                        const updated = [...commons];
+                        updated[item.id].content = e.target.value;
+                        setCommons(updated);
+                      }}
+                    />
+                  </td>
+                  <td className={classes.imageTableColumn}>
+                    <select
+                      name="mySelect"
+                      value={item.holderUserId}
+                      onChange={(e) => {
+                        const updatedProducts = [...commons];
+                        updatedProducts[item.id].holderUserId = e.target.value;
+                        setCommons(updatedProducts);
+                      }}
+                      className={classes.select}
+                    >
+                      <option value="">Выберите опцию</option>
+                      {workers.map((item) => {
+                        return (
+                          <option
+                            value={item.id}
+                          >{`${item.firstName} ${item.lastName} `}</option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                  <td className={classes.dateTableColumn}>
+                    <input
+                      type="date"
+                      value={item.deadline}
+                      onChange={(e) => {
+                        const updated = [...commons];
+                        updated[item.id].deadline = e.target.value;
+                        setCommons(updated);
+                      }}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <table className={classes.table}>
+          <caption>
+            <div className={classes.nameRow}>
+              <div>Статистика</div>
+              <img src={addCircle} alt="addCircle" onClick={() => addStatistics()} />
+            </div>
+          </caption>
+          <tbody>
+            {statistics.map((item) => {
+              return (
+                <tr>
+                  <td className={classes.numberTableColumn}>
+                    {item.statisticNumber}
+                  </td>
+                  <td className={classes.nameTableColumn}>
+                    <input
+                      type="text"
+                      value={item.content}
+                      onChange={(e) => {
+                        const updated = [...statistics];
+                        updated[item.id].content = e.target.value;
+                        setStatistics(updated);
+                      }}
+                    />
+                  </td>
+                  <td className={classes.imageTableColumn}>
+                    <select
+                      name="mySelect"
+                      value={item.holderUserId}
+                      onChange={(e) => {
+                        const updated = [...statistics];
+                        updated[item.id].holderUserId = e.target.value;
+                        setStatistics(updated);
+                      }}
+                      className={classes.select}
+                    >
+                      <option value="">Выберите опцию</option>
+                      {workers.map((item) => {
+                        return (
+                          <option
+                            value={item.id}
+                          >{`${item.firstName} ${item.lastName} `}</option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                  <td className={classes.dateTableColumn}>
+                    <input
+                      type="date"
+                      value={item.deadline}
+                      onChange={(e) => {
+                        const updated = [...statistics];
+                        updated[item.id].deadline = e.target.value;
+                        setStatistics(updated);
+                      }}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

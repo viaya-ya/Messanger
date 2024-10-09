@@ -127,7 +127,17 @@ function App() {
           }
         ></Route>
         <Route
-          path="/strateg"
+          path="/:userId/strateg"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+         <Route
+          path="/:userId/strateg/new"
           element={
             <div className="messages">
               <Header></Header>

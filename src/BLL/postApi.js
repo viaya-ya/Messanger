@@ -9,7 +9,7 @@ export const postApi = createApi({
       query: (userId = "") => ({
         url: `${userId}/posts`,
       }),
-      providesTags: (result, error, userId) => [{ type: "Post", id: "LIST" }],
+      providesTags: (result, error, userId) =>  [{ type: "Post", id: "LIST" }],
     }),
 
     postPosts: build.mutation({

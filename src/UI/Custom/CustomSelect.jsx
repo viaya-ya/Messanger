@@ -7,10 +7,10 @@ export default function CustomSelect({ organizations, selectOrganizations, setPo
   const selectRef = useRef(null);
 
   useEffect(() => {
-    console.log(selectOrganizations);
     const array = selectOrganizations?.map((item) => item.organization.id)
     if (selectOrganizations) {
       setSelectedItems(array);
+      setPolicyToOrganizations(array);
     }
   }, [selectOrganizations]);
 

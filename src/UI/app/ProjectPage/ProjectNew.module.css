@@ -103,11 +103,11 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .item {
-    margin-right: 10%;
+    margin-right: 20px;
 }
 
 .itemLast {
-    margin-right: 4%;
+    margin-right: 50px;
 }
 
 .nameList {
@@ -136,7 +136,7 @@ input[type="search"]::-webkit-input-placeholder {
     border-radius: 20%;
 }
 
-.optionNumber li:nth-child(n+2):after{
+.optionNumber li:nth-child(n+2):after {
     content: counter(item);
     position: absolute;
     bottom: 0;
@@ -157,22 +157,25 @@ input[type="search"]::-webkit-input-placeholder {
     cursor: pointer;
     padding: 5px;
     padding-bottom: 8px;
-    & .blackStrategy{
+
+    & .blackStrategy {
         margin-top: 10px;
         margin-bottom: 15px;
         font-family: 'Montserrat';
         font-weight: 400;
         font-size: 14px;
     }
-    & .blackStrategy:before{
+
+    & .blackStrategy:before {
         content: '';
         position: absolute;
         height: 1px;
         width: 98%;
         bottom: 0;
         top: 45px;
-        background-color:rgb(240, 240, 240);
+        background-color: rgb(240, 240, 240);
     }
+
     & li {
         margin-left: 15px;
         counter-increment: item;
@@ -205,6 +208,7 @@ input[type="search"]::-webkit-input-placeholder {
     height: 20px;
     background-color: rgb(240, 240, 240)
 }
+
 .optionNumber li:before {
     content: '';
     position: absolute;
@@ -279,7 +283,7 @@ input[type="search"]::-webkit-input-placeholder {
     display: block;
 }
 
-.iconSave{
+.iconSave {
     position: relative;
     margin-left: auto;
 }
@@ -301,6 +305,7 @@ input[type="search"]::-webkit-input-placeholder {
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
+
 .image:hover {
     background-color: rgb(240, 240, 240);
     border-radius: 20%;
@@ -338,6 +343,7 @@ input[type="search"]::-webkit-input-placeholder {
 .main {
     height: 82%;
     max-height: 80vh;
+    width: 100%;
     overflow-y: auto;
     /* scrollbar-width: thin;
     scrollbar-color: #005475 #FFFFFF; */
@@ -354,7 +360,7 @@ input[type="search"]::-webkit-input-placeholder {
     width: 100%;
 
     & caption {
-        height: 3vh;
+        height: 25px;
         font-family: 'Montserrat';
         font-size: 16px;
         font-weight: 600;
@@ -362,15 +368,29 @@ input[type="search"]::-webkit-input-placeholder {
     }
 
     & tr {
-        height: 3vh;
+        height: 25px;
     }
 
-    & caption div {
+    & .nameRow {
         height: 100%;
+        width: 100%;
         display: flex;
+        flex-direction: row;
         justify-content: center;
         align-items: center;
         color: #ffff;
+        position: relative;
+
+        & img {
+            position: absolute;
+            right: 0;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        & img:hover {
+            background-color:#14688a;
+            border-radius: 20%;
+        }
     }
 
     & tbody {
@@ -381,7 +401,9 @@ input[type="search"]::-webkit-input-placeholder {
         text-align: center;
         background: #ffff;
     }
-
+    input{
+        width: 100%;
+    }
     & .numberTableColumn {
         width: 2%;
     }

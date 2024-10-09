@@ -193,6 +193,8 @@ const reset = () => {
                 className={classes.select}
                 value={selectedPostId || ""}
                 onChange={(e) => {
+                  setManualSuccessReset(true);
+                  setManualErrorReset(true);
                   setSelectedPostId(e.target.value);
                   console.log(e.target.value);
                 }}

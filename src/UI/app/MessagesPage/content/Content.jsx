@@ -15,6 +15,7 @@ import NewPolicy from "../../PolicyPage/NewPolicy";
 import NewGoal from "../../GoalPage/NewGoal";
 import SpeedGoalNew from "../../SpeedGoalPage/SpeedGoalNew";
 import PostNew from "../../PostPage/PostNew";
+import StrategNew from "../../StrategPage/StrategNew";
 
 export default function Content() {
   const location = useLocation();
@@ -32,7 +33,8 @@ export default function Content() {
       {location.pathname === "/" + userId + "/posts/new" && <PostNew />}
       {location.pathname ===  "/" + userId +"/speedgoal" && <SpeedGoalContent />}
       {location.pathname === "/" + userId + "/speedgoal/new" && <SpeedGoalNew />}
-      {location.pathname === "/strateg" && <StrategContent />}
+      {location.pathname ===  "/" + userId + "/strateg" && <StrategContent />}
+      {location.pathname === "/" + userId + "/strateg/new" && <StrategNew />}
       {location.pathname === "/statistics" && <StatisticsContent />}
       {location.pathname === "/" + userId + "/project" && <ProjectContent />}
       {location.pathname === "/" + userId + "/project/new" && < ProjectNew/>}

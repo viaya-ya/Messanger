@@ -54,7 +54,11 @@ export default function CustomSelect({ organizations, selectOrganizations, setPo
       <div className="select-header" onClick={toggleDropdown}>
         {selectedItems.length > 0
           ? `Выбрано: ${selectedItems.length}`
-          : 'Организации'}
+          :(
+            <>
+              Организации <span style={{ color: "red" }}>*</span>
+            </>
+          ) } 
         <span className={`arrow ${isOpen ? 'open' : ''}`}>
           ▼
         </span>

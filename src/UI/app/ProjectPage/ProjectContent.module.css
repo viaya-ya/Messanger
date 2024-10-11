@@ -8,7 +8,7 @@
 }
 
 .header {
-    height: 18%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
@@ -16,7 +16,7 @@
 }
 
 .fon {
-    height: 25%;
+    height: 40px;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
@@ -93,13 +93,15 @@ input[type="search"]::-webkit-input-placeholder {
 
 .editText {
     padding: 0.1% 2%;
-    height: 34%;
-    width: 100%;
+    max-width: 100%;
     background-color: #ffff;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    flex-wrap: wrap;
+    column-gap: 40px;
+    row-gap: 10px;
 }
 
 .item {
@@ -314,11 +316,10 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .main {
-    height: 82%;
-    max-height: 80vh;
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 1;
     overflow-y: auto;
-    /* scrollbar-width: thin;
-    scrollbar-color: #005475 #FFFFFF; */
     background-color: #B4B4B4;
     padding-top: 1%;
     padding-bottom: 1%;
@@ -381,7 +382,7 @@ input[type="search"]::-webkit-input-placeholder {
     width: 100%;
 
     & caption {
-        height: 3vh;
+        height: 25px;
         font-family: 'Montserrat';
         font-size: 16px;
         font-weight: 600;
@@ -389,15 +390,29 @@ input[type="search"]::-webkit-input-placeholder {
     }
 
     & tr {
-        height: 3vh;
+        height: 25px;
     }
 
-    & caption div {
+    & .nameRow {
         height: 100%;
+        width: 100%;
         display: flex;
+        flex-direction: row;
         justify-content: center;
         align-items: center;
         color: #ffff;
+        position: relative;
+
+        & img {
+            position: absolute;
+            right: 0;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        & img:hover {
+            background-color:#14688a;
+            border-radius: 20%;
+        }
     }
 
     & tbody {
@@ -408,14 +423,16 @@ input[type="search"]::-webkit-input-placeholder {
         text-align: center;
         background: #ffff;
     }
-
+    input{
+        width: 100%;
+    }
     & .numberTableColumn {
         width: 2%;
     }
 
     & .nameTableColumn {
         text-align: start;
-        width: 82%;
+        width: 76%;
     }
 
     & .imageTableColumn {
@@ -424,5 +441,14 @@ input[type="search"]::-webkit-input-placeholder {
 
     & .dateTableColumn {
         width: 8%;
+    }
+
+    & .imageTableColumn {
+        width: 2%;
+       & :hover{
+        background-color: rgb(240, 240, 240);
+        border-radius: 20%;
+        cursor: pointer;
+        }
     }
 }

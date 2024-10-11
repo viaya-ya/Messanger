@@ -13,7 +13,7 @@ import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
-import classNames from 'classnames';
+import classNames from "classnames";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 
@@ -24,11 +24,9 @@ export default function GoalContent() {
     navigate(`/${userId}/goal`);
   };
 
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
-  const [name, setName] = useState("");
-  const [goalToOrganizations, setGoalToOrganizations] = useState([]);
-  const [isGoalToOrganizations, setIsGoalToOrganizations] = useState(false);
+  const [editorState, setEditorState] = useState([EditorState.createEmpty()]);
+  const [htmlContent, setHtmlContent] = useState([]);
+  const [organization, setOrganization] = useState("");
 
   const {
     organizations = [],
@@ -42,33 +40,44 @@ export default function GoalContent() {
     }),
   });
 
-  const [postGoal,     {
-    isLoading: isLoadingPostGoalMutation,
-    isSuccess: isSuccessPostGoalMutation,
-    isError: isErrorPostGoalMutation,
-  },] = usePostGoalMutation();
+  const [
+    postGoal,
+    {
+      isLoading: isLoadingPostGoalMutation,
+      isSuccess: isSuccessPostGoalMutation,
+      isError: isErrorPostGoalMutation,
+      error: Error,
+    },
+  ] = usePostGoalMutation();
 
   useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-    console.log(rawContent);
+    editorState.forEach((item, index) => {
+      const rawContent = draftToHtml(convertToRaw(item.getCurrentContent()));
+      setHtmlContent((prev) => {
+        const updated = [...prev];
+        updated[index] = rawContent;
+        return updated;
+      });
+    });
   }, [editorState]);
 
+  const addEditor = () => {
+    setEditorState((prevEditors) => [
+      ...prevEditors,
+      EditorState.createEmpty(),
+    ]);
+  };
+
   const reset = () => {
-    setName("");
-    setIsGoalToOrganizations(true);
-    setEditorState(EditorState.createEmpty());
-  }
+    setOrganization("");
+    setEditorState([EditorState.createEmpty()]);
+  };
 
   const saveGoal = async () => {
     await postGoal({
       userId,
-      goalName: name,
-      orderNumber: 1,
       content: htmlContent,
-      goalToOrganizations: goalToOrganizations,
+      organizationId: organization,
     })
       .unwrap()
       .then(() => {
@@ -113,35 +122,35 @@ export default function GoalContent() {
 
         <div className={classes.editText}>
           <div className={classes.five}>
-            <CustomSelect
-              organizations={organizations}
-              setPolicyToOrganizations={setGoalToOrganizations}
-              isPolicyToOrganizations={isGoalToOrganizations}
-            ></CustomSelect>
+            <select
+              value={organization}
+              onChange={(e) => {
+                setOrganization(e.target.value);
+              }}
+              className={classes.select}
+            >
+              <option value=""> Выберите организацию</option>
+              {organizations.map((item) => {
+                return <option value={item.id}>{item.organizationName}</option>;
+              })}
+            </select>
           </div>
 
-          <div className={classes.four}>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Название цели компании"
-            />
-          </div>
-          
+          <div className={classes.four}></div>
+
           <div className={classNames(classes.blockIconSavetmp)}>
             <img
-            src={Blacksavetmp}
-            alt="Blacksavetmp"
-            className={classNames(classes.image, classes.blockIconSavetmp)}
-            onClick={() => saveGoal()}
-          /> 
+              src={Blacksavetmp}
+              alt="Blacksavetmp"
+              className={classNames(classes.image, classes.blockIconSavetmp)}
+              onClick={() => saveGoal()}
+            />
           </div>
-         
-         <div className={classNames(classes.blockIconPrint)}>
-           <img src={print} alt="print" className={classes.image} />
-         </div>
-         
+
+          <div className={classNames(classes.blockIconPrint)}>
+            <img src={print} alt="print" className={classes.image} />
+          </div>
+
           <div className={classes.blockSelect}>
             <img src={Select} alt="Select" className={classes.select} />
             <ul className={classes.option}>
@@ -290,7 +299,6 @@ export default function GoalContent() {
         </div>
       </div>
 
-
       <div className={classes.main}>
         {isErrorNewGoal ? (
           <HandlerQeury Error={isErrorNewGoal}></HandlerQeury>
@@ -300,15 +308,49 @@ export default function GoalContent() {
               <HandlerQeury Loading={isLoadingNewGoal}></HandlerQeury>
             ) : (
               <>
-                <MyEditor
-                  editorState={editorState}
-                  setEditorState={setEditorState}
-                />
+                {editorState.map((item, index) => (
+                  <MyEditor
+                    key={index}
+                    editorState={item}
+                    setEditorState={(newState) => {
+                      const updatedState = [...editorState];
+                      updatedState[index] = newState;
+                      setEditorState(updatedState);
+                    }}
+                  />
+                ))}
+                <button className={classes.add} onClick={addEditor}>
+                  <svg
+                    width="19.998047"
+                    height="20.000000"
+                    viewBox="0 0 19.998 20"
+                    fill="none"
+                  >
+                    <defs />
+                    <path
+                      id="Vector"
+                      d="M10 20C4.47 19.99 0 15.52 0 10L0 9.8C0.1 4.3 4.63 -0.08 10.13 0C15.62 0.07 20.03 4.56 19.99 10.06C19.96 15.56 15.49 19.99 10 20ZM5 9L5 11L9 11L9 15L11 15L11 11L15 11L15 9L11 9L11 5L9 5L9 9L5 9Z"
+                      fill="#B4B4B4"
+                      fill-opacity="1.000000"
+                      fill-rule="nonzero"
+                    />
+                  </svg>
+
+                  <div>
+                    <span className={classes.nameButton}>
+                      {" "}
+                      Добавить еще одну цель
+                    </span>
+                  </div>
+                </button>
                 <HandlerMutation
                   Loading={isLoadingPostGoalMutation}
                   Error={isErrorPostGoalMutation}
                   Success={isSuccessPostGoalMutation}
                   textSuccess={"Цель успешно создана."}
+                  textError={
+                    Error?.data?.errors[0]?.errors[0]
+                  }
                 ></HandlerMutation>
               </>
             )}

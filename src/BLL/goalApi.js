@@ -9,6 +9,12 @@ export const goalApi = createApi({
       query: (userId = "") => ({
         url: `${userId}/goals`,
       }),
+      transformResponse: (response) => {
+        console.log(response); // Отладка ответа
+        return {
+         respone: response || [],
+        };
+      },
       providesTags: (result) =>
         result && Array.isArray(result.organizations)
           ? [
@@ -39,6 +45,7 @@ export const goalApi = createApi({
       providesTags: (result, error, { goalId }) =>
         result ? [{ type: "Goal", id: goalId }] : [],
     }),
+    
     postGoal: build.mutation({
       query: ({ userId, ...body }) => ({
         url: `${userId}/goals/new`,

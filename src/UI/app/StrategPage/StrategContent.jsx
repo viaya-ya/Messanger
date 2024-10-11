@@ -304,7 +304,7 @@ export default function StrategContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Стратегия обновлена"}
                           textError={
-                            ErrorUpdateStrategMutation?.data?.errors[0]?.errors
+                            ErrorUpdateStrategMutation?.data?.errors[0]?.errors[0]
                           }
                         ></HandlerMutation>
                       </>

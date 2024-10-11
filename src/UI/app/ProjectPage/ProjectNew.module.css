@@ -341,12 +341,11 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .main {
+    position: relative;
     height: 82%;
     max-height: 80vh;
     width: 100%;
     overflow-y: auto;
-    /* scrollbar-width: thin;
-    scrollbar-color: #005475 #FFFFFF; */
     background-color: #B4B4B4;
     padding-top: 1%;
     padding-bottom: 1%;
@@ -410,7 +409,7 @@ input[type="search"]::-webkit-input-placeholder {
 
     & .nameTableColumn {
         text-align: start;
-        width: 82%;
+        width: 76%;
     }
 
     & .imageTableColumn {
@@ -419,5 +418,14 @@ input[type="search"]::-webkit-input-placeholder {
 
     & .dateTableColumn {
         width: 8%;
+    }
+
+    & .imageTableColumn {
+        width: 2%;
+       & :hover{
+        background-color: rgb(240, 240, 240);
+        border-radius: 20%;
+        cursor: pointer;
+        }
     }
 }

@@ -404,7 +404,7 @@ const reset = () => {
                             isSuccessUpdatePostMutation && !manualSuccessReset
                           } // Учитываем ручной сброс
                           textSuccess={"Пост обновлен"}
-                          textError={ErrorUpdatePostMutation?.data?.errors[0]?.errors}
+                          textError={ErrorUpdatePostMutation?.data?.errors[0]?.errors[0]}
                         ></HandlerMutation>
                       </>
                     ) : (

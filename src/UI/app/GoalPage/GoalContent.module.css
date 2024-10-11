@@ -315,7 +315,18 @@ background-color: rgb(240, 240, 240)
     align-items: center;
     row-gap: 1%;
 }
-
+.editorContainer {
+    margin-top: 20px;
+    position: relative; /* Это позволит дочернему элементу быть позиционированным относительно этого контейнера */
+    margin-bottom: 16px; /* Расстояние между редакторами */
+  }
+  
+  .deleteIcon {
+    position: absolute; /* Позиционируем элемент абсолютно */
+    top: -25px; /* Расстояние от верхней части контейнера */
+    right: -30px; /* Расстояние от правой части контейнера */
+    cursor: pointer; /* Изменяем курсор при наведении на иконку */
+  }
 .Teaxtaera {
     min-width: 50%;
     min-height: 10vw;

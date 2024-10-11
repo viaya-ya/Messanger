@@ -89,6 +89,7 @@ export default function PolicyContent() {
       isLoading: isLoadingUpdatePoliciesMutation,
       isSuccess: isSuccessUpdatePoliciesMutation,
       isError: isErrorUpdatePoliciesMutation,
+      error: Error,
     },
   ] = useUpdatePoliciesMutation();
 
@@ -131,7 +132,7 @@ export default function PolicyContent() {
     await updatePolicy({
       userId,
       policyId: selectedPolicyId,
-      id: userId,
+      _id: userId,
       policyName: policyName,
       state: state,
       type: type,
@@ -154,6 +155,7 @@ export default function PolicyContent() {
     setManualSuccessReset(true);
     setManualErrorReset(true);
   };
+  
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -354,6 +356,7 @@ export default function PolicyContent() {
                             !manualSuccessReset
                           }
                           textSuccess={"Политика обновлена"}
+                          textError={Error?.data?.errors[0]?.errors[0]}
                         ></HandlerMutation>
                       </>
                     ) : (

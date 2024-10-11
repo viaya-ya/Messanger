@@ -190,7 +190,7 @@ export default function StrategNew() {
                   Error={isErrorPostStrateg}
                   Success={isSuccessPostStrateg}
                   textSuccess={"Пост успешно создан."}
-                  textError={ErrorPostStrateg?.data?.errors[0]?.errors}
+                  textError={ErrorPostStrateg?.data?.errors[0]?.errors[0]}
                 ></HandlerMutation>
               </>
             )}

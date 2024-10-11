@@ -34,7 +34,7 @@ export const strategApi = createApi({
       }),
       transformResponse: (response) => ({ 
         currentStrategy: response?.currentStrategy || {}, 
-        organizations: response?.organizations || {} 
+        organizations: response?.organizations || [] 
       }),
       providesTags: (result, error,  {strategyId}) => result ? [{type: "Strateg1", id: strategyId }]: []
     }),

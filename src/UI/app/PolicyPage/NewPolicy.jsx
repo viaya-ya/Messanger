@@ -54,6 +54,7 @@ export default function NewPolicy() {
       isLoading: isLoadingPostPoliciesMutation,
       isSuccess: isSuccessPostPoliciesMutation,
       isError: isErrorPostPoliciesMutation,
+      error: Error,
     },
   ] = usePostPoliciesMutation();
 
@@ -211,6 +212,7 @@ export default function NewPolicy() {
                   Error={isErrorPostPoliciesMutation}
                   Success={isSuccessPostPoliciesMutation}
                   textSuccess={"Политика успешно создана."}
+                  textError={Error?.data?.errors[0]?.errors[0]}
                 ></HandlerMutation>
               </>
             )}

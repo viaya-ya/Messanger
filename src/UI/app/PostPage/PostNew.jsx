@@ -334,7 +334,7 @@ export default function PostNew() {
                   Error={isErrorPostMutation}
                   Success={isSuccessPostMutation}
                   textSuccess={"Пост успешно создан."}
-                  textError={ErrorPostMutation?.data?.errors[0]?.errors}
+                  textError={ErrorPostMutation?.data?.errors[0]?.errors[0]}
                 ></HandlerMutation>
               </>
             )}

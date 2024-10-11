@@ -8,6 +8,7 @@ import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import print from "../../image/print.svg";
 import iconAdd from "../../image/iconAdd.svg";
 import MyEditor from "../../Custom/MyEditor";
+import deleteImage from "../../image/delete.svg";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
@@ -24,21 +25,19 @@ import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 export default function GoalContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const [name, setName] = useState();
-  const [updateName, setUpdateName] = useState("");
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
-  const [selectedGoalId, setSelectedGoalId] = useState(null);
-  const [goalToOrganizations, setGoalToOrganizations] = useState([]);
-   // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
-   const [manualSuccessReset, setManualSuccessReset] = useState(false);
-   const [manualErrorReset, setManualErrorReset] = useState(false);
   const back = () => {
     navigate("/start");
   };
   const newGoal = () => {
     navigate("new");
   };
+
+  const [editorState, setEditorState] = useState([]);
+  const [htmlContent, setHtmlContent] = useState([]);
+  const [selectedGoalId, setSelectedGoalId] = useState(null);
+  // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
+  const [manualSuccessReset, setManualSuccessReset] = useState(false);
+  const [manualErrorReset, setManualErrorReset] = useState(false);
 
   const {
     data = [],
@@ -47,7 +46,7 @@ export default function GoalContent() {
     isFetchingGetGoal,
   } = useGetGoalQuery(userId, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-      data: data || [],
+      data: data?.respone || [],
       isErrorGetGoal: isError,
       isLoadingGetGoal: isLoading,
       isFetchingGetGoal: isFetching,
@@ -80,58 +79,73 @@ export default function GoalContent() {
       isLoading: isLoadingUpdateGoalMutation,
       isSuccess: isSuccessUpdateGoalMutation,
       isError: isErrorUpdateGoalMutation,
+      error: Error,
     },
   ] = useUpdateGoalMutation();
+
+  useEffect(() => {
+    if (Array.isArray(currentGoal.content)) {
+      const editorState = currentGoal.content.map((item) => {
+        if (typeof item === "string" && item.trim()) {
+          const contentBlocks = convertFromHTML(item);
+          return EditorState.createWithContent(
+            ContentState.createFromBlockArray(contentBlocks)
+          );
+        }
+        return EditorState.createEmpty();
+      });
+      setEditorState(editorState);
+    }
+  }, [currentGoal]);
+
+  useEffect(() => {
+    setHtmlContent(
+      editorState.map((editor) =>
+        draftToHtml(convertToRaw(editor.getCurrentContent()))
+      )
+    );
+  }, [editorState]);
+
+  const getGoalId = (id) => {
+    setSelectedGoalId(id);
+    // Сбрасываем флаги состояния успеха и ошибки при смене цели
+    setManualSuccessReset(true);
+    setManualErrorReset(true);
+  };
+  const addEditor = () => {
+    setEditorState((prevEditors) => [
+      ...prevEditors,
+      EditorState.createEmpty(),
+    ]);
+  };
+  const deleteEditor = (index) => {
+    setEditorState((prevEditors) => {
+      const updated = [...prevEditors];
+      updated.splice(index, 1); // Remove the editor at the specified index
+      return updated;
+    });
+  };
+
   const saveUpdateGoal = async () => {
     await updateGoal({
       userId,
       goalId: selectedGoalId,
       _id: userId,
-      goalName: updateName || name,
-      orderNumber: 1,
       content: htmlContent,
-      goalToOrganizations: goalToOrganizations,
     })
       .unwrap()
       .then(() => {
-         // После успешного обновления сбрасываем флаги
-         setManualSuccessReset(false);
-         setManualErrorReset(false);
-        setUpdateName("");
+        // После успешного обновления сбрасываем флаги
+        setManualSuccessReset(false);
+        setManualErrorReset(false);
       })
       .catch((error) => {
-         // При ошибке также сбрасываем флаги
-         setManualErrorReset(false);
+        // При ошибке также сбрасываем флаги
+        setManualErrorReset(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
-  const getGoalId = (id) => {
-    setSelectedGoalId(id);
-   // Сбрасываем флаги состояния успеха и ошибки при смене цели
-   setManualSuccessReset(true);
-   setManualErrorReset(true);
-  };
-
-  useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-    console.log(rawContent);
-  }, [editorState]);
-
-  useEffect(() => {
-    if (currentGoal.content) {
-      const { contentBlocks, entityMap } = convertFromHTML(currentGoal.content);
-      const contentState = ContentState.createFromBlockArray(
-        contentBlocks,
-        entityMap
-      );
-      const oldEditorState = EditorState.createWithContent(contentState);
-      setEditorState(oldEditorState);
-    }
-  }, [currentGoal.content]);
-
+  
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -170,45 +184,22 @@ export default function GoalContent() {
             <select
               value={selectedGoalId || ""} // Устанавливаем ID, по умолчанию пустая строка
               onChange={(e) => {
-                const selectedId = e.target.value; // Получаем ID выбранного элемента
-                const selectedOption = data.find(
-                  (item) => item.id === selectedId
-                ); // Находим элемент по ID
-
-                if (selectedOption) {
-                  setName(selectedOption.goalName); // Устанавливаем название в состояние
-                  getGoalId(selectedOption.id); // Вызываем getGoalId с ID
-                }
+                getGoalId(e.target.value);
               }}
             >
               <option value="" disabled>
                 Выберите цель
               </option>
-              {data.map((item) => {
+              {data?.map((item, index) => {
                 return (
-                  <option key={item.id} value={item.id}>
-                    {item.goalName}
+                  <option key={index} value={item.id}>
+                    {item.organization.organizationName}
                   </option>
                 );
               })}
             </select>
           </div>
-          <div className={classes.seven}>
-            <input
-              type="text"
-              value={updateName}
-              onChange={(e) => setUpdateName(e.target.value)}
-              placeholder="Поменять название цели"
-            />
-          </div>
 
-          <div className={classes.sixth}>
-            <CustomSelect
-              organizations={organizations}
-              selectOrganizations={currentGoal.goalToOrganizations}
-              setPolicyToOrganizations={setGoalToOrganizations}
-            ></CustomSelect>
-          </div>
           <div className={classes.five}>
             <div className={classes.iconAdd}>
               <img
@@ -405,16 +396,61 @@ export default function GoalContent() {
                   <>
                     {currentGoal.content ? (
                       <>
-                        <MyEditor
-                          key={currentGoal.id}
-                          editorState={editorState}
-                          setEditorState={setEditorState}
-                        />
+                        {editorState.map((item, index) => (
+                          <div key={index} className={classes.editorContainer}>
+                            <MyEditor
+                              key={index}
+                              editorState={item}
+                              setEditorState={(newState) => {
+                                const updatedState = [...editorState];
+                                updatedState[index] = newState;
+                                setEditorState(updatedState);
+                              }}
+                            />
+                            <img
+                              src={deleteImage}
+                              alt="deleteImage"
+                              className={classes.deleteIcon}
+                              onClick={() => deleteEditor(index)}
+                            />
+                          </div>
+                        ))}
+                        <button
+                          className={classes.add}
+                          onClick={() => addEditor()}
+                        >
+                          <svg
+                            width="19.998047"
+                            height="20.000000"
+                            viewBox="0 0 19.998 20"
+                            fill="none"
+                          >
+                            <defs />
+                            <path
+                              id="Vector"
+                              d="M10 20C4.47 19.99 0 15.52 0 10L0 9.8C0.1 4.3 4.63 -0.08 10.13 0C15.62 0.07 20.03 4.56 19.99 10.06C19.96 15.56 15.49 19.99 10 20ZM5 9L5 11L9 11L9 15L11 15L11 11L15 11L15 9L11 9L11 5L9 5L9 9L5 9Z"
+                              fill="#B4B4B4"
+                              fill-opacity="1.000000"
+                              fill-rule="nonzero"
+                            />
+                          </svg>
+
+                          <div>
+                            <span className={classes.nameButton}>
+                              Добавить еще одну цель
+                            </span>
+                          </div>
+                        </button>
                         <HandlerMutation
                           Loading={isLoadingUpdateGoalMutation}
                           Error={isErrorUpdateGoalMutation && !manualErrorReset} // Учитываем ручной сброс
-                          Success={isSuccessUpdateGoalMutation && !manualSuccessReset} // Учитываем ручной сброс
+                          Success={
+                            isSuccessUpdateGoalMutation && !manualSuccessReset
+                          } // Учитываем ручной сброс
                           textSuccess={"Цель обновлена"}
+                          textError={
+                            Error?.data?.errors[0]?.errors[0]
+                          }
                         ></HandlerMutation>
                       </>
                     ) : (

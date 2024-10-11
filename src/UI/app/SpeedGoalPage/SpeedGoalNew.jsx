@@ -58,6 +58,7 @@ export default function SpeedGoalNew() {
       isLoading: isLoadingPostSpeedGoalMutation,
       isSuccess: isSuccessPostSpeedGoalMutation,
       isError: isErrorPostSpeedGoalMutation,
+      error: Error,
     },
   ] = usePostSpeedGoalMutation();
 
@@ -236,7 +237,7 @@ export default function SpeedGoalNew() {
               {data?.map((item) => {
                 return (
                   <option key={item.id} value={item.id}>
-                    {item.strategyName}
+                    {item.strategyNumber}
                   </option>
                 );
               })}
@@ -302,6 +303,7 @@ export default function SpeedGoalNew() {
           Error={isErrorPostSpeedGoalMutation}
           Success={isSuccessPostSpeedGoalMutation}
           textSuccess={"Краткосрочная цель успешно создана."}
+          textError={Error?.data?.errors[0]?.errors[0]}
         />
 
         <button className={classes.add} onClick={addEditor}>

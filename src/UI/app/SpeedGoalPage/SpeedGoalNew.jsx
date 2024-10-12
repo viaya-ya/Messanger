@@ -15,6 +15,8 @@ import {
   useGetSpeedGoalNewQuery,
   usePostSpeedGoalMutation,
 } from "../../../BLL/speedGoalApi.js";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import deleteImage from "../../image/delete.svg";
 
 export default function SpeedGoalNew() {
   const navigate = useNavigate();
@@ -177,6 +179,71 @@ export default function SpeedGoalNew() {
     }
   };
 
+  const onDragEnd = (result, type) => {
+    const { source, destination } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    switch (type) {
+      case "content":
+        const contentState = contentEditors.map((state) => {
+          return EditorState.createWithContent(state.getCurrentContent());
+        });
+        const [contentItem] = contentState.splice(source.index, 1);
+        contentState.splice(destination.index, 0, contentItem);
+        setContentEditors(contentState);
+        break;
+      case "situation":
+        const situationState = situationEditors.map((state) => {
+          return EditorState.createWithContent(state.getCurrentContent());
+        });
+        const [situationItem] = situationState.splice(source.index, 1);
+        situationState.splice(destination.index, 0, situationItem);
+        setSituationEditors(situationState);
+        break;
+      case "rootCause":
+        const rootCauseState = rootCauseEditors.map((state) => {
+          return EditorState.createWithContent(state.getCurrentContent());
+        });
+        const [rootCauseItem] = rootCauseState.splice(source.index, 1);
+        rootCauseState.splice(destination.index, 0, rootCauseItem);
+        setRootCauseEditors(rootCauseState);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const deleteEditor = (index, type) => {
+    switch (type) {
+      case "content":
+        setContentEditors((prevEditors) => {
+          const updated = [...prevEditors];
+          updated.splice(index, 1); // Remove the editor at the specified index
+          return updated;
+        });
+        break;
+      case "situation":
+        setSituationEditors((prevEditors) => {
+          const updated = [...prevEditors];
+          updated.splice(index, 1); // Remove the editor at the specified index
+          return updated;
+        });
+        break;
+      case "rootCause":
+        setRootCauseEditors((prevEditors) => {
+          const updated = [...prevEditors];
+          updated.splice(index, 1); // Remove the editor at the specified index
+          return updated;
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -265,38 +332,148 @@ export default function SpeedGoalNew() {
             <HandlerQeury Loading={isLoadingNewSpeedGoal}></HandlerQeury>
           </>
         )}
-        {activeIndex === 0 &&
-          contentEditors.map((editorState, index) => (
-            <MyEditor
-              key={index}
-              editorState={editorState}
-              setEditorState={(newState) =>
-                handleEditorChange(index, newState, "content")
-              }
-            />
-          ))}
 
-        {activeIndex === 1 &&
-          situationEditors.map((editorState, index) => (
-            <MyEditor
-              key={index}
-              editorState={editorState}
-              setEditorState={(newState) =>
-                handleEditorChange(index, newState, "situation")
-              }
-            />
-          ))}
+        {activeIndex === 0 && (
+          <DragDropContext onDragEnd={(result) => onDragEnd(result, "content")}>
+            <Droppable droppableId="editorList">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={classes.droppableContainer}
+                >
+                  {contentEditors.map((item, index) => (
+                    <Draggable
+                      key={index}
+                      draggableId={`content-item-${index}`}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={classes.editorContainer}
+                        >
+                          <MyEditor
+                            key={index}
+                            editorState={item}
+                            setEditorState={(newState) =>
+                              handleEditorChange(index, newState, "content")
+                            }
+                          />
+                          <img
+                            src={deleteImage}
+                            alt="deleteImage"
+                            className={classes.deleteIcon}
+                            onClick={() => deleteEditor(index, "content")} // Передаём тип content
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
 
-        {activeIndex === 2 &&
-          rootCauseEditors.map((editorState, index) => (
-            <MyEditor
-              key={index}
-              editorState={editorState}
-              setEditorState={(newState) =>
-                handleEditorChange(index, newState, "rootCause")
-              }
-            />
-          ))}
+        {activeIndex === 1 && (
+          <DragDropContext
+            onDragEnd={(result) => onDragEnd(result, "situation")}
+          >
+            <Droppable droppableId="editorList">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={classes.droppableContainer}
+                >
+                  {situationEditors.map((item, index) => (
+                    <Draggable
+                      key={index}
+                      draggableId={`situation-item-${index}`}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={classes.editorContainer}
+                        >
+                          <MyEditor
+                            key={index}
+                            editorState={item}
+                            setEditorState={(newState) =>
+                              handleEditorChange(index, newState, "situation")
+                            }
+                          />
+                          <img
+                            src={deleteImage}
+                            alt="deleteImage"
+                            className={classes.deleteIcon}
+                            onClick={() => deleteEditor(index, "situation")} // Передаём тип content
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
+
+        {activeIndex === 2 &&(
+          <DragDropContext
+            onDragEnd={(result) => onDragEnd(result, "rootCause")}
+          >
+            <Droppable droppableId="editorList">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={classes.droppableContainer}
+                >
+                  {rootCauseEditors.map((item, index) => (
+                    <Draggable
+                      key={index}
+                      draggableId={`rootCause-item-${index}`}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={classes.editorContainer}
+                        >
+                          <MyEditor
+                            key={index}
+                            editorState={item}
+                            setEditorState={(newState) =>
+                              handleEditorChange(index, newState, "rootCause")
+                            }
+                          />
+                          <img
+                            src={deleteImage}
+                            alt="deleteImage"
+                            className={classes.deleteIcon}
+                            onClick={() => deleteEditor(index, "rootCause")} // Передаём тип content
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
 
         <HandlerMutation
           Loading={isLoadingPostSpeedGoalMutation}
@@ -324,7 +501,7 @@ export default function SpeedGoalNew() {
           </svg>
 
           <div>
-            <span className={classes.nameButton}> Добавить еще одну цель</span>
+            <span className={classes.nameButton}>   Добавить еще одну цель (Ctrl+Enter) </span>
           </div>
         </button>
       </div>

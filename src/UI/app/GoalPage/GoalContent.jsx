@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import classes from "./GoalContent.module.css";
 import icon from "../../image/iconHeader.svg";
-import add from "../../image/add.svg";
 import Select from "../../image/Select.svg";
 import iconBack from "../../image/iconBack.svg";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
@@ -18,9 +17,9 @@ import {
   useGetGoalQuery,
   useUpdateGoalMutation,
 } from "../../../BLL/goalApi";
-import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 export default function GoalContent() {
   const navigate = useNavigate();
@@ -99,11 +98,14 @@ export default function GoalContent() {
   }, [currentGoal]);
 
   useEffect(() => {
-    setHtmlContent(
-      editorState.map((editor) =>
-        draftToHtml(convertToRaw(editor.getCurrentContent()))
-      )
-    );
+    editorState.forEach((item, index) => {
+      const rawContent = draftToHtml(convertToRaw(item.getCurrentContent()));
+      setHtmlContent((prev) => {
+        const updated = [...prev];
+        updated[index] = rawContent;
+        return updated;
+      });
+    });
   }, [editorState]);
 
   const getGoalId = (id) => {
@@ -112,6 +114,21 @@ export default function GoalContent() {
     setManualSuccessReset(true);
     setManualErrorReset(true);
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "Enter" && event.ctrlKey) {
+        addEditor();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
+
   const addEditor = () => {
     setEditorState((prevEditors) => [
       ...prevEditors,
@@ -124,6 +141,26 @@ export default function GoalContent() {
       updated.splice(index, 1); // Remove the editor at the specified index
       return updated;
     });
+  };
+
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
+  
+    if (!destination) {
+      return;
+    }
+  
+    // Создаем новый массив состояний
+    const updatedState = editorState.map((state) => {
+      // Создаем новый экземпляр редактора для каждого состояния
+      return EditorState.createWithContent(state.getCurrentContent());
+    });
+  
+    // Перемещаем редактор
+    const [movedItem] = updatedState.splice(source.index, 1);
+    updatedState.splice(destination.index, 0, movedItem);
+  
+    setEditorState(updatedState);
   };
 
   const saveUpdateGoal = async () => {
@@ -145,7 +182,7 @@ export default function GoalContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
-  
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -396,25 +433,54 @@ export default function GoalContent() {
                   <>
                     {currentGoal.content ? (
                       <>
-                        {editorState.map((item, index) => (
-                          <div key={index} className={classes.editorContainer}>
-                            <MyEditor
-                              key={index}
-                              editorState={item}
-                              setEditorState={(newState) => {
-                                const updatedState = [...editorState];
-                                updatedState[index] = newState;
-                                setEditorState(updatedState);
-                              }}
-                            />
-                            <img
-                              src={deleteImage}
-                              alt="deleteImage"
-                              className={classes.deleteIcon}
-                              onClick={() => deleteEditor(index)}
-                            />
-                          </div>
-                        ))}
+                        <DragDropContext onDragEnd={onDragEnd}>
+                          <Droppable droppableId="editorList">
+                            {(provided) => (
+                              <div
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                className={classes.droppableContainer}
+                              >
+                                {editorState.map((item, index) => (
+                                  <Draggable
+                                    key={index}
+                                    draggableId={`item-${index}`}
+                                    index={index}
+                                  >
+                                    {(provided) => (
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className={classes.editorContainer}
+                                      >
+                                        <MyEditor
+                                          key={index}
+                                          editorState={item}
+                                          setEditorState={(newState) => {
+                                            const updatedState = [
+                                              ...editorState
+                                            ];
+                                            updatedState[index] = newState;
+                                            setEditorState(updatedState);
+                                          }}
+                                        />
+                                        <img
+                                          src={deleteImage}
+                                          alt="deleteImage"
+                                          className={classes.deleteIcon}
+                                          onClick={() => deleteEditor(index)}
+                                        />
+                                      </div>
+                                    )}
+                                  </Draggable>
+                                ))}
+                                {provided.placeholder}
+                              </div>
+                            )}
+                          </Droppable>
+                        </DragDropContext>
+
                         <button
                           className={classes.add}
                           onClick={() => addEditor()}
@@ -437,10 +503,11 @@ export default function GoalContent() {
 
                           <div>
                             <span className={classes.nameButton}>
-                              Добавить еще одну цель
+                              Добавить еще одну цель (Ctrl+Enter)
                             </span>
                           </div>
                         </button>
+
                         <HandlerMutation
                           Loading={isLoadingUpdateGoalMutation}
                           Error={isErrorUpdateGoalMutation && !manualErrorReset} // Учитываем ручной сброс
@@ -448,9 +515,7 @@ export default function GoalContent() {
                             isSuccessUpdateGoalMutation && !manualSuccessReset
                           } // Учитываем ручной сброс
                           textSuccess={"Цель обновлена"}
-                          textError={
-                            Error?.data?.errors[0]?.errors[0]
-                          }
+                          textError={Error?.data?.errors[0]?.errors[0]}
                         ></HandlerMutation>
                       </>
                     ) : (
@@ -467,65 +532,3 @@ export default function GoalContent() {
   );
 }
 
-// const [textAreas, setTextAreas] = useState([{}]);
-// const [searchTerm, setSearchTerm] = useState("");
-// const addTextarea = () => {
-//   setTextAreas((prevState) => [...prevState, {}]);
-// };
-
-// useEffect(() => {
-//   const handleKeyPress = (event) => {
-//     if (event.key === "Enter" && event.ctrlKey) {
-//       addTextarea();
-//     }
-//   };
-
-//   window.addEventListener("keydown", handleKeyPress);
-
-//   return () => {
-//     window.removeEventListener("keydown", handleKeyPress);
-//   };
-// }, []);
-
-// const handleSearchChange = (e) => {
-//   setSearchTerm(e.target.value.toLowerCase());
-// };
-
-// const filteredTextAreas = textAreas.filter((area, index) => {
-//   const areaText = area.value || "";
-//   return areaText.toLowerCase().includes(searchTerm);
-// });
-
-// const highlightText = (text, highlight) => {
-//   if (!highlight.trim()) {
-//     return text;
-//   }
-
-//   const regex = new RegExp(`(${highlight})`, "gi");
-//   return text
-//     .split(regex)
-//     .map((fragment, i) =>
-//       fragment.toLowerCase() === highlight.toLowerCase()
-//         ? `<span>${fragment}</span>`
-//         : fragment
-//     )
-//     .join("");
-// };
-
-// {filteredTextAreas.map((area, index) => (
-//   <textarea
-//     key={index}
-//     className={classes.Teaxtaera}
-//     placeholder={`Текст цели ${index + 1}`}
-//     onChange={(e) => {
-//       const newAreas = [...textAreas];
-//       newAreas[index].value = e.target.value;
-//       setTextAreas(newAreas);
-//     }}
-//     value={highlightText(area.value || "", searchTerm)}
-//   />
-// ))}
-// <button className={classes.add} onClick={() => addTextarea()}>
-//   <img src={add} alt="add" />
-//   <div> Добавить еще одну цель (Ctrl+Enter) </div>
-// </button>

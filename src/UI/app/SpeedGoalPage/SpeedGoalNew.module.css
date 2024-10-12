@@ -101,6 +101,8 @@ input[type="search"]::-webkit-input-placeholder {
     flex-direction: row;
     justify-content: end;
     align-items: center;
+    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
+    z-index: 2;
 }
 
 .one {
@@ -250,27 +252,23 @@ input[type="search"]::-webkit-input-placeholder {
     z-index: 0;
 }
 
-.Teaxtaera {
-    min-width: 50%;
-    min-height: 10vw;
-    background-color: #FFFFFF;
-    padding: 1%;
-    padding: 1%;
-    resize: none;
-}
 
-textarea::placeholder {
-    color: #B4B4B4;
-    font-style: italic;
-    font-size: 12px;
-    font-family: 'Montserrat';
-    padding-top: 3%;
-    padding-left: 3%;
-}
+.editorContainer {
+    margin-top: 20px;
+    position: relative; /* Это позволит дочернему элементу быть позиционированным относительно этого контейнера */
+    margin-bottom: 16px; /* Расстояние между редакторами */
+  }
+  
+  .deleteIcon {
+    position: absolute; /* Позиционируем элемент абсолютно */
+    top: -25px; /* Расстояние от верхней части контейнера */
+    right: -30px; /* Расстояние от правой части контейнера */
+    cursor: pointer; /* Изменяем курсор при наведении на иконку */
+  }
 
 .add {
     height: 50px;
-    width: 250px;
+    width: 350px;
     background-color: #ffff;
     border-radius: 10px;
     display: flex;
@@ -340,6 +338,7 @@ mark {
     justify-content: space-around;
     align-items: center;
     cursor: pointer;
+    z-index: 2;
 }
 
 .textSelectHeader:hover .textSelectHeaderSpan {

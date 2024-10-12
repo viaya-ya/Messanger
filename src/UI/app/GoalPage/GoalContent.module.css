@@ -278,7 +278,7 @@ background-color: rgb(240, 240, 240)
 
 .four {
     height: 60%;
-    width: 50%;
+    width: 150px;
     display: flex;
     flex-direction: row;
     box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
@@ -327,27 +327,9 @@ background-color: rgb(240, 240, 240)
     right: -30px; /* Расстояние от правой части контейнера */
     cursor: pointer; /* Изменяем курсор при наведении на иконку */
   }
-.Teaxtaera {
-    min-width: 50%;
-    min-height: 10vw;
-    background-color: #FFFFFF;
-    padding: 1%;
-    padding: 1%;
-    resize: none;
-}
-
-textarea::placeholder {
-    color: #B4B4B4;
-    font-style: italic;
-    font-size: 12px;
-    font-family: 'Montserrat';
-    padding-top: 3%;
-    padding-left: 3%;
-}
-
 .add {
-    height: 7%;
-    width: 16vw;
+    height: 50px;
+    width: 350px;
     background-color: #ffff;
     border-radius: 10px;
     display: flex;
@@ -359,11 +341,40 @@ textarea::placeholder {
     box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.25);
     align-self: flex-start;
     margin-left: 25%;
+    cursor: pointer;
+    transition: all 0.5s ease;
 }
-
+.add:hover {
+    background-color: #B4B4B4;
+    color: #FFFF;
+}
+.nameButton {
+    font-size: 14px;
+    font-family: 'Montserrat';
+    color: #3A3A3A;
+    font-weight: 400;
+}
+.add:hover span {
+    font-size: 14px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    color: #FFFF;
+}
 .add div {
     color: #3A3A3A;
     font-size: 14px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+}
+
+.add svg {
+    transition: fill 0.3s ease;
+    /* Добавляем анимацию для цвета SVG */
+}
+
+.add:hover svg path {
+    fill: #FFFFFF;
+    /* Меняем цвет SVG при наведении */
 }
 
 mark {

@@ -17,12 +17,12 @@ export default function PostNew() {
     navigate(`/${userId}/posts`);
   };
   const [postName, setPostName] = useState();
-  const [divisionName, setDivisionName] = useState();
+  const [divisionName, setDivisionName] = useState(null);
   const [disabledDivisionName, setDisabledDivisionName] = useState(false);
   const [product, setProduct] = useState();
   const [purpose, setPurpose] = useState();
-  const [policy, setPolicy] = useState();
-  const [worker, setWorker] = useState("");
+  const [policy, setPolicy] = useState("null");
+  const [worker, setWorker] = useState("null");
   const [parentId, setParentId] = useState("null");
   const [organization, setOrganization] = useState();
 
@@ -59,31 +59,41 @@ export default function PostNew() {
       isLoading: isLoadingPostMutation,
       isSuccess: isSuccessPostMutation,
       isError: isErrorPostMutation,
-      error: ErrorPostMutation
+      error: ErrorPostMutation,
     },
   ] = usePostPostsMutation();
 
   const reset = () => {
     setPostName("");
-    setDivisionName("");
+    setDivisionName(null);
     setProduct("");
     setPurpose("");
-    setPolicy("");
-    setWorker("");
+    setPolicy("null");
+    setWorker("null");
     setParentId("null");
     setOrganization("");
   };
+
   const savePosts = async () => {
-    console.log(`worker ${worker}`);
+    const Data = {};
+    if(policy !== "null"){
+      Data.addPolicyId = policy
+    }
+    if(divisionName !== null){
+      Data.divisionName = divisionName
+    }
+    if(parentId !== "null"){
+      Data.parentId = parentId
+    }
+    if(worker !== "null"){
+      Data.responsibleUserId = worker
+    }
     await postPosts({
       userId: userId,
-      addPolicyId: policy,
+      ...Data,
       postName: postName,
-      divisionName: divisionName,
-      parentId: parentId === "null" ? null : parentId,
       product: product,
       purpose: purpose,
-      responsibleUserId: worker,
       organizationId: organization,
     })
       .unwrap()
@@ -94,6 +104,7 @@ export default function PostNew() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -144,20 +155,12 @@ export default function PostNew() {
                   setPostName(e.target.value);
                 }}
               />
-              {/* <select name="mySelect" className={classes.select}>
-                <option value="">Выберите опцию</option>
-                <option value="option1">Опция 1</option>
-                <option value="option2">Опция 2</option>
-              </select> */}
             </div>
           </div>
 
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>
-                {" "}
-                Название подразделения <span style={{ color: "red" }}>*</span>
-              </span>
+              <span> Название подразделения</span>
             </div>
             <div className={classes.div}>
               <input
@@ -168,11 +171,6 @@ export default function PostNew() {
                 }}
                 disabled={disabledDivisionName}
               />
-              {/* <select name="mySelect" className={classes.select}>
-                <option value="">Выберите опцию</option>
-                <option value="option1">Опция 1</option>
-                <option value="option2">Опция 2</option>
-              </select> */}
             </div>
           </div>
 
@@ -193,9 +191,6 @@ export default function PostNew() {
                   setDivisionName(obj?.divisionName);
                 }}
               >
-                <option value="" disabled>
-                  Выберите опцию
-                </option>
                 <option value="null"> — </option>
                 {postsWithoutParentId?.map((item) => {
                   return <option value={item.id}>{item.postName}</option>;
@@ -206,9 +201,7 @@ export default function PostNew() {
 
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>
-                Руководитель поста <span style={{ color: "red" }}>*</span>
-              </span>
+              <span>Руководитель поста</span>
             </div>
             <div className={classes.div}>
               <select
@@ -219,9 +212,7 @@ export default function PostNew() {
                   setWorker(e.target.value);
                 }}
               >
-                <option value="" disabled>
-                  Выберите опцию
-                </option>
+                <option value="null"> — </option>
                 {workers?.map((item) => {
                   return (
                     <option value={item.id}>
@@ -320,7 +311,7 @@ export default function PostNew() {
                     }}
                   />
                 </div>
-                
+
                 <div className={classes.post}>
                   <img src={blackStatistic} alt="blackStatistic" />
                   <div>
@@ -343,15 +334,4 @@ export default function PostNew() {
       </div>
     </div>
   );
-}
-
-{
-  /* <div className={classes.post}>
-          <img src={greyPolicy} alt="greyPolicy" />
-          <div>
-            <span className={classes.nameButton}>
-              Прикрепить политику с описанием образцового положения дел поста
-            </span>
-          </div>
-        </div> */
 }

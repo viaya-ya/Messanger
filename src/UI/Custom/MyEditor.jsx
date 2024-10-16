@@ -1,9 +1,35 @@
-import React from 'react';
-import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import './MyEditor.css';
+import React from "react";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import "./MyEditor.css";
+import { usePostImageMutation } from "../../BLL/policyApi";
 
-export default function MyEditor({ editorState, setEditorState }) {
+export default function MyEditor({
+  editorState,
+  setEditorState,
+  userId,
+  policyId,
+}) {
+  const [postImage] = usePostImageMutation();
+
+  // Функция для обработки загрузки изображений
+  const uploadImageCallback = async (file) => {
+    try {
+      console.log(file);
+      const formData = new FormData();
+      formData.append("filename", file);
+      // Вызов postImage для отправки файла на сервер
+      const response = await postImage({
+        userId,
+        policyId,
+        formData,
+      }).unwrap();
+    } catch (error) {
+      console.error("Ошибка загрузки изображения:", error);
+      return Promise.reject(error);
+    }
+  };
+
   return (
     <div>
       <Editor
@@ -19,7 +45,7 @@ export default function MyEditor({ editorState, setEditorState }) {
           link: { inDropdown: true },
           history: { inDropdown: true },
           image: {
-            uploadCallback: uploadImageCallback, // Добавляем обработчик загрузки
+            uploadCallback: uploadImageCallback, // Обработчик загрузки
             alt: { present: true, mandatory: false },
             previewImage: true,
           },
@@ -28,15 +54,3 @@ export default function MyEditor({ editorState, setEditorState }) {
     </div>
   );
 }
-
-// Функция для обработки загрузки изображений
-const uploadImageCallback = async (file) => {
-  // Можете настроить свою логику для загрузки изображений на сервер
-  // Ниже пример для эмуляции загрузки с возвратом URL изображения
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve({ data: { link: reader.result } });
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};

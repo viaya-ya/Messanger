@@ -69,6 +69,15 @@ export const policyApi = createApi({
         { type: "Policy", id: policyId },
       ],
     }),
+
+    postImage: build.mutation({
+      query: ({ userId, policyId, ...body}) => ({
+        url: `${userId}/file-upload/upload?policyId=${policyId}`,
+        method: "POST",
+        body,
+      }), 
+    }),
+    
   }),
 });
 
@@ -78,4 +87,5 @@ export const {
   useGetPoliciesNewQuery,
   useGetPoliciesIdQuery,
   useUpdatePoliciesMutation,
+  usePostImageMutation
 } = policyApi;

@@ -31,8 +31,8 @@ export default function NewPolicy() {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [policyName, setPolicyName] = useState("Политика");
-  const [type, setType] = useState("Директива");
-  const [state, setState] = useState("Черновик");
+  const [type, setType] = useState("null");
+  const [state, setState] = useState("null");
   const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
   const [isPolicyToOrganizations, setIsPolicyToOrganizations] = useState(false);
 
@@ -68,18 +68,26 @@ export default function NewPolicy() {
 
   const reset = () => {
     setPolicyName("Политика");
-    setType("Директива");
-    setState("Черновик");
+    setType("null");
+    setState("null");
     setIsPolicyToOrganizations(true);
     setEditorState(EditorState.createEmpty());
   };
   const savePolicy = async () => {
+    const Data = {}
+
+    if(state !== "null"){
+      Data.state = state;
+    }
+    if(type !== "null"){
+      Data.type = type;
+    }
+
     await postPolicy({
       userId,
       policyName: policyName,
-      state: state,
-      type: type,
       content: htmlContent,
+      ...Data,
       policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
@@ -125,26 +133,43 @@ export default function NewPolicy() {
         </div>
 
         <div className={classes.editText}>
-          <div className={classes.five}>
+
+        <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>Тип</span>
+            </div>
+            <div className={classes.div}>
             <select
+                className={classes.select}
               name="type"
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
+              <option value="null"> — </option>
               <option value="Директива">Директива</option>
               <option value="Инструкция">Инструкция</option>
             </select>
+            </div>
           </div>
-          <div className={classes.five}>
+
+          <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>Состояние</span>
+            </div>
+            <div className={classes.div}>
             <select
+            className={classes.select}
               name="state"
               value={state}
               onChange={(e) => setState(e.target.value)}
             >
+               <option value="null"> — </option>
               <option value="Черновик">Черновик</option>
               <option value="Активный">Активный</option>
             </select>
+            </div>
           </div>
+
           <div className={classes.five}>
             <CustomSelect
               organizations={organizations}
@@ -212,7 +237,11 @@ export default function NewPolicy() {
                   Error={isErrorPostPoliciesMutation}
                   Success={isSuccessPostPoliciesMutation}
                   textSuccess={"Политика успешно создана."}
-                  textError={Error?.data?.errors[0]?.errors[0]}
+                  textError={
+                    Error?.data?.errors?.[0]?.errors?.[0] 
+                      ? Error.data.errors[0].errors[0] 
+                      : Error?.data?.message
+                  }
                 ></HandlerMutation>
               </>
             )}

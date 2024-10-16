@@ -103,6 +103,20 @@ export default function SpeedGoalNew() {
     });
   }, [rootCauseEditors]);
 
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "Enter" && event.ctrlKey) {
+        addEditor();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
+  
   const reset = () => {
     setContentEditors([EditorState.createEmpty()]);
     setSituationEditors([EditorState.createEmpty()]);

@@ -23,6 +23,10 @@ import {
 } from "../../../BLL/projectApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import MyEditor from "../../Custom/MyEditor";
+import { EditorState, convertFromHTML, ContentState } from "draft-js";
+import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
+import { convertToRaw } from "draft-js";
 
 export default function ProjectNew() {
   const navigate = useNavigate();
@@ -32,7 +36,6 @@ export default function ProjectNew() {
   };
   const [type, setType] = useState("null");
   const [strategiya, setStrategiya] = useState("null");
-  const [htmlcontent, setHtmlcontent] = useState(null);
   const [programId, setProgramId] = useState("null");
   const [products, setProducts] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -41,6 +44,9 @@ export default function ProjectNew() {
   const [projectToOrganizations, setProjectToOrganizations] = useState([]);
   const [isProjectToOrganizations, setIsProjectToOrganizations] =
     useState(false);
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [htmlContent, setHtmlContent] = useState();
+  const [showEditorState, setShowEditorState] = useState(false);
 
   const {
     workers = [],
@@ -70,6 +76,14 @@ export default function ProjectNew() {
     },
   ] = usePostProjectMutation();
 
+  useEffect(() => {
+    const rawContent = draftToHtml(
+      convertToRaw(editorState.getCurrentContent())
+    );
+    setHtmlContent(rawContent);
+    console.log(rawContent);
+  }, [editorState]);
+
   const reset = () => {
     setType("null");
     setStrategiya("null");
@@ -78,8 +92,9 @@ export default function ProjectNew() {
     setTasks([]);
     setStatistics([]);
     setCommons([]);
-    setHtmlcontent(null);
+    setHtmlContent(null);
     setIsProjectToOrganizations(true);
+    setEditorState(EditorState.createEmpty());
   };
 
   const saveProject = async () => {
@@ -95,8 +110,8 @@ export default function ProjectNew() {
     if (strategiya !== "null") {
       Data.strategyId = strategiya;
     }
-    if (htmlcontent !== null) {
-      Data.content = htmlcontent;
+    if (htmlContent !== null) {
+      Data.content = htmlContent;
     }
     if (
       products.length > 0 ||
@@ -197,6 +212,7 @@ export default function ProjectNew() {
       ];
     });
   };
+
   const deleteRow = (type, id) => {
     switch (type) {
       case "Продукт":
@@ -238,6 +254,10 @@ export default function ProjectNew() {
         setStatistics(updatedStatistics);
         break;
     }
+  };
+
+  const show = () => {
+    setShowEditorState(!showEditorState);
   };
   return (
     <div className={classes.dialog}>
@@ -359,26 +379,22 @@ export default function ProjectNew() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li>
-                {" "}
-                <img
-                  src={glazikInvisible}
-                  alt="glazikInvisible"
-                /> Информация{" "}
+              <li onClick={() => show()}>
+                {showEditorState ? (
+                  <img src={glazikBlack} alt="glazikBlack" />
+                ) : (
+                  <img src={glazikInvisible} alt="glazikInvisible" />
+                )}
+                Информация
               </li>
               <li>
-                {" "}
-                <img src={glazikBlack} alt="glazikBlack" /> Продукт
+                <img src={glazikInvisible} alt="glazikInvisible" />
+                Продукт
               </li>
               <li>
-                {" "}
-                <img
-                  src={glazikInvisible}
-                  alt="glazikInvisible"
-                /> Показатели{" "}
+                <img src={glazikInvisible} alt="glazikInvisible" /> Показатели
               </li>
               <li>
-                {" "}
                 <img src={glazikInvisible} alt="glazikInvisible" />{" "}
                 Организационные мероприятия
               </li>
@@ -452,323 +468,333 @@ export default function ProjectNew() {
                   textError={Error?.data?.errors[0]?.errors[0]}
                 ></HandlerMutation>
 
-                <table className={classes.table}>
-                  <caption>
-                    <div className={classes.nameRow}>
-                      <div>ПРОДУКТ</div>
-                      <img
-                        src={addCircle}
-                        alt="addCircle"
-                        onClick={() => addProducts()}
-                      />
-                    </div>
-                  </caption>
-                  <tbody>
-                    {products.map((item) => {
-                      return (
-                        <tr>
-                          <td className={classes.numberTableColumn}>
-                            {item.orderNumber}
-                          </td>
-                          <td className={classes.nameTableColumn}>
-                            <input
-                              type="text"
-                              value={item.content}
-                              onChange={(e) => {
-                                const updatedProducts = [...products];
-                                updatedProducts[item.orderNumber - 1].content =
-                                  e.target.value;
-                                setProducts(updatedProducts);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <select
-                              name="mySelect"
-                              value={item.holderUserId}
-                              onChange={(e) => {
-                                const updatedProducts = [...products];
-                                updatedProducts[
-                                  item.orderNumber - 1
-                                ].holderUserId = e.target.value;
-                                setProducts(updatedProducts);
-                              }}
-                              className={classes.select}
-                            >
-                              <option value="">Выберите опцию</option>
-                              {workers.map((item) => {
-                                return (
-                                  <option
-                                    value={item.id}
-                                  >{`${item.firstName} ${item.lastName} `}</option>
-                                );
-                              })}
-                            </select>
-                          </td>
-                          <td className={classes.dateTableColumn}>
-                            <input
-                              type="date"
-                              value={item.deadline.slice(0, 10)}
-                              onChange={(e) => {
-                                const updated = [...products];
-                                const date = new Date(e.target.value);
-                                date.setUTCHours(21, 0, 0, 0);
-                                updated[item.orderNumber - 1].deadline =
-                                  date.toISOString();
-                                setProducts(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <img
-                              src={deleteGrey}
-                              alt="deleteGrey"
-                              onClick={() => deleteRow(item.type, item.id)}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                {showEditorState ? (
+                  <MyEditor
+                    editorState={editorState}
+                    setEditorState={setEditorState}
+                  />
+                ) : (
+                  <>
+                    <table className={classes.table}>
+                      <caption>
+                        <div className={classes.nameRow}>
+                          <div>ПРОДУКТ</div>
+                          <img
+                            src={addCircle}
+                            alt="addCircle"
+                            onClick={() => addProducts()}
+                          />
+                        </div>
+                      </caption>
+                      <tbody>
+                        {products.map((item) => {
+                          return (
+                            <tr>
+                              <td className={classes.numberTableColumn}>
+                                {item.orderNumber}
+                              </td>
+                              <td className={classes.nameTableColumn}>
+                                <input
+                                  type="text"
+                                  value={item.content}
+                                  onChange={(e) => {
+                                    const updatedProducts = [...products];
+                                    updatedProducts[
+                                      item.orderNumber - 1
+                                    ].content = e.target.value;
+                                    setProducts(updatedProducts);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <select
+                                  name="mySelect"
+                                  value={item.holderUserId}
+                                  onChange={(e) => {
+                                    const updatedProducts = [...products];
+                                    updatedProducts[
+                                      item.orderNumber - 1
+                                    ].holderUserId = e.target.value;
+                                    setProducts(updatedProducts);
+                                  }}
+                                  className={classes.select}
+                                >
+                                  <option value="">Выберите опцию</option>
+                                  {workers.map((item) => {
+                                    return (
+                                      <option
+                                        value={item.id}
+                                      >{`${item.firstName} ${item.lastName} `}</option>
+                                    );
+                                  })}
+                                </select>
+                              </td>
+                              <td className={classes.dateTableColumn}>
+                                <input
+                                  type="date"
+                                  value={item.deadline.slice(0, 10)}
+                                  onChange={(e) => {
+                                    const updated = [...products];
+                                    const date = new Date(e.target.value);
+                                    date.setUTCHours(21, 0, 0, 0);
+                                    updated[item.orderNumber - 1].deadline =
+                                      date.toISOString();
+                                    setProducts(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <img
+                                  src={deleteGrey}
+                                  alt="deleteGrey"
+                                  onClick={() => deleteRow(item.type, item.id)}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
 
-                <table className={classes.table}>
-                  <caption>
-                    <div className={classes.nameRow}>
-                      <div>ПРАВИЛА</div>
-                      <img
-                        src={addCircle}
-                        alt="addCircle"
-                        onClick={() => addTasks()}
-                      />
-                    </div>
-                  </caption>
-                  <tbody>
-                    {tasks.map((item) => {
-                      return (
-                        <tr>
-                          <td className={classes.numberTableColumn}>
-                            {item.orderNumber}
-                          </td>
-                          <td className={classes.nameTableColumn}>
-                            <input
-                              type="text"
-                              value={item.content}
-                              onChange={(e) => {
-                                const updated = [...tasks];
-                                updated[item.orderNumber - 1].content =
-                                  e.target.value;
-                                setTasks(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <select
-                              name="mySelect"
-                              value={item.holderUserId}
-                              onChange={(e) => {
-                                const updated = [...tasks];
-                                updated[item.orderNumber - 1].holderUserId =
-                                  e.target.value;
-                                setTasks(updated);
-                              }}
-                              className={classes.select}
-                            >
-                              <option value="">Выберите опцию</option>
-                              {workers.map((item) => {
-                                return (
-                                  <option
-                                    value={item.id}
-                                  >{`${item.firstName} ${item.lastName} `}</option>
-                                );
-                              })}
-                            </select>
-                          </td>
-                          <td className={classes.dateTableColumn}>
-                            <input
-                              type="date"
-                              value={item.deadline.slice(0, 10)}
-                              onChange={(e) => {
-                                const updated = [...tasks];
-                                const date = new Date(e.target.value);
-                                date.setUTCHours(21, 0, 0, 0);
-                                updated[item.orderNumber - 1].deadline =
-                                  date.toISOString();
-                                setTasks(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <img
-                              src={deleteGrey}
-                              alt="deleteGrey"
-                              onClick={() => deleteRow(item.type, item.id)}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                    <table className={classes.table}>
+                      <caption>
+                        <div className={classes.nameRow}>
+                          <div>ПРАВИЛА</div>
+                          <img
+                            src={addCircle}
+                            alt="addCircle"
+                            onClick={() => addTasks()}
+                          />
+                        </div>
+                      </caption>
+                      <tbody>
+                        {tasks.map((item) => {
+                          return (
+                            <tr>
+                              <td className={classes.numberTableColumn}>
+                                {item.orderNumber}
+                              </td>
+                              <td className={classes.nameTableColumn}>
+                                <input
+                                  type="text"
+                                  value={item.content}
+                                  onChange={(e) => {
+                                    const updated = [...tasks];
+                                    updated[item.orderNumber - 1].content =
+                                      e.target.value;
+                                    setTasks(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <select
+                                  name="mySelect"
+                                  value={item.holderUserId}
+                                  onChange={(e) => {
+                                    const updated = [...tasks];
+                                    updated[item.orderNumber - 1].holderUserId =
+                                      e.target.value;
+                                    setTasks(updated);
+                                  }}
+                                  className={classes.select}
+                                >
+                                  <option value="">Выберите опцию</option>
+                                  {workers.map((item) => {
+                                    return (
+                                      <option
+                                        value={item.id}
+                                      >{`${item.firstName} ${item.lastName} `}</option>
+                                    );
+                                  })}
+                                </select>
+                              </td>
+                              <td className={classes.dateTableColumn}>
+                                <input
+                                  type="date"
+                                  value={item.deadline.slice(0, 10)}
+                                  onChange={(e) => {
+                                    const updated = [...tasks];
+                                    const date = new Date(e.target.value);
+                                    date.setUTCHours(21, 0, 0, 0);
+                                    updated[item.orderNumber - 1].deadline =
+                                      date.toISOString();
+                                    setTasks(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <img
+                                  src={deleteGrey}
+                                  alt="deleteGrey"
+                                  onClick={() => deleteRow(item.type, item.id)}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
 
-                <table className={classes.table}>
-                  <caption>
-                    <div className={classes.nameRow}>
-                      <div>ОБЫЧНАЯ</div>
-                      <img
-                        src={addCircle}
-                        alt="addCircle"
-                        onClick={() => addCommon()}
-                      />
-                    </div>
-                  </caption>
-                  <tbody>
-                    {commons.map((item) => {
-                      return (
-                        <tr>
-                          <td className={classes.numberTableColumn}>
-                            {item.orderNumber}
-                          </td>
-                          <td className={classes.nameTableColumn}>
-                            <input
-                              type="text"
-                              value={item.content}
-                              onChange={(e) => {
-                                const updated = [...commons];
-                                updated[item.orderNumber - 1].content =
-                                  e.target.value;
-                                setCommons(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <select
-                              name="mySelect"
-                              value={item.holderUserId}
-                              onChange={(e) => {
-                                const updatedProducts = [...commons];
-                                updatedProducts[
-                                  item.orderNumber - 1
-                                ].holderUserId = e.target.value;
-                                setCommons(updatedProducts);
-                              }}
-                              className={classes.select}
-                            >
-                              <option value="">Выберите опцию</option>
-                              {workers.map((item) => {
-                                return (
-                                  <option
-                                    value={item.id}
-                                  >{`${item.firstName} ${item.lastName} `}</option>
-                                );
-                              })}
-                            </select>
-                          </td>
-                          <td className={classes.dateTableColumn}>
-                            <input
-                              type="date"
-                              value={item.deadline.slice(0, 10)}
-                              onChange={(e) => {
-                                const updated = [...commons];
-                                const date = new Date(e.target.value);
-                                date.setUTCHours(21, 0, 0, 0);
-                                updated[item.orderNumber - 1].deadline =
-                                  date.toISOString();
-                                setCommons(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <img
-                              src={deleteGrey}
-                              alt="deleteGrey"
-                              onClick={() => deleteRow(item.type, item.id)}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                    <table className={classes.table}>
+                      <caption>
+                        <div className={classes.nameRow}>
+                          <div>ОБЫЧНАЯ</div>
+                          <img
+                            src={addCircle}
+                            alt="addCircle"
+                            onClick={() => addCommon()}
+                          />
+                        </div>
+                      </caption>
+                      <tbody>
+                        {commons.map((item) => {
+                          return (
+                            <tr>
+                              <td className={classes.numberTableColumn}>
+                                {item.orderNumber}
+                              </td>
+                              <td className={classes.nameTableColumn}>
+                                <input
+                                  type="text"
+                                  value={item.content}
+                                  onChange={(e) => {
+                                    const updated = [...commons];
+                                    updated[item.orderNumber - 1].content =
+                                      e.target.value;
+                                    setCommons(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <select
+                                  name="mySelect"
+                                  value={item.holderUserId}
+                                  onChange={(e) => {
+                                    const updatedProducts = [...commons];
+                                    updatedProducts[
+                                      item.orderNumber - 1
+                                    ].holderUserId = e.target.value;
+                                    setCommons(updatedProducts);
+                                  }}
+                                  className={classes.select}
+                                >
+                                  <option value="">Выберите опцию</option>
+                                  {workers.map((item) => {
+                                    return (
+                                      <option
+                                        value={item.id}
+                                      >{`${item.firstName} ${item.lastName} `}</option>
+                                    );
+                                  })}
+                                </select>
+                              </td>
+                              <td className={classes.dateTableColumn}>
+                                <input
+                                  type="date"
+                                  value={item.deadline.slice(0, 10)}
+                                  onChange={(e) => {
+                                    const updated = [...commons];
+                                    const date = new Date(e.target.value);
+                                    date.setUTCHours(21, 0, 0, 0);
+                                    updated[item.orderNumber - 1].deadline =
+                                      date.toISOString();
+                                    setCommons(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <img
+                                  src={deleteGrey}
+                                  alt="deleteGrey"
+                                  onClick={() => deleteRow(item.type, item.id)}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
 
-                <table className={classes.table}>
-                  <caption>
-                    <div className={classes.nameRow}>
-                      <div>СТАТИСТИКА</div>
-                      <img
-                        src={addCircle}
-                        alt="addCircle"
-                        onClick={() => addStatistics()}
-                      />
-                    </div>
-                  </caption>
-                  <tbody>
-                    {statistics.map((item) => {
-                      return (
-                        <tr>
-                          <td className={classes.numberTableColumn}>
-                            {item.orderNumber}
-                          </td>
-                          <td className={classes.nameTableColumn}>
-                            <input
-                              type="text"
-                              value={item.content}
-                              onChange={(e) => {
-                                const updated = [...statistics];
-                                updated[item.orderNumber - 1].content =
-                                  e.target.value;
-                                setStatistics(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <select
-                              name="mySelect"
-                              value={item.holderUserId}
-                              onChange={(e) => {
-                                const updated = [...statistics];
-                                updated[item.orderNumber - 1].holderUserId =
-                                  e.target.value;
-                                setStatistics(updated);
-                              }}
-                              className={classes.select}
-                            >
-                              <option value="">Выберите опцию</option>
-                              {workers.map((item) => {
-                                return (
-                                  <option
-                                    value={item.id}
-                                  >{`${item.firstName} ${item.lastName} `}</option>
-                                );
-                              })}
-                            </select>
-                          </td>
-                          <td className={classes.dateTableColumn}>
-                            <input
-                              type="date"
-                              value={item.deadline.slice(0, 10)}
-                              onChange={(e) => {
-                                const updated = [...statistics];
-                                const date = new Date(e.target.value);
-                                date.setUTCHours(21, 0, 0, 0);
-                                updated[item.orderNumber - 1].deadline =
-                                  date.toISOString();
-                                setStatistics(updated);
-                              }}
-                            />
-                          </td>
-                          <td className={classes.imageTableColumn}>
-                            <img
-                              src={deleteGrey}
-                              alt="deleteGrey"
-                              onClick={() => deleteRow(item.type, item.id)}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                    <table className={classes.table}>
+                      <caption>
+                        <div className={classes.nameRow}>
+                          <div>СТАТИСТИКА</div>
+                          <img
+                            src={addCircle}
+                            alt="addCircle"
+                            onClick={() => addStatistics()}
+                          />
+                        </div>
+                      </caption>
+                      <tbody>
+                        {statistics.map((item) => {
+                          return (
+                            <tr>
+                              <td className={classes.numberTableColumn}>
+                                {item.orderNumber}
+                              </td>
+                              <td className={classes.nameTableColumn}>
+                                <input
+                                  type="text"
+                                  value={item.content}
+                                  onChange={(e) => {
+                                    const updated = [...statistics];
+                                    updated[item.orderNumber - 1].content =
+                                      e.target.value;
+                                    setStatistics(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <select
+                                  name="mySelect"
+                                  value={item.holderUserId}
+                                  onChange={(e) => {
+                                    const updated = [...statistics];
+                                    updated[item.orderNumber - 1].holderUserId =
+                                      e.target.value;
+                                    setStatistics(updated);
+                                  }}
+                                  className={classes.select}
+                                >
+                                  <option value="">Выберите опцию</option>
+                                  {workers.map((item) => {
+                                    return (
+                                      <option
+                                        value={item.id}
+                                      >{`${item.firstName} ${item.lastName} `}</option>
+                                    );
+                                  })}
+                                </select>
+                              </td>
+                              <td className={classes.dateTableColumn}>
+                                <input
+                                  type="date"
+                                  value={item.deadline.slice(0, 10)}
+                                  onChange={(e) => {
+                                    const updated = [...statistics];
+                                    const date = new Date(e.target.value);
+                                    date.setUTCHours(21, 0, 0, 0);
+                                    updated[item.orderNumber - 1].deadline =
+                                      date.toISOString();
+                                    setStatistics(updated);
+                                  }}
+                                />
+                              </td>
+                              <td className={classes.imageTableColumn}>
+                                <img
+                                  src={deleteGrey}
+                                  alt="deleteGrey"
+                                  onClick={() => deleteRow(item.type, item.id)}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </>
+                )}
               </>
             )}
           </>

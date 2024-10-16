@@ -150,6 +150,20 @@ export default function SpeedGoalContent() {
     }
   }, [currentSpeedGoal]);
 
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "Enter" && event.ctrlKey) {
+        addEditor();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
+  
   const saveUpdateSpeedGoal = async () => {
     await updateSpeedGoal({
       userId,

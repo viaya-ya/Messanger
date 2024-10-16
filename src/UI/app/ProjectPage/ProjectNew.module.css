@@ -93,7 +93,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .editText {
     padding: 0.1% 2%;
-    height: 34%;
+    height: 45%;
     width: 100%;
     background-color: #ffff;
     display: flex;
@@ -110,16 +110,10 @@ input[type="search"]::-webkit-input-placeholder {
     margin-right: 50px;
 }
 
-.nameList {
-    color: #3A3A3A;
-    font-family: "Montserrat";
-    text-align: center;
-    font-weight: 600;
-}
 
 .blockSelect {
     position: relative;
-    margin-right: 2%;
+    margin-right: 30px;
 }
 
 .blockSelect:hover .option {

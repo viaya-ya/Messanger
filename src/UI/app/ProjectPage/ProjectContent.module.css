@@ -94,23 +94,21 @@ input[type="search"]::-webkit-input-placeholder {
 .editText {
     padding: 0.1% 2%;
     max-width: 100%;
+    margin-top: 10px;
     background-color: #ffff;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    column-gap: 40px;
+    column-gap: 10px;
     row-gap: 10px;
 }
 
 .item {
-    margin-right: 10%;
+    margin-right: 10px;
 }
 
-.itemLast {
-    margin-right: 4%;
-}
 
 .nameList {
     color: #3A3A3A;
@@ -121,7 +119,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .blockSelect {
     position: relative;
-    margin-right: 2%;
+    margin-right: 5px;
 }
 
 .blockSelect:hover .option {
@@ -319,6 +317,7 @@ input[type="search"]::-webkit-input-placeholder {
     position: relative;
     flex-grow: 1;
     flex-shrink: 1;
+    height: 10vh; 
     overflow-y: auto;
     background-color: #B4B4B4;
     padding-top: 1%;

@@ -15,15 +15,16 @@ export default function MyEditor({
   // Функция для обработки загрузки изображений
   const uploadImageCallback = async (file) => {
     try {
-      console.log(file);
       const formData = new FormData();
-      formData.append("filename", file);
+      formData.append("file", file);
       // Вызов postImage для отправки файла на сервер
       const response = await postImage({
         userId,
         policyId,
         formData,
       }).unwrap();
+      console.log("Успешно загружено:", response);
+      return response; // Можно вернуть ответ, если это нужно
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);
       return Promise.reject(error);
@@ -53,4 +54,7 @@ export default function MyEditor({
       />
     </div>
   );
+}
+
+{
 }

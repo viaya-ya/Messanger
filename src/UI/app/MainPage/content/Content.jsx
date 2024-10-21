@@ -12,29 +12,29 @@ export default function Content() {
   const [serverResponse, setServerResponse] = useState("");
   const [authStatus, setAuthStatus] = useState("");
 
-  useEffect(() => {
-    // Получаем информацию о User-Agent
-    const userAgent = navigator.userAgent;
+  // useEffect(() => {
+  //   // Получаем информацию о User-Agent
+  //   const userAgent = navigator.userAgent;
 
-    // Отправляем информацию о User-Agent на сервер
-    socket.emit("requestInfo", { userAgent });
+  //   // Отправляем информацию о User-Agent на сервер
+  //   socket.emit("requestInfo", { userAgent });
 
-    // Подписываемся на событие 'responseFromClient' для получения ответа от сервера
-    socket.on("responseFromClient", (data) => {
-      console.log("Ответ от сервера:", data);
-      setServerResponse(data.message); // Сохраняем сообщение в состоянии
-    });
+  //   // Подписываемся на событие 'responseFromClient' для получения ответа от сервера
+  //   socket.on("responseFromClient", (data) => {
+  //     console.log("Ответ от сервера:", data);
+  //     setServerResponse(data.message); // Сохраняем сообщение в состоянии
+  //   });
 
-    socket.on("receiveAuthInfo", (data) => {
-      console.log("Ответ от сервера:", data);
-      setAuthStatus(data.message); // Сохраняем сообщение в состоянии
-    });
-    // Очищаем подписки на события при размонтировании компонента
-    return () => {
-      socket.off("responseFromClient");
-      socket.off("receiveAuthInfo");
-    };
-  }, []);
+  //   socket.on("receiveAuthInfo", (data) => {
+  //     console.log("Ответ от сервера:", data);
+  //     setAuthStatus(data.message); // Сохраняем сообщение в состоянии
+  //   });
+  //   // Очищаем подписки на события при размонтировании компонента
+  //   return () => {
+  //     socket.off("responseFromClient");
+  //     socket.off("receiveAuthInfo");
+  //   };
+  // }, []);
 
   return (
     <div className={classes.body}>

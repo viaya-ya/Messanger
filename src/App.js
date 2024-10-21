@@ -5,9 +5,7 @@ import Header from "./UI/app/MessagesPage/header/Header";
 import Content from "./UI/app/MessagesPage/content/Content";
 import Block from "./UI/app/MessagesPage/block/Block";
 
-
 function App() {
-
   return (
     <div>
       <Routes>
@@ -122,7 +120,7 @@ function App() {
             </div>
           }
         ></Route>
-         <Route
+        <Route
           path="/:userId/strateg/new"
           element={
             <div className="messages">
@@ -133,7 +131,17 @@ function App() {
           }
         ></Route>
         <Route
-          path="/statistics"
+          path="/:userId/statistics"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        <Route
+          path="/:userId/statistics/new"
           element={
             <div className="messages">
               <Header></Header>

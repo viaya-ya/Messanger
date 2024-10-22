@@ -465,7 +465,11 @@ export default function ProjectNew() {
                   Error={isErrorProjectMutation}
                   Success={isSuccessProjectMutation}
                   textSuccess={"Успешно создано."}
-                  textError={Error?.data?.errors[0]?.errors[0]}
+                  textError={
+                    Error?.data?.errors?.[0]?.errors?.[0] 
+                      ? Error.data.errors[0].errors[0] 
+                      : Error?.data?.message
+                  }
                 ></HandlerMutation>
 
                 {showEditorState ? (

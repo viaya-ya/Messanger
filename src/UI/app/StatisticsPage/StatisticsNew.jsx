@@ -244,7 +244,11 @@ export default function StatisticsNew() {
                 Error={isErrorPostStatisticMutation}
                 Success={isSuccessPostStatisticMutation}
                 textSuccess={"Статистика успешно создана."}
-                textError={Error?.data?.errors[0]?.errors[0]}
+                textError={
+                  Error?.data?.errors?.[0]?.errors?.[0] 
+                    ? Error.data.errors[0].errors[0] 
+                    : Error?.data?.message
+                }
               />
             </>
             )}

@@ -581,7 +581,11 @@ export default function SpeedGoalContent() {
               Error={isErrorUpdateSpeedGoalMutation && !manualErrorReset}
               Success={isSuccessUpdateSpeedGoalMutation && !manualSuccessReset}
               textSuccess={"Краткосрочная цель обновлена"}
-              textError={Error?.data?.errors[0]?.errors[0]}
+              textError={
+                Error?.data?.errors?.[0]?.errors?.[0] 
+                  ? Error.data.errors[0].errors[0] 
+                  : Error?.data?.message
+              }
             />
             {Object.keys(currentSpeedGoal).length > 0 && (
               <button className={classes.add} onClick={addEditor}>

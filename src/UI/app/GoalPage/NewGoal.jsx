@@ -420,7 +420,11 @@ export default function GoalContent() {
                 Error={isErrorPostGoalMutation}
                 Success={isSuccessPostGoalMutation}
                 textSuccess={"Цель успешно создана."}
-                textError={Error?.data?.errors[0]?.errors[0]}
+                textError={
+                  Error?.data?.errors?.[0]?.errors?.[0] 
+                    ? Error.data.errors[0].errors[0] 
+                    : Error?.data?.message
+                }
               />
             </>
             )}

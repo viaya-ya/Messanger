@@ -431,7 +431,9 @@ export default function PostContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Пост обновлен"}
                           textError={
-                            ErrorUpdatePostMutation?.data?.errors[0]?.errors[0]
+                            Error?.data?.errors?.[0]?.errors?.[0] 
+                              ? Error.data.errors[0].errors[0] 
+                              : Error?.data?.message
                           }
                         ></HandlerMutation>
                       </>

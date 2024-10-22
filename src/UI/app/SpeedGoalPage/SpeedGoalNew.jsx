@@ -494,7 +494,11 @@ export default function SpeedGoalNew() {
           Error={isErrorPostSpeedGoalMutation}
           Success={isSuccessPostSpeedGoalMutation}
           textSuccess={"Краткосрочная цель успешно создана."}
-          textError={Error?.data?.errors[0]?.errors[0]}
+          textError={
+            Error?.data?.errors?.[0]?.errors?.[0] 
+              ? Error.data.errors[0].errors[0] 
+              : Error?.data?.message
+          }
         />
 
         <button className={classes.add} onClick={addEditor}>

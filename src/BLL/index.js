@@ -6,6 +6,7 @@ import { postApi } from './postApi';
 import { projectApi } from './projectApi';
 import { strategApi } from './strategApi';
 import { statisticsApi } from './statisticsApi';
+import { policyDirectoriesApi } from './policyDirectoriesApi';
 
 export const store = configureStore({
     reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
         [projectApi.reducerPath]: projectApi.reducer,
         [strategApi.reducerPath]: strategApi.reducer,
         [statisticsApi.reducerPath]: statisticsApi.reducer,
+        [policyDirectoriesApi.reducerPath]: policyDirectoriesApi.reducer,
     },
     middleware: (getDefaultMiddlware) => getDefaultMiddlware()
                                                                 .concat(policyApi.middleware)
@@ -25,5 +27,6 @@ export const store = configureStore({
                                                                 .concat(projectApi.middleware)
                                                                 .concat(strategApi.middleware)
                                                                 .concat(statisticsApi.middleware)
+                                                                .concat(policyDirectoriesApi.middleware)
 });
 export default store;

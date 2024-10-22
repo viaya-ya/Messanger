@@ -515,7 +515,11 @@ export default function GoalContent() {
                             isSuccessUpdateGoalMutation && !manualSuccessReset
                           } // Учитываем ручной сброс
                           textSuccess={"Цель обновлена"}
-                          textError={Error?.data?.errors[0]?.errors[0]}
+                          textError={
+                            Error?.data?.errors?.[0]?.errors?.[0] 
+                              ? Error.data.errors[0].errors[0] 
+                              : Error?.data?.message
+                          }
                         ></HandlerMutation>
                       </>
                     ) : (

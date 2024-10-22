@@ -1547,7 +1547,11 @@ export default function ProjectContent() {
                             isSuccessProjectMutation && !manualSuccessReset
                           } // Учитываем ручной сброс
                           textSuccess={"Обновлена"}
-                          textError={Error?.data?.errors[0]?.errors[0]}
+                          textError={
+                            Error?.data?.errors?.[0]?.errors?.[0] 
+                              ? Error.data.errors[0].errors[0] 
+                              : Error?.data?.message
+                          }
                         ></HandlerMutation>
                       </>
                     ) : (

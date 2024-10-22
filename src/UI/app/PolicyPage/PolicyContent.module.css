@@ -124,12 +124,14 @@ input[type="search"]::-webkit-input-placeholder {
 .item {
     margin-right: 2%;
 }
+
 .itemName span {
     font-style: italic;
     font-size: 12px;
     font-family: 'Montserrat';
     font-weight: 400;
 }
+
 .select {
     position: relative;
     font-family: 'Montserrat';
@@ -203,6 +205,30 @@ input[type="search"]::-webkit-input-placeholder {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+}
+
+
+.blockIconDeletetmp {
+    position: relative;
+}
+
+.blockIconDeletetmp:hover::after {
+    content: "Удалить папку";
+    white-space: nowrap;
+    position: absolute;
+    width: 90px;
+    height: 20px;
+    bottom: -120%;
+    left: -120%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3A3A3A;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    z-index: 20;
 }
 
 .select {
@@ -325,12 +351,14 @@ input[type="search"]::-webkit-input-placeholder {
 
 .policySearch {
     position: absolute;
-    bottom: -70px;
-    min-height: 60px;
+    top: calc(100% + 5px);
+    left:20px;
+    /* max-height: 100px; */
+    height: auto;
+    min-width: 200px;
     padding: 5px 5px;
-    width: 200px;
-    background-color: rgb(255, 255, 255);
-    overflow: visible;
+    background-color: rgb(255, 255, 255); 
+    /* overflow: visible;  */
     box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.25);
     border-radius: 4px;
 }
@@ -458,19 +486,18 @@ textarea::placeholder {
     max-width: 300px;
     overflow: auto;
     position: absolute;
-    left: 180px;
+    left: calc(98%);
     top: 0;
     margin: 0;
-    list-style: none;  
+    list-style: none;
     z-index: 100;
     padding-left: 20px;
-    /* box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.25);
-    border-radius: 40px; */
     & li {
         padding: 5px;
         cursor: pointer;
         width: 100%;
         background-color: white;
+
         &:hover {
             background-color: rgb(240, 240, 240)
         }
@@ -481,11 +508,17 @@ textarea::placeholder {
     display: block;
 }
 
+.policySearchItem:hover {
+    display: block;
+    background-color: rgb(240, 240, 240)
+}
+
 .policySearchItem {
     position: relative;
 }
 
-.listText{
+.listText {
+    white-space: nowrap;
     font-weight: 600;
     font-family: 'Montserrat';
     color: #3A3A3A;
@@ -519,4 +552,127 @@ textarea::placeholder {
         transform: scale(1);
         /* Возвращение к исходному размеру */
     }
+}
+
+.modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalTable {
+    position: relative;
+    max-height: 80vh;
+    max-width: 50vw;
+    background-color: #fff;
+    border-collapse: collapse;
+    /* Для устранения внешних отступов */
+    display: block;
+    /* Обязательно */
+}
+
+.exitImage {
+    position: absolute;
+    float: right;
+    top: -27px;
+    right: -27px;
+    cursor: pointer;
+}
+
+.modalTable thead,
+.modalTable tbody {
+    display: block;
+    /* Чтобы задать высоту для tbody */
+    width: 50vw;
+}
+
+.modalTable tbody {
+    max-width: 50vw;
+    max-height: 65vh;
+    /* Ограничиваем высоту для появления скролла */
+    overflow-y: auto;
+    /* Включаем скролл */
+}
+
+.modalTable th {
+    width: 25vw;
+    padding: 10px;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    /* Чтобы содержимое не переносилось */
+    vertical-align: top;
+    /* Выравнивание содержимого по верхнему краю */
+}
+
+.modalTable td {
+    width: 25vw;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    /* Чтобы содержимое не переносилось */
+    vertical-align: top;
+    /* Выравнивание содержимого по верхнему краю */
+}
+
+.modalTable thead th {
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    /* Чтобы шапка оставалась видимой при скролле */
+}
+
+.row {
+    padding: 5px;
+    display: flex;
+    column-gap: 5px;
+    border: 1px solid #ddd;
+}
+
+.newBlock {
+    background-color: rgb(240, 240, 240)
+}
+
+.item {
+    margin-right: 10px;
+}
+.itemName span {
+    font-style: italic;
+    font-size: 12px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+}
+.div {
+    position: relative;
+}
+
+.div:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: rgb(240, 240, 240);
+    z-index: 100;
+}
+.modalTableRow{
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.modalTableRowIcon{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 10px;
 }

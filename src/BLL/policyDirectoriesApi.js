@@ -15,13 +15,7 @@ export const policyDirectoriesApi = createApi({
           folders: respone || [],
         };
       },
-      providesTags: (result) =>
-        result && Array.isArray(result)
-          ? [
-              ...result.map(({ id }) => ({ type: "policyDirectories", id })),
-              { type: "policyDirectories", id: "LIST" },
-            ]
-          : [{ type: "policyDirectories", id: "LIST" }],
+      providesTags: [{ type: "policyDirectories", id: "LIST" }],
     }),
 
     postPolicyDirectories: build.mutation({
@@ -31,7 +25,7 @@ export const policyDirectoriesApi = createApi({
         body,
       }),
       invalidatesTags: (result) =>
-        result ? [{ type: "policyDirectories" }] : [],
+        result ? [{ type: "policyDirectories", id: "LIST"  }] : [],
     }),
 
     updatePolicyDirectories: build.mutation({
@@ -40,7 +34,7 @@ export const policyDirectoriesApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result,  error,  {policyDirectoryId}) => result ? [{type: "policyDirectories", id: policyDirectoryId}]: []
+      invalidatesTags: (result) => result ?  [{ type: "policyDirectories", id: "LIST" }]: []
     }), 
 
     deletePolicyDirectories: build.mutation({
@@ -48,7 +42,7 @@ export const policyDirectoriesApi = createApi({
         url: `${userId}/policyDirectory/${policyDirectoryId}/remove`,
         method: "DELETE",
       }),
-      invalidatesTags: (result,  error,  {policyDirectoryId}) => result ? [{type: "policyDirectories", id: policyDirectoryId}]: []
+      invalidatesTags: [{ type: "policyDirectories", id: "LIST"  }],
     }), 
   }),
 });

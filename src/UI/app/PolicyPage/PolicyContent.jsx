@@ -72,10 +72,18 @@ export default function PolicyContent() {
     useState();
   const [policyToPolicyDirectoriesUpdate, setPolicyToPolicyDirectoriesUpdate] =
     useState();
+
   const [manualSuccessResetDirectory, setManualSuccessResetDirectory] =
     useState(false);
   const [manualErrorResetDirectory, setManualErrorResetDirectory] =
     useState(false);
+
+    const [manualDeleteSuccessResetDirectory, setManualDeleteSuccessResetDirectory] =
+    useState(false);
+  const [manualDeleteErrorResetDirectory, setManualDeleteErrorResetDirectory] =
+    useState(false);
+
+    const [openModalDelete, setOpenModalDelete] = useState(false);
   const {
     instructions = [],
     directives = [],
@@ -121,6 +129,7 @@ export default function PolicyContent() {
       error: Error,
     },
   ] = useUpdatePoliciesMutation();
+
 
   const {
     folders = [],
@@ -323,6 +332,7 @@ export default function PolicyContent() {
       setOpenModalUpdate(true);
     }
   };
+
   const exitUpdate = () => {
     setOpenModalUpdate(false);
   };
@@ -376,7 +386,11 @@ export default function PolicyContent() {
       policyToPolicyDirectories: policyToPolicyDirectories,
     })
       .unwrap()
-      .then(() => {})
+      .then(() => {
+        setOpenModal(false);
+        setDirectoryName("");
+        setPolicyToPolicyDirectories([]);
+      })
       .catch((error) => {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
@@ -405,8 +419,15 @@ export default function PolicyContent() {
       policyDirectoryId: currentDirectoryId,
     })
       .unwrap()
-      .then(() => {})
+      .then(() => {
+        setOpenModalDelete(false);
+        setOpenModalUpdate(false);
+        setManualDeleteSuccessResetDirectory(false);
+        setManualDeleteErrorResetDirectory(false);
+      })
       .catch((error) => {
+        setManualDeleteSuccessResetDirectory(false);
+        setManualDeleteErrorResetDirectory(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
@@ -822,7 +843,10 @@ export default function PolicyContent() {
                                     src={deleteGrey}
                                     alt="deleteGrey"
                                     className={classes.iconSavetmp}
-                                    onClick={() => saveDeleteFolder()}
+                                    onClick={() => {
+                                      setManualDeleteSuccessResetDirectory(true);
+                                      setManualDeleteErrorResetDirectory(true);
+                                      setOpenModalDelete(true)}}
                                   />
                                 </div>
                               </div>
@@ -882,6 +906,7 @@ export default function PolicyContent() {
                             </tbody>
                           </table>
                         </div>
+
                         <HandlerMutation
                           Loading={isLoadingUpdatePolicyDirectoriesMutation}
                           Error={
@@ -900,11 +925,14 @@ export default function PolicyContent() {
                               : ErrorUpdateDirectories?.data?.message
                           }
                         ></HandlerMutation>
-                        
+
                         <HandlerMutation
                           Loading={isLoadingDeletePolicyDirectoriesMutation}
-                          Error={isErrorDeletePolicyDirectoriesMutation}
-                          Success={isSuccessDeletePolicyDirectoriesMutation}
+                          Error={isErrorDeletePolicyDirectoriesMutation &&
+                            !manualDeleteErrorResetDirectory}
+
+                          Success={isSuccessDeletePolicyDirectoriesMutation &&
+                            !manualDeleteSuccessResetDirectory}
                           textSuccess={"Папка удалена"}
                           textError={
                             ErrorDeleteDirectories?.data?.errors?.[0]
@@ -930,6 +958,28 @@ export default function PolicyContent() {
                     ) : (
                       <></>
                     )}
+                    {openModalDelete ? (
+                      <>
+                      <div className={classes.modalDelete}>
+                       
+                        <div className={classes.modalDeleteElement}>
+                          <img src={exitModal} alt="exitModal" className={classes.exitImage} onClick={() => setOpenModalDelete(false)}/>
+                          <div className={classes.row1}>
+                            <span className={classes.text}>Вы точно хотите удалить папку <span style = {{fontWeight:'700'}}>{currentDirectoryName}</span></span>
+                          </div>
+
+                          <div className={classes.row2}>
+                            <button className = {`${classes.btnYes} ${classes.text}`} onClick={() => {
+                                setManualDeleteSuccessResetDirectory(true);
+                                setManualDeleteErrorResetDirectory(true);
+                                saveDeleteFolder();
+                            }}>Да</button>
+                            <button className = {`${classes.btnNo} ${classes.text}`}  onClick={() => {setOpenModalDelete(false)}}>Нет</button>
+                          </div>
+                        </div>
+                      </div>
+                      </>
+                  ) : (<></>)}
                   </>
                 )}
               </>

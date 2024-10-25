@@ -6,7 +6,7 @@ import vk from "../../../image/vk.svg"; // Путь к иконке VK
 import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
-const socket = io("http://localhost:80/auth"); // Подключение к сокету
+const socket = io("http://localhost:5000/auth"); // Подключение к сокету
 
 export default function Content() {
   const [data, setData] = useState({

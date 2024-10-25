@@ -21,7 +21,7 @@ export default function StatisticsContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/start`);
   };
   const newStatistics = () => {
     navigate("new");

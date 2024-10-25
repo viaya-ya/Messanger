@@ -9,14 +9,19 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 const socket = io("http://localhost:80/auth"); // Подключение к сокету
 
 export default function Content() {
+  const [data, setData] = useState({
+    accessToken: "",
+    refreshTokenId: "",
+    userId: "",
+  });
   const [tokenForTG, setTokenForTG] = useState("");
   const [socketId, setSocketId] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
   const [ip, setIp] = useState("");
   const [fingerprint, setFingerprint] = useState("");
   const userAgent = navigator.userAgent; // Получение User-Agent
 
   useEffect(() => {
-    
     // Получение IP-адреса
     fetch("https://api.ipify.org?format=json")
       .then((response) => response.json())
@@ -59,19 +64,24 @@ export default function Content() {
       });
 
     // Подключение сокета и получение socketId
+    console.log("Попытка подключения к сокету...");
     socket.on("connect", () => {
+      console.log("Сокет подключен, socket.id:", socket.id);
       setSocketId(socket.id); // Сохраняем socket.id
-      console.log("Подключение к сокету:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Сокет отключен.");
     });
 
     // Очистка при размонтировании компонента
     return () => {
+      console.log("Отключаем сокет...");
       socket.off("connect");
-      socket.off("requestInfo");
-      socket.off("receiveAuthInfo");
+      socket.off("disconnect");
       socket.disconnect(); // Закрываем соединение при размонтировании компонента
     };
-  }, []);
+  }, []); // Выполняется только один раз при монтировании компонента
 
   // Эффект для отправки данных после того, как все зависимости будут установлены
   useEffect(() => {
@@ -79,7 +89,6 @@ export default function Content() {
       // Все данные готовы, подписываемся на событие requestInfo и отправляем
       socket.on("requestInfo", (data) => {
         console.log("Получено событие requestInfo:", data);
-
         // Отправляем ответ через responseFromClient
         console.log("--------------------");
         console.log(fingerprint);
@@ -99,30 +108,60 @@ export default function Content() {
       socket.on("receiveAuthInfo", (authData) => {
         console.log("Получено событие receiveAuthInfo:", authData);
         // Обработка полученных данных
+        setData(authData);
       });
     }
   }, [fingerprint, ip, tokenForTG]); // Зависимости эффекта
 
-  // Формируем URL для QR-кода с использованием socketId
-  const qrUrl = `tg://resolve?domain=GMAuthBot&start=${encodeURIComponent(
-    tokenForTG
-  )}-${encodeURIComponent(socketId)}`;
+  // Перенаправление на другую страницу при наличии userId
+  useEffect(() => {
+    if (data.userId) {
+      window.location.href = `#/${data.userId}/start`;
+    }
+  }, [data]);
+
+  // Установка QR-кода при наличии tokenForTG и socketId
+  useEffect(() => {
+    if (tokenForTG && socketId) {
+      setQrUrl(
+        `tg://resolve?domain=GMAuthBot&start=${encodeURIComponent(
+          tokenForTG
+        )}-${encodeURIComponent(socketId)}`
+      );
+    }
+  }, [socketId, tokenForTG]);
+
+  console.log("tokenForTG:", tokenForTG);
+  console.log("socketId:", socketId);
 
   return (
     <div className={classes.body}>
       <span className={classes.text}>Для входа отсканируйте QR-код</span>
       <div className={classes.QR}>
-        <div className={classes.telegram}>
-          <QRCode errorLevel="H" value={qrUrl} icon={telegram} />
-          <a href={qrUrl} target="_blank" rel="noopener noreferrer" className={classes.link}>
-            Или перейдите по ссылке
-          </a>
-        </div>
-        {/* <div className={classes.vk}>
-          <QRCode errorLevel="H" value="https://your-backend-url/auth/vk" icon={vk} />
-          <a href="https://your-backend-url/auth/vk" target="_blank" rel="noopener noreferrer" className={classes.link}>Или перейдите по ссылке</a>
-        </div> */}
+        {(!socketId) ? (
+          <div>Подключение к сокету...</div>
+        ) : (tokenForTG && qrUrl) ? (
+          <div className={classes.telegram}>
+            <QRCode errorLevel="H" value={qrUrl} />
+            <a
+              href={qrUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={classes.link}
+            >
+              Или перейдите по ссылке
+            </a>
+          </div>
+        ) : (
+          <> Подождите </>
+        )}
       </div>
     </div>
   );
 }
+
+
+     {/* <div className={classes.vk}>
+          <QRCode errorLevel="H" value="https://your-backend-url/auth/vk" icon={vk} />
+          <a href="https://your-backend-url/auth/vk" target="_blank" rel="noopener noreferrer" className={classes.link}>Или перейдите по ссылке</a>
+        </div> */}

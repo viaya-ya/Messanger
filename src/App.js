@@ -21,7 +21,7 @@ function App() {
 
       <Routes>
         <Route
-          path="/start"
+          path="/:userId/start"
           element={
             <div className="messages">
               <Header></Header>
@@ -30,6 +30,7 @@ function App() {
             </div>
           }
         ></Route>
+
         <Route
           path="/:userId/goal"
           element={
@@ -40,6 +41,7 @@ function App() {
             </div>
           }
         ></Route>
+        
         <Route
           path="/:userId/goal/new"
           element={

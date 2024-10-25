@@ -38,7 +38,7 @@ import Blacksavetmp from "../../image/Blacksavetmp.svg";
 export default function PolicyContent() {
   const navigate = useNavigate();
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/start`);
   };
   const pathNewPolicy = () => {
     navigate("new");

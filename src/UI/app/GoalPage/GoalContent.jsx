@@ -25,7 +25,7 @@ export default function GoalContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/start`);
   };
   const newGoal = () => {
     navigate("new");

@@ -59,7 +59,7 @@ export default function PostNew() {
       isLoading: isLoadingPostMutation,
       isSuccess: isSuccessPostMutation,
       isError: isErrorPostMutation,
-      error: ErrorPostMutation,
+      error: Error,
     },
   ] = usePostPostsMutation();
 

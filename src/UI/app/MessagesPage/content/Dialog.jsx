@@ -2,32 +2,33 @@ import React, { useState, useEffect } from "react";
 import classes from "./Dialog.module.css";
 import icon from "../../../image/iconHeader.svg";
 import { useNavigate } from "react-router-dom";
-
+import { useParams } from "react-router-dom";
 export default function Dialog() {
   const [inputValue, setInputValue] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
+  const { userId } = useParams();
 
   const navigate = useNavigate();
   const goal = () => {
-    navigate("/goal");
+    navigate(`/${userId}/goal`);
   };
   const policy = () => {
-    navigate("/policy");
+    navigate(`/${userId}/policy`);
   };
   const post = () => {
-    navigate("/posts");
+    navigate(`/${userId}/posts`);
   };
   const speedgoal = () => {
-    navigate("/speedgoal");
+    navigate(`/${userId}/speedgoal`);
   };
   const strateg = () => {
-    navigate("/strateg");
+    navigate(`/${userId}/strateg`);
   };
   const statistics = () => {
-    navigate("/statistics");
+    navigate(`/${userId}/statistics`);
   };
   const project = () => {
-    navigate("/project");
+    navigate(`/${userId}/project`);
   };
 
   const menuItems = [

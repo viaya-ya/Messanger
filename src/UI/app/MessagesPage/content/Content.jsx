@@ -25,7 +25,7 @@ export default function Content() {
   return (
     <div className={classes.content}>
       <Contact></Contact>
-      {location.pathname === "/start" && <Dialog />}
+      {location.pathname ===  "/" + userId + "/start" && <Dialog />}
       {location.pathname === "/" + userId + "/goal" && <GoalContent />}
       {location.pathname === "/" + userId + "/goal/new" && <NewGoal />}
       {location.pathname === "/" + userId + "/policy" && <PolicyContent />}

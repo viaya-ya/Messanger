@@ -35,7 +35,7 @@ export default function ProjectContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/start`);
   };
   const newProject = () => {
     navigate("new");

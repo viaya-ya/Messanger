@@ -29,7 +29,7 @@ export default function StrategContent() {
   const { userId } = useParams();
 
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/start`);
   };
 
   const newStrateg = () => {

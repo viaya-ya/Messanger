@@ -19,7 +19,7 @@ export default function PostContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate("/start");
+    navigate(`/${userId}/start`);
   };
   const newPost = () => {
     navigate("new");

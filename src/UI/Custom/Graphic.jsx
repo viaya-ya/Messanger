@@ -16,8 +16,8 @@ const Graphic = ({ data, name, setName }) => {
 
   useEffect(() => {
     // Размеры графика
-    const width = 600;
-    const height = 400;
+    const width = 900;
+    const height = 600;
     const margin = { top: 40, right: 30, bottom: 30, left: 40 };
 
     // Вычисляем минимальное и максимальное значения

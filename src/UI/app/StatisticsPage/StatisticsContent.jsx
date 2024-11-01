@@ -16,7 +16,7 @@ import {
 } from "../../../BLL/statisticsApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
-import styles from '../../Custom/CommonStyles.module.css';
+import styles from "../../Custom/CommonStyles.module.css";
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function StatisticsContent() {
   const [type, setType] = useState("null");
   const [name, setName] = useState("null");
   const [postId, setPostId] = useState("null");
-  const [description, setDescription] = useState();
+  const [description, setDescription] = useState("");
   const [statisticId, setStatisticId] = useState("");
   const [oldReceivedPoints, setOldReceivedPoints] = useState([]);
   const [receivedPoints, setReceivedPoints] = useState([]);
@@ -40,6 +40,12 @@ export default function StatisticsContent() {
   // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
+
+  ///
+  const [day, setDay] = useState("");
+  const [startDay, setStartDay] = useState("");
+  const [endDay, setEndDay] = useState("");
+  const [typeGraphic, setTypeGraphic] = useState("");
 
   const {
     statistics = [],
@@ -97,23 +103,171 @@ export default function StatisticsContent() {
     },
   ] = useUpdateStatisticsMutation();
 
+  // useEffect(() => {
+  //   reset(currentStatistic.name);
+  //   if (statisticDatas.length > 0) {
+  //     const updatedPoints = statisticDatas.map((item) => ({
+  //       ...item,
+  //       valueDate: item.valueDate.split("T")[0],
+  //     }));
+  //     const updatedPoints1 = statisticDatas.map((item) => ({
+  //       ...item,
+  //       valueDate: item.valueDate.split("T")[0],
+  //     }));
+
+  //     if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
+  //       setOldReceivedPoints(updatedPoints);
+  //       setReceivedPoints(updatedPoints1);
+  //     }
+  //   }
+  // }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
+
   useEffect(() => {
-    if (statisticDatas.length > 0) {
-      const updatedPoints = statisticDatas.map((item) => ({
-        ...item,
-        valueDate: item.valueDate.split("T")[0],
-      }));
-      const updatedPoints1 = statisticDatas.map((item) => ({
-        ...item,
-        valueDate: item.valueDate.split("T")[0],
-      }));
+    reset(currentStatistic.name);
+
+    if (statisticDatas.length > 0 && typeGraphic === "Неделя") {
+      const start = new Date(startDay);
+      const end = new Date(endDay);
+      const updatedPoints = statisticDatas
+        .filter((item) => {
+          const itemDate = new Date(item.valueDate);
+          return start <= itemDate && itemDate <= end;
+        })
+        .map((item) => ({
+          ...item,
+          valueDate: item.valueDate.split("T")[0],
+        }))
+        .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
+
+      const updatedPoints1 = statisticDatas
+        .filter((item) => {
+          const itemDate = new Date(item.valueDate);
+          return start <= itemDate && itemDate <= end;
+        })
+        .map((item) => ({
+          ...item,
+          valueDate: item.valueDate.split("T")[0],
+        }))
+        .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
 
       if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
-        setOldReceivedPoints(updatedPoints);
-        setReceivedPoints(updatedPoints1);
+        setOldReceivedPoints(updatedPoints1);
+        setReceivedPoints(updatedPoints);
       }
     }
+
+    if (statisticDatas.length > 0 && typeGraphic === "Месяц" && day !== "") {
+
+      const start = new Date(startDay);
+      const end = new Date(endDay);
+      const selectedDayOfWeek = parseInt(day); // Преобразуем выбранный день недели (1=Пн, 2=Вт, ... , 7=Вс)
+    
+      const result = [];
+      let currentDate = new Date(start);
+      let nextDate;
+      let currentSum = 0;
+    
+      // Находим первую дату, соответствующую выбранному дню недели, начиная с `start`
+      while (currentDate.getDay() !== (selectedDayOfWeek % 7)) {
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    
+      // Считаем сумму для первой точки от `start` до первого дня `day`, включая этот день
+      currentSum = statisticDatas
+        .filter((item) => {
+          const itemDate = new Date(item.valueDate);
+          return itemDate >= start && itemDate <= currentDate;
+        })
+        .reduce((sum, item) => sum + item.value, 0);
+    
+      // Добавляем первую точку данных
+      result.push({
+        value: currentSum,
+        valueDate: currentDate.toISOString().split("T")[0],
+      });
+    
+      // Переходим к следующей точке
+      while (currentDate <= end) {
+        nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 7); // Следующий выбранный день недели
+    
+        // Проверяем, превышает ли `nextDate` `endDay`
+        if (nextDate > end) {
+          // Если превышает, суммируем до `end`
+          currentSum = statisticDatas
+            .filter((item) => {
+              const itemDate = new Date(item.valueDate);
+              return itemDate > currentDate && itemDate <= end; // Считаем до `endDay`
+            })
+            .reduce((sum, item) => sum + item.value, 0);
+    
+          // Добавляем точку данных с `endDay` как `valueDate`
+          result.push({
+            value: currentSum,
+            valueDate: end.toISOString().split("T")[0], // Используем `endDay` как `valueDate`
+          });
+          break; // Завершаем цикл, так как достигли конца
+        }
+    
+        // Считаем сумму от `currentDate` (не включая его) до `nextDate`, включая `nextDate`
+        currentSum = statisticDatas
+          .filter((item) => {
+            const itemDate = new Date(item.valueDate);
+            return itemDate > currentDate && itemDate <= nextDate;
+          })
+          .reduce((sum, item) => sum + item.value, 0);
+    
+        // Добавляем точку данных для текущего интервала
+        result.push({
+          value: currentSum,
+          valueDate: nextDate.toISOString().split("T")[0], // Дата следующего `day`
+        });
+    
+        // Обновляем `currentDate` на `nextDate` для следующего цикла
+        currentDate = nextDate;
+      }
+    
+      console.log(result); // Массив с суммами и датами для каждого найденного дня недели
+    
+      // Обновляем состояние с результатом
+      setOldReceivedPoints(result);
+      setReceivedPoints(result);
+    }
+    
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
+
+  // useEffect(() => {
+  //   reset(currentStatistic.name);
+
+  //   if (statisticDatas.length > 0) {
+  //     const updatedPoints = statisticDatas.map((item) => {
+  //       const date = new Date(item.valueDate);
+  //       const formattedDate = date.toISOString().split("T")[0];
+  //       const dayOfWeek = date.toLocaleDateString("ru-RU", { weekday: 'long' }).slice(0, 3);
+
+  //       return {
+  //         ...item,
+  //         valueDate: `${formattedDate} (${dayOfWeek})`,
+  //       };
+  //     });
+
+  //     const updatedPoints1 = statisticDatas.map((item) => {
+  //       const date = new Date(item.valueDate);
+  //       const formattedDate = date.toISOString().split("T")[0];
+  //       const dayOfWeek = date.toLocaleDateString("ru-RU", { weekday: 'long' }).slice(0, 3);
+
+  //       return {
+  //         ...item,
+  //         valueDate: `${formattedDate} (${dayOfWeek})`,
+  //       };
+  //     });
+
+  //     if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
+  //       setOldReceivedPoints(updatedPoints);
+  //       setReceivedPoints(updatedPoints1);
+  //     }
+  //   }
+  // }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
 
   function compareArrays(oldArray, newArray) {
     const changes = [];
@@ -154,11 +308,17 @@ export default function StatisticsContent() {
     if (postId !== "null" && postId !== currentStatistic?.post?.id) {
       Data.postId = postId;
     }
-    if (description !== null && description !== currentStatistic.description) {
+    if (description !== "" && description !== currentStatistic.description) {
       Data.description = description;
     }
     if (createPoints.length > 0) {
-      Data.statisticDataCreateDtos = createPoints;
+      const formatDate = createPoints.map((item) => {
+        return {
+          ...item,
+          valueDate: new Date(item.valueDate),
+        };
+      });
+      Data.statisticDataCreateDtos = formatDate;
     }
     if (receivedPoints.length > 0) {
       const array = compareArrays(oldReceivedPoints, receivedPoints);
@@ -171,7 +331,7 @@ export default function StatisticsContent() {
       userId,
       statisticId,
       _id: statisticId,
-      ...Data
+      ...Data,
     })
       .unwrap()
       .then(() => {
@@ -213,10 +373,10 @@ export default function StatisticsContent() {
     }
   };
 
-  const reset = () => {
-    setType("");
-    setName("");
-    setPostId("");
+  const reset = (name) => {
+    setType("null");
+    setName(name);
+    setPostId("null");
     setDescription("");
     setCreatePoints([]);
   };
@@ -254,6 +414,53 @@ export default function StatisticsContent() {
           />
         </div>
         <div className={styles.editText}>
+          <span> Отчетный день: </span>
+          <select
+            name=""
+            id=""
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+          >
+            <option value="">---</option>
+            <option value={1}>Пн</option>
+            <option value={2}>Вт</option>
+            <option value={3}>Ср</option>
+            <option value={4}>Чт</option>
+            <option value={5}>Пт</option>
+            <option value={6}>Сб</option>
+            <option value={7}>Вс</option>
+          </select>
+
+          <span> Начало даты: </span>
+          <input
+            type="date"
+            value={startDay}
+            onChange={(e) => {
+              setStartDay(e.target.value);
+            }}
+          />
+
+          <span> Конец даты: </span>
+          <input
+            type="date"
+            value={endDay}
+            onChange={(e) => {
+              setEndDay(e.target.value);
+            }}
+          />
+
+          <select
+            value={typeGraphic}
+            onChange={(e) => setTypeGraphic(e.target.value)}
+          >
+            <option value="">---</option>
+            <option value="Неделя">Неделя</option>
+            <option value="Месяц">Месяц 4</option>
+            <option value="Квартал">Квартал 13</option>
+            <option value="Полгода">Полгода 26</option>
+            <option value="Год">Год 52</option>
+          </select>
+
           <div className={classes.five}>
             <div className={classes.iconAdd}>
               <img
@@ -301,9 +508,12 @@ export default function StatisticsContent() {
                     {currentStatistic.id ? (
                       <>
                         <div className={classes.block1}>
-                          <Graphic 
+                          <Graphic
                             data={[...receivedPoints, ...createPoints]}
-                            name={name !== "null" ? name : currentStatistic?.name}
+                            name={
+                              name !== "null" ? name : currentStatistic?.name
+                            }
+                            setName={setName}
                           ></Graphic>
                         </div>
 
@@ -398,11 +608,11 @@ export default function StatisticsContent() {
                             <select
                               value={statisticId}
                               onChange={(e) => {
-                                if(e.target.value !== ""){
+                                if (e.target.value !== "") {
                                   setStatisticId(e.target.value);
                                   setManualSuccessReset(true);
                                   setManualErrorReset(true);
-                                }  
+                                }
                               }}
                               className={classes.element}
                             >
@@ -438,7 +648,7 @@ export default function StatisticsContent() {
                                 postId !== "null"
                                   ? postId
                                   : currentStatistic?.post?.id
-                              } // Устанавливаем ID, по умолчанию пустая строка
+                              }
                               onChange={(e) => {
                                 setPostId(e.target.value);
                               }}
@@ -466,6 +676,7 @@ export default function StatisticsContent() {
                             ></textarea>
                           </div>
                         </div>
+
                         <HandlerMutation
                           Loading={isLoadingUpdateStatisticMutation}
                           Error={
@@ -477,8 +688,8 @@ export default function StatisticsContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Статистика обновлена"}
                           textError={
-                            Error?.data?.errors?.[0]?.errors?.[0] 
-                              ? Error.data.errors[0].errors[0] 
+                            Error?.data?.errors?.[0]?.errors?.[0]
+                              ? Error.data.errors[0].errors[0]
                               : Error?.data?.message
                           }
                         ></HandlerMutation>
@@ -493,11 +704,11 @@ export default function StatisticsContent() {
                             <select
                               value={statisticId}
                               onChange={(e) => {
-                                if(e.target.value !== ""){
+                                if (e.target.value !== "") {
                                   setStatisticId(e.target.value);
                                   setManualSuccessReset(true);
                                   setManualErrorReset(true);
-                                }  
+                                }
                               }}
                               className={classes.element}
                             >
@@ -512,10 +723,10 @@ export default function StatisticsContent() {
                             </select>
 
                             <select
-                             disabled
+                              disabled
                               value={
                                 type !== "null" ? type : currentStatistic.type
-                              } 
+                              }
                               onChange={(e) => {
                                 setType(e.target.value);
                               }}
@@ -542,7 +753,6 @@ export default function StatisticsContent() {
                                 Выберите пост
                               </option>
                             </select>
-                            
                           </div>
                           <div className={classes.row2}>
                             <textarea

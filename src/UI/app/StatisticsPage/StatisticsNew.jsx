@@ -88,8 +88,6 @@ export default function StatisticsNew() {
     if (description !== "") {
       Data.description = description;
     }
-    console.log(`userId = ${userId}`);
-    console.log(`postId = ${postId}`);
     await postStatistics({
       userId,
       type: type,

@@ -135,7 +135,6 @@ input[type="search"]::-webkit-input-placeholder {
 .select {
     position: relative;
     font-family: 'Montserrat';
-    font-weight: 600;
 }
 
 .div {
@@ -170,13 +169,13 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .blockIconAdd:hover::after {
-    content: "Создать политику";
+    content: "Создать";
     white-space: nowrap;
     position: absolute;
-    width: 120px;
+    width: 60px;
     height: 20px;
     bottom: -120%;
-    left: -170%;
+    left: -80%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -231,18 +230,13 @@ input[type="search"]::-webkit-input-placeholder {
     z-index: 20;
 }
 
-.select {
-    height: auto;
-    cursor: pointer;
-}
-
-.select:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
-}
-
 .blockSelect {
     position: relative;
+
+    & > img:hover {
+        background-color: rgb(240, 240, 240);
+        border-radius: 20%;
+    }
 }
 
 .option {
@@ -365,8 +359,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .main {
     position: relative;
-    height: 84%;
-    max-height: 80vh;
+    height: calc(100vh - 120px - 24px - 25px);
     overflow-y: auto;
     background-color: #F0F0F0;
     padding-top: 1%;

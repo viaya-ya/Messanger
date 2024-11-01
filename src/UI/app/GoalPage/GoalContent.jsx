@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import classes from "./GoalContent.module.css";
+import styles from '../../Custom/CommonStyles.module.css';
 import icon from "../../image/iconHeader.svg";
 import Select from "../../image/Select.svg";
 import iconBack from "../../image/iconBack.svg";
@@ -98,14 +99,11 @@ export default function GoalContent() {
   }, [currentGoal]);
 
   useEffect(() => {
-    editorState.forEach((item, index) => {
-      const rawContent = draftToHtml(convertToRaw(item.getCurrentContent()));
-      setHtmlContent((prev) => {
-        const updated = [...prev];
-        updated[index] = rawContent;
-        return updated;
-      });
-    });
+    setHtmlContent(
+      editorState.map((editor) =>
+        draftToHtml(convertToRaw(editor.getCurrentContent()))
+      )
+    );
   }, [editorState]);
 
   const getGoalId = (id) => {
@@ -135,6 +133,7 @@ export default function GoalContent() {
       EditorState.createEmpty(),
     ]);
   };
+
   const deleteEditor = (index) => {
     setEditorState((prevEditors) => {
       const updated = [...prevEditors];
@@ -185,9 +184,9 @@ export default function GoalContent() {
 
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -216,7 +215,7 @@ export default function GoalContent() {
           />
         </div>
 
-        <div className={classes.editText}>
+        <div className={styles.editText}>
           <div className={classes.four}>
             <select
               value={selectedGoalId || ""} // Устанавливаем ID, по умолчанию пустая строка

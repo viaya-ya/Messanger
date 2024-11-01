@@ -4,6 +4,7 @@ import icon from "../../image/iconHeader.svg";
 import Select from "../../image/Select.svg";
 import iconBack from "../../image/iconBack.svg";
 import subbarSearch from "../../image/subbarSearch.svg";
+import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import iconSavetmp from "../../image/iconSavetmp.svg";
 import email from "../../image/email.svg";
 import iconGroup from "../../image/iconGroup.svg";
@@ -33,7 +34,7 @@ import {
   usePostPolicyDirectoriesMutation,
   useUpdatePolicyDirectoriesMutation,
 } from "../../../BLL/policyDirectoriesApi.js";
-import Blacksavetmp from "../../image/Blacksavetmp.svg";
+import styles from "../../Custom/CommonStyles.module.css";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
@@ -73,17 +74,29 @@ export default function PolicyContent() {
   const [policyToPolicyDirectoriesUpdate, setPolicyToPolicyDirectoriesUpdate] =
     useState();
 
-  const [manualSuccessResetDirectory, setManualSuccessResetDirectory] =
-    useState(false);
-  const [manualErrorResetDirectory, setManualErrorResetDirectory] =
-    useState(false);
+  const [
+    manualCreateSuccessResetDirectory,
+    setManualCreateSuccessResetDirectory,
+  ] = useState(true);
+  const [manualCreateErrorResetDirectory, setManualCreateErrorResetDirectory] =
+    useState(true);
 
-    const [manualDeleteSuccessResetDirectory, setManualDeleteSuccessResetDirectory] =
-    useState(false);
+  const [
+    manualUpdateSuccessResetDirectory,
+    setManualUpdateSuccessResetDirectory,
+  ] = useState(true);
+  const [manualUpdateErrorResetDirectory, setManualUpdateErrorResetDirectory] =
+    useState(true);
+
+  const [
+    manualDeleteSuccessResetDirectory,
+    setManualDeleteSuccessResetDirectory,
+  ] = useState(true);
   const [manualDeleteErrorResetDirectory, setManualDeleteErrorResetDirectory] =
-    useState(false);
+    useState(true);
 
-    const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+
   const {
     instructions = [],
     directives = [],
@@ -129,7 +142,6 @@ export default function PolicyContent() {
       error: Error,
     },
   ] = useUpdatePoliciesMutation();
-
 
   const {
     folders = [],
@@ -208,7 +220,7 @@ export default function PolicyContent() {
       const oldEditorState = EditorState.createWithContent(contentState);
       setEditorState(oldEditorState);
     }
-  }, [currentPolicy.content]); // This effect runs only when currentPolicy.content changes
+  }, [currentPolicy.content]);
 
   const reset = () => {
     setType(null);
@@ -250,12 +262,23 @@ export default function PolicyContent() {
   };
 
   const getPolicyId = (id) => {
+    setManualUpdateSuccessResetDirectory(true);
+    setManualUpdateErrorResetDirectory(true);
+
+    setManualCreateSuccessResetDirectory(true);
+    setManualCreateErrorResetDirectory(true);
+
+    setManualDeleteSuccessResetDirectory(true);
+    setManualDeleteErrorResetDirectory(true);
+
     setSelectedPolicyId(id);
     setManualSuccessReset(true);
     setManualErrorReset(true);
   };
 
   const open = () => {
+    // setManualCreateSuccessResetDirectory(true);
+    // setManualCreateErrorResetDirectory(true);
     setOpenModal(true);
   };
   const exit = () => {
@@ -282,8 +305,8 @@ export default function PolicyContent() {
   }, [isLoadingGetPolicies, isFetchingGetPolicies]);
 
   const openUpdate = (element) => {
-    setManualSuccessResetDirectory(true);
-    setManualErrorResetDirectory(true);
+    // setManualUpdateSuccessResetDirectory(false);
+    // setManualUpdateErrorResetDirectory(false);
     const obj = folders?.filter((item) => item.id === element.id);
     if (obj?.length > 0) {
       const { id, directoryName, policyToPolicyDirectories } = obj[0];
@@ -387,14 +410,19 @@ export default function PolicyContent() {
     })
       .unwrap()
       .then(() => {
-        setOpenModal(false);
         setDirectoryName("");
         setPolicyToPolicyDirectories([]);
+        setManualCreateSuccessResetDirectory(false);
+        setManualCreateErrorResetDirectory(false);
+        setOpenModal(false);
       })
       .catch((error) => {
+        setManualCreateSuccessResetDirectory(false);
+        setManualCreateErrorResetDirectory(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+
   const saveUpdateFolder = async () => {
     await updatePolicyDirectories({
       userId,
@@ -404,15 +432,16 @@ export default function PolicyContent() {
     })
       .unwrap()
       .then(() => {
-        setManualSuccessResetDirectory(false);
-        setManualErrorResetDirectory(false);
+        setManualUpdateSuccessResetDirectory(false);
+        setManualUpdateErrorResetDirectory(false);
       })
       .catch((error) => {
-        setManualSuccessResetDirectory(false);
-        setManualErrorResetDirectory(false);
+        setManualUpdateSuccessResetDirectory(false);
+        setManualUpdateErrorResetDirectory(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+
   const saveDeleteFolder = async () => {
     await deletePolicyDirectories({
       userId,
@@ -431,11 +460,14 @@ export default function PolicyContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+  console.log("---------------------------");
+  console.log(`isSuccessUpdatePolicyDirectoriesMutation = ${isSuccessUpdatePolicyDirectoriesMutation}`);
+  console.log(`manualUpdateErrorResetDirectory = ${manualUpdateErrorResetDirectory}`);
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -464,55 +496,7 @@ export default function PolicyContent() {
           />
         </div>
 
-        <div className={classes.editText}>
-          {currentPolicy.id ? (
-            <>
-              <div className={classes.item}>
-                <div className={classes.itemName}>
-                  <span>Тип</span>
-                </div>
-                <div className={classes.div}>
-                  <select
-                    className={classes.select}
-                    name="type"
-                    value={type || currentPolicy.type}
-                    onChange={(e) => setType(e.target.value)}
-                  >
-                    <option value="Директива">Директива</option>
-                    <option value="Инструкция">Инструкция</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={classes.item}>
-                <div className={classes.itemName}>
-                  <span>Состояние</span>
-                </div>
-                <div className={classes.div}>
-                  <select
-                    className={classes.select}
-                    name="state"
-                    value={state || currentPolicy.state}
-                    onChange={(e) => setState(e.target.value)}
-                  >
-                    <option value="Черновик">Черновик</option>
-                    <option value="Активный">Активный</option>
-                    <option value="Отменён">Отменён</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={classes.five}>
-                <CustomSelect
-                  organizations={organizations}
-                  selectOrganizations={currentPolicy.policyToOrganizations}
-                  setPolicyToOrganizations={setPolicyToOrganizations}
-                ></CustomSelect>
-              </div>
-            </>
-          ) : (
-            <></>
-          )}
+        <div className={styles.editText}>
 
           <div className={classes.sixth} ref={selectRef}>
             <img
@@ -613,6 +597,53 @@ export default function PolicyContent() {
             </div>
           </div>
 
+          {currentPolicy.id ? (
+            <>
+              <div className={classes.item}>
+                <div className={classes.itemName}>
+                  <span>Тип</span>
+                </div>
+                <div className={classes.div}>
+                  <select
+                    className={classes.select}
+                    name="type"
+                    value={type || currentPolicy.type}
+                    onChange={(e) => setType(e.target.value)}
+                  >
+                    <option value="Директива">Директива</option>
+                    <option value="Инструкция">Инструкция</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={classes.item}>
+                <div className={classes.itemName}>
+                  <span>Состояние</span>
+                </div>
+                <div className={classes.div}>
+                  <select
+                    className={classes.select}
+                    name="state"
+                    value={state || currentPolicy.state}
+                    onChange={(e) => setState(e.target.value)}
+                  >
+                    <option value="Черновик">Черновик</option>
+                    <option value="Активный">Активный</option>
+                    <option value="Отменён">Отменён</option>
+                  </select>
+                </div>
+              </div>
+
+                <CustomSelect
+                  organizations={organizations}
+                  selectOrganizations={currentPolicy.policyToOrganizations}
+                  setPolicyToOrganizations={setPolicyToOrganizations}
+                ></CustomSelect>
+            </>
+          ) : (
+            <></>
+          )}
+
           <div className={classes.imageButton}>
             <div className={classes.blockIconAdd}>
               <img
@@ -640,16 +671,18 @@ export default function PolicyContent() {
             </div>
             <div className={classes.blockIconSavetmp}>
               <img
-                src={iconSavetmp}
-                alt="iconSavetmp"
+                src={Blacksavetmp}
+                alt="Blacksavetmp"
                 className={classes.iconSavetmp}
                 style={{ marginLeft: "0.5%" }}
                 onClick={() => saveUpdatePolicy()}
               />
             </div>
           </div>
+          
         </div>
       </div>
+
       <div className={classes.main}>
         {isErrorGetPolicies && isErrorGetPolicyDirectoriesMutation ? (
           <>
@@ -693,6 +726,7 @@ export default function PolicyContent() {
                           userId={userId}
                           policyId={selectedPolicyId}
                         />
+
                         <HandlerMutation
                           Loading={isLoadingUpdatePoliciesMutation}
                           Error={
@@ -709,98 +743,217 @@ export default function PolicyContent() {
                               : Error?.data?.message
                           }
                         ></HandlerMutation>
+
+                        <HandlerMutation
+                          Loading={isLoadingPostPolicyDirectoriesMutation}
+                          Error={
+                            isErrorPostPolicyDirectoriesMutation &&
+                            !manualCreateErrorResetDirectory
+                          }
+                          Success={
+                            isSuccessPostPolicyDirectoriesMutation &&
+                            !manualCreateSuccessResetDirectory
+                          }
+                          textSuccess={"Папка создана"}
+                          textError={
+                            ErrorPolicyDirectories?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorPolicyDirectories.data.errors[0].errors[0]
+                              : ErrorPolicyDirectories?.data?.message
+                          }
+                        ></HandlerMutation>
+
+                        <HandlerMutation
+                          Loading={isLoadingUpdatePolicyDirectoriesMutation}
+                          Error={
+                            isErrorUpdatePolicyDirectoriesMutation &&
+                            !manualUpdateErrorResetDirectory
+                          }
+                          Success={
+                            isSuccessUpdatePolicyDirectoriesMutation &&
+                            !manualUpdateSuccessResetDirectory
+                          }
+                          textSuccess={"Папка обновлена"}
+                          textError={
+                            ErrorUpdateDirectories?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorUpdateDirectories.data.errors[0].errors[0]
+                              : ErrorUpdateDirectories?.data?.message
+                          }
+                        ></HandlerMutation>
+
+                        <HandlerMutation
+                          Loading={isLoadingDeletePolicyDirectoriesMutation}
+                          Error={
+                            isErrorDeletePolicyDirectoriesMutation &&
+                            !manualDeleteErrorResetDirectory
+                          }
+                          Success={
+                            isSuccessDeletePolicyDirectoriesMutation &&
+                            !manualDeleteSuccessResetDirectory
+                          }
+                          textSuccess={"Папка удалена"}
+                          textError={
+                            ErrorDeleteDirectories?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorDeleteDirectories.data.errors[0].errors[0]
+                              : ErrorDeleteDirectories?.data?.message
+                          }
+                        ></HandlerMutation>
                       </>
                     ) : (
-                      <>Выберите политику</>
+                      <>
+                        Выберите политику
+                        <HandlerMutation
+                          Loading={isLoadingPostPolicyDirectoriesMutation}
+                          Error={
+                            isErrorPostPolicyDirectoriesMutation &&
+                            !manualCreateErrorResetDirectory
+                          }
+                          Success={
+                            isSuccessPostPolicyDirectoriesMutation &&
+                            !manualCreateSuccessResetDirectory
+                          }
+                          textSuccess={"Папка создана"}
+                          textError={
+                            ErrorPolicyDirectories?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorPolicyDirectories.data.errors[0].errors[0]
+                              : ErrorPolicyDirectories?.data?.message
+                          }
+                        ></HandlerMutation>
+                        
+                        <HandlerMutation
+                          Loading={isLoadingUpdatePolicyDirectoriesMutation}
+                          Error={
+                            isErrorUpdatePolicyDirectoriesMutation &&
+                            !manualUpdateErrorResetDirectory
+                          }
+                          Success={
+                            isSuccessUpdatePolicyDirectoriesMutation &&
+                            !manualUpdateSuccessResetDirectory
+                          }
+                          textSuccess={"Папка обновлена"}
+                          textError={
+                            ErrorUpdateDirectories?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorUpdateDirectories.data.errors[0].errors[0]
+                              : ErrorUpdateDirectories?.data?.message
+                          }
+                        ></HandlerMutation>
+
+                        <HandlerMutation
+                          Loading={isLoadingDeletePolicyDirectoriesMutation}
+                          Error={
+                            isErrorDeletePolicyDirectoriesMutation &&
+                            !manualDeleteErrorResetDirectory
+                          }
+                          Success={
+                            isSuccessDeletePolicyDirectoriesMutation &&
+                            !manualDeleteSuccessResetDirectory
+                          }
+                          textSuccess={"Папка удалена"}
+                          textError={
+                            ErrorDeleteDirectories?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorDeleteDirectories.data.errors[0].errors[0]
+                              : ErrorDeleteDirectories?.data?.message
+                          }
+                        ></HandlerMutation>
+                      </>
                     )}
 
                     {openModal ? (
-                      <div className={classes.modal}>
-                        <table className={classes.modalTable}>
-                          <div className={classes.modalTableRow}>
-                            <div className={classes.item}>
-                              <div className={classes.itemName}>
-                                <span>
-                                  {" "}
-                                  <span style={{ color: "red" }}>*</span>{" "}
-                                  Название папки
-                                </span>
+                      <>
+                        <div className={classes.modal}>
+                          <table className={classes.modalTable}>
+                            <div className={classes.modalTableRow}>
+                              <div className={classes.item}>
+                                <div className={classes.itemName}>
+                                  <span>
+                                    {" "}
+                                    <span style={{ color: "red" }}>*</span>{" "}
+                                    Название папки
+                                  </span>
+                                </div>
+                                <div className={classes.div}>
+                                  <input
+                                    type="text"
+                                    placeholder="Название папки"
+                                    value={directoryName}
+                                    onChange={(e) =>
+                                      setDirectoryName(e.target.value)
+                                    }
+                                  />
+                                </div>
                               </div>
-                              <div className={classes.div}>
-                                <input
-                                  type="text"
-                                  placeholder="Название папки"
-                                  value={directoryName}
-                                  onChange={(e) =>
-                                    setDirectoryName(e.target.value)
-                                  }
+
+                              <div className={classes.blockIconSavetmp}>
+                                <img
+                                  src={Blacksavetmp}
+                                  alt="Blacksavetmp"
+                                  className={classes.iconSavetmp}
+                                  style={{ marginLeft: "0.5%" }}
+                                  onClick={() => {
+                                    saveFolder();
+                                  }}
                                 />
                               </div>
                             </div>
 
-                            <div className={classes.blockIconSavetmp}>
-                              <img
-                                src={Blacksavetmp}
-                                alt="Blacksavetmp"
-                                className={classes.iconSavetmp}
-                                style={{ marginLeft: "0.5%" }}
-                                onClick={() => saveFolder()}
-                              />
-                            </div>
-                          </div>
+                            <img
+                              src={exitModal}
+                              alt="exitModal"
+                              onClick={exit}
+                              className={classes.exitImage}
+                            />
 
-                          <img
-                            src={exitModal}
-                            alt="exitModal"
-                            onClick={exit}
-                            className={classes.exitImage}
-                          />
+                            <thead>
+                              <tr>
+                                <th>Директивы</th>
+                                <th>Инструкции</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>
+                                  {directives?.map((item) => (
+                                    <div key={item.id} className={classes.row}>
+                                      <input
+                                        type="checkbox"
+                                        checked={policyToPolicyDirectories.includes(
+                                          item.id
+                                        )}
+                                        onChange={() =>
+                                          handleCheckboxChange(item.id)
+                                        }
+                                      />
+                                      {item.policyName}
+                                    </div>
+                                  ))}
+                                </td>
 
-                          <thead>
-                            <tr>
-                              <th>Директивы</th>
-                              <th>Инструкции</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>
-                                {directives?.map((item) => (
-                                  <div key={item.id} className={classes.row}>
-                                    <input
-                                      type="checkbox"
-                                      checked={policyToPolicyDirectories.includes(
-                                        item.id
-                                      )}
-                                      onChange={() =>
-                                        handleCheckboxChange(item.id)
-                                      }
-                                    />
-                                    {item.policyName}
-                                  </div>
-                                ))}
-                              </td>
-
-                              <td>
-                                {instructions?.map((item) => (
-                                  <div key={item.id} className={classes.row}>
-                                    <input
-                                      type="checkbox"
-                                      checked={policyToPolicyDirectories.includes(
-                                        item.id
-                                      )}
-                                      onChange={() =>
-                                        handleCheckboxChange(item.id)
-                                      }
-                                    />
-                                    {item.policyName}
-                                  </div>
-                                ))}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                                <td>
+                                  {instructions?.map((item) => (
+                                    <div key={item.id} className={classes.row}>
+                                      <input
+                                        type="checkbox"
+                                        checked={policyToPolicyDirectories.includes(
+                                          item.id
+                                        )}
+                                        onChange={() =>
+                                          handleCheckboxChange(item.id)
+                                        }
+                                      />
+                                      {item.policyName}
+                                    </div>
+                                  ))}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
                     ) : (
                       <></>
                     )}
@@ -844,9 +997,12 @@ export default function PolicyContent() {
                                     alt="deleteGrey"
                                     className={classes.iconSavetmp}
                                     onClick={() => {
-                                      setManualDeleteSuccessResetDirectory(true);
-                                      setManualDeleteErrorResetDirectory(true);
-                                      setOpenModalDelete(true)}}
+                                      // setManualDeleteSuccessResetDirectory(
+                                      //   true
+                                      // );
+                                      // setManualDeleteErrorResetDirectory(true);
+                                      setOpenModalDelete(true);
+                                    }}
                                   />
                                 </div>
                               </div>
@@ -906,80 +1062,55 @@ export default function PolicyContent() {
                             </tbody>
                           </table>
                         </div>
-
-                        <HandlerMutation
-                          Loading={isLoadingUpdatePolicyDirectoriesMutation}
-                          Error={
-                            isErrorUpdatePolicyDirectoriesMutation &&
-                            !manualErrorResetDirectory
-                          }
-                          Success={
-                            isSuccessUpdatePolicyDirectoriesMutation &&
-                            !manualSuccessResetDirectory
-                          }
-                          textSuccess={"Папка обновлена"}
-                          textError={
-                            ErrorUpdateDirectories?.data?.errors?.[0]
-                              ?.errors?.[0]
-                              ? ErrorUpdateDirectories.data.errors[0].errors[0]
-                              : ErrorUpdateDirectories?.data?.message
-                          }
-                        ></HandlerMutation>
-
-                        <HandlerMutation
-                          Loading={isLoadingDeletePolicyDirectoriesMutation}
-                          Error={isErrorDeletePolicyDirectoriesMutation &&
-                            !manualDeleteErrorResetDirectory}
-
-                          Success={isSuccessDeletePolicyDirectoriesMutation &&
-                            !manualDeleteSuccessResetDirectory}
-                          textSuccess={"Папка удалена"}
-                          textError={
-                            ErrorDeleteDirectories?.data?.errors?.[0]
-                              ?.errors?.[0]
-                              ? ErrorDeleteDirectories.data.errors[0].errors[0]
-                              : ErrorDeleteDirectories?.data?.message
-                          }
-                        ></HandlerMutation>
-
-                        <HandlerMutation
-                          Loading={isLoadingPostPolicyDirectoriesMutation}
-                          Error={isErrorPostPolicyDirectoriesMutation}
-                          Success={isSuccessPostPolicyDirectoriesMutation}
-                          textSuccess={"Папка создана"}
-                          textError={
-                            ErrorPolicyDirectories?.data?.errors?.[0]
-                              ?.errors?.[0]
-                              ? ErrorPolicyDirectories.data.errors[0].errors[0]
-                              : ErrorPolicyDirectories?.data?.message
-                          }
-                        ></HandlerMutation>
                       </>
                     ) : (
                       <></>
                     )}
                     {openModalDelete ? (
                       <>
-                      <div className={classes.modalDelete}>
-                       
-                        <div className={classes.modalDeleteElement}>
-                          <img src={exitModal} alt="exitModal" className={classes.exitImage} onClick={() => setOpenModalDelete(false)}/>
-                          <div className={classes.row1}>
-                            <span className={classes.text}>Вы точно хотите удалить папку <span style = {{fontWeight:'700'}}>{currentDirectoryName}</span></span>
-                          </div>
+                        <div className={classes.modalDelete}>
+                          <div className={classes.modalDeleteElement}>
+                            <img
+                              src={exitModal}
+                              alt="exitModal"
+                              className={classes.exitImage}
+                              onClick={() => setOpenModalDelete(false)}
+                            />
+                            <div className={classes.row1}>
+                              <span className={classes.text}>
+                                Вы точно хотите удалить папку{" "}
+                                <span style={{ fontWeight: "700" }}>
+                                  {currentDirectoryName}
+                                </span>
+                              </span>
+                            </div>
 
-                          <div className={classes.row2}>
-                            <button className = {`${classes.btnYes} ${classes.text}`} onClick={() => {
-                                setManualDeleteSuccessResetDirectory(true);
-                                setManualDeleteErrorResetDirectory(true);
-                                saveDeleteFolder();
-                            }}>Да</button>
-                            <button className = {`${classes.btnNo} ${classes.text}`}  onClick={() => {setOpenModalDelete(false)}}>Нет</button>
+                            <div className={classes.row2}>
+                              <button
+                                className={`${classes.btnYes} ${classes.text}`}
+                                onClick={() => {
+                                  setManualDeleteSuccessResetDirectory(true);
+                                  setManualDeleteErrorResetDirectory(true);
+                                  saveDeleteFolder();
+                                }}
+                              >
+                                Да
+                              </button>
+                              <button
+                                className={`${classes.btnNo} ${classes.text}`}
+                                onClick={() => {
+                                  setOpenModalDelete(false);
+                                }}
+                              >
+                                Нет
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
                       </>
-                  ) : (<></>)}
+                    ) : (
+                      <></>
+                    )}
                   </>
                 )}
               </>

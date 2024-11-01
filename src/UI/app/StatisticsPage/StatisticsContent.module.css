@@ -166,8 +166,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .main {
     position: relative;
-    max-width: 80vw;
-    height: 84%;
+    height: calc(100vh - 120px - 24px - 25px);
     max-height: 80vh;
     background-color: #ffff;
     padding-top: 1%;

@@ -20,6 +20,7 @@ import {
   useGetStrategNewQuery,
   usePostStrategMutation,
 } from "../../../BLL/strategApi.js";
+import styles from '../../Custom/CommonStyles.module.css';
 
 export default function StrategNew() {
   const navigate = useNavigate();
@@ -29,10 +30,10 @@ export default function StrategNew() {
     navigate(`/${userId}/strateg`);
   };
 
-  const [state, setState] = useState("");
+  // const [state, setState] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
-  const [strategToOrganizations, setStrategToOrganizations] = useState([]);
+  const [organizationId, setOrganizationId] = useState("");
   const [isStrategToOrganizations, setIsStrategToOrganizations] = useState(false);
 
     
@@ -65,16 +66,14 @@ export default function StrategNew() {
   ] = usePostStrategMutation();
 
   const reset = () => {
-    setState("");
-    setIsStrategToOrganizations(true);
+    setOrganizationId("");
     setEditorState(EditorState.createEmpty());
   };
   const savePostStarteg = async () => {
     await postStarteg({
       userId,
       content: htmlContent,
-      state: state,
-      strategyToOrganizations: strategToOrganizations,
+      organizationId: organizationId,
     })
       .unwrap()
       .then(() => {
@@ -88,9 +87,9 @@ export default function StrategNew() {
 
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -119,26 +118,20 @@ export default function StrategNew() {
           />
         </div>
 
-        <div className={classes.editText}>
+        <div className={styles.editText}>
           <div className={classes.date}>
-            <select
-              value={state}
+          <select
+              value={organizationId}
               onChange={(e) => {
-                setState(e.target.value);
+                setOrganizationId(e.target.value);
               }}
-              className={classes.select}
             >
-              <option value=""> Выберите состояние</option>
-              <option value="Активный">Активный</option>
-              <option value="Черновик">Черновик</option>
+              <option value=""> Выберите организацию</option>
+              {organizations.map((item) => {
+                return <option value={item.id}>{item.organizationName}</option>;
+              })}
             </select>
           </div>
-
-          <CustomSelect
-            organizations={organizations}
-            setPolicyToOrganizations={setStrategToOrganizations}
-            isPolicyToOrganizations={isStrategToOrganizations}
-          ></CustomSelect>
 
           <div className={classes.two}>
             <div className={classes.blockSelect}>
@@ -191,9 +184,9 @@ export default function StrategNew() {
                   Success={isSuccessPostStrateg}
                   textSuccess={"Пост успешно создан."}
                   textError={
-                    Error?.data?.errors?.[0]?.errors?.[0] 
-                      ? Error.data.errors[0].errors[0] 
-                      : Error?.data?.message
+                    ErrorPostStrateg?.data?.errors?.[0]?.errors?.[0] 
+                      ? ErrorPostStrateg.data.errors[0].errors[0] 
+                      : ErrorPostStrateg?.data?.message
                   }
                 ></HandlerMutation>
               </>

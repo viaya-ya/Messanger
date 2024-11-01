@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classes from "./StatisticsContent.module.css";
 import icon from "../../image/iconHeader.svg";
 import iconBack from "../../image/iconBack.svg";
@@ -16,6 +16,7 @@ import {
 } from "../../../BLL/statisticsApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import styles from '../../Custom/CommonStyles.module.css';
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function StatisticsContent() {
   const [name, setName] = useState("null");
   const [postId, setPostId] = useState("null");
   const [description, setDescription] = useState();
-  const [statisticId, setStatisticId] = useState();
+  const [statisticId, setStatisticId] = useState("");
   const [oldReceivedPoints, setOldReceivedPoints] = useState([]);
   const [receivedPoints, setReceivedPoints] = useState([]);
   const [createPoints, setCreatePoints] = useState([]);
@@ -170,7 +171,7 @@ export default function StatisticsContent() {
       userId,
       statisticId,
       _id: statisticId,
-      ...Data,
+      ...Data
     })
       .unwrap()
       .then(() => {
@@ -222,9 +223,9 @@ export default function StatisticsContent() {
 
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -252,7 +253,7 @@ export default function StatisticsContent() {
             // onChange={handleSearchChange}
           />
         </div>
-        <div className={classes.editText}>
+        <div className={styles.editText}>
           <div className={classes.five}>
             <div className={classes.iconAdd}>
               <img
@@ -300,9 +301,9 @@ export default function StatisticsContent() {
                     {currentStatistic.id ? (
                       <>
                         <div className={classes.block1}>
-                          <Graphic
+                          <Graphic 
                             data={[...receivedPoints, ...createPoints]}
-                            name="Статистика"
+                            name={name !== "null" ? name : currentStatistic?.name}
                           ></Graphic>
                         </div>
 
@@ -397,13 +398,15 @@ export default function StatisticsContent() {
                             <select
                               value={statisticId}
                               onChange={(e) => {
-                                setStatisticId(e.target.value);
-                                setManualSuccessReset(true);
-                                setManualErrorReset(true);
+                                if(e.target.value !== ""){
+                                  setStatisticId(e.target.value);
+                                  setManualSuccessReset(true);
+                                  setManualErrorReset(true);
+                                }  
                               }}
                               className={classes.element}
                             >
-                              <option value="null" disabled>
+                              <option value="" disabled>
                                 Выберите статистику
                               </option>
                               {statistics.map((item) => {
@@ -490,13 +493,15 @@ export default function StatisticsContent() {
                             <select
                               value={statisticId}
                               onChange={(e) => {
-                                setStatisticId(e.target.value);
-                                setManualSuccessReset(true);
-                                setManualErrorReset(true);
+                                if(e.target.value !== ""){
+                                  setStatisticId(e.target.value);
+                                  setManualSuccessReset(true);
+                                  setManualErrorReset(true);
+                                }  
                               }}
                               className={classes.element}
                             >
-                              <option value="null" disabled>
+                              <option value="" disabled>
                                 Выберите статистику
                               </option>
                               {statistics.map((item) => {
@@ -507,10 +512,10 @@ export default function StatisticsContent() {
                             </select>
 
                             <select
-                              disabled
+                             disabled
                               value={
                                 type !== "null" ? type : currentStatistic.type
-                              } // Устанавливаем ID, по умолчанию пустая строка
+                              } 
                               onChange={(e) => {
                                 setType(e.target.value);
                               }}
@@ -519,9 +524,6 @@ export default function StatisticsContent() {
                               <option value="null" disabled>
                                 Выберите тип
                               </option>
-
-                              <option value="Прямая">Прямая</option>
-                              <option value="Обратная">Обратная</option>
                             </select>
 
                             <select
@@ -530,7 +532,7 @@ export default function StatisticsContent() {
                                 postId !== "null"
                                   ? postId
                                   : currentStatistic?.post?.id
-                              } // Устанавливаем ID, по умолчанию пустая строка
+                              }
                               onChange={(e) => {
                                 setPostId(e.target.value);
                               }}
@@ -539,14 +541,8 @@ export default function StatisticsContent() {
                               <option value="null" disabled>
                                 Выберите пост
                               </option>
-                              {posts.map((item) => {
-                                return (
-                                  <option value={item.id}>
-                                    {item.postName}
-                                  </option>
-                                );
-                              })}
                             </select>
+                            
                           </div>
                           <div className={classes.row2}>
                             <textarea

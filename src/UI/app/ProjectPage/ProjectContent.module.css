@@ -9,6 +9,7 @@
 
 .header {
     max-width: 100%;
+    min-height: 170px;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
@@ -16,13 +17,13 @@
 }
 
 .fon {
-    height: 40px;
+    min-height: 40px;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
 
 .pomoshnikSearch {
-    height: 41%;
+    min-height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -94,6 +95,7 @@ input[type="search"]::-webkit-input-placeholder {
 .editText {
     padding: 0.1% 2%;
     max-width: 100%;
+    min-height: 70px;
     margin-top: 10px;
     background-color: #ffff;
     display: flex;
@@ -120,20 +122,15 @@ input[type="search"]::-webkit-input-placeholder {
 .blockSelect {
     position: relative;
     margin-right: 5px;
+
+    & > img:hover {
+        background-color: rgb(240, 240, 240);
+        border-radius: 20%;
+    }
 }
 
 .blockSelect:hover .option {
     display: block;
-}
-
-.select {
-    height: auto;
-    cursor: pointer;
-}
-
-.select:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
 }
 
 .optionNumber li:nth-child(n+2):after{
@@ -295,7 +292,6 @@ input[type="search"]::-webkit-input-placeholder {
 .select {
     position: relative;
     font-family: 'Montserrat';
-    font-weight: 600;
 }
 
 .div {
@@ -315,6 +311,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .main {
     position: relative;
+    height: calc(100vh - 170px - 24px - 25px);
     flex-grow: 1;
     flex-shrink: 1;
     height: 10vh; 

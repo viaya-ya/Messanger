@@ -10,7 +10,7 @@ function App() {
     <div>
       <Routes>
         <Route
-          path="/main"
+          path="/"
           element={
             <div className="wrapper">
               <Main></Main>

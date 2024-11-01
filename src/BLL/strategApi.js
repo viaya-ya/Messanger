@@ -6,13 +6,14 @@ export const strategApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
   endpoints: (build) => ({
     getStrateg: build.query({
-      query: (userId = "") => ({
-        url: `${userId}/strategies`,
+      query: ({userId, organizationId}) => ({
+        url: `${userId}/strategies/organization/${organizationId}`,
       }),
       providesTags: (result) => result ? [{ type: "Strateg", id: "LIST" }] : [],
     }),
+
     postStrateg: build.mutation({
-      query: ({userId = "", ...body}) => ({
+      query: ({userId, ...body}) => ({
         url: `${userId}/strategies/new`,
         method: "POST",
         body,

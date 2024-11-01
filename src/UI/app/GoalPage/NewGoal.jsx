@@ -16,6 +16,7 @@ import classNames from "classnames";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import styles from '../../Custom/CommonStyles.module.css';
 
 export default function GoalContent() {
   const navigate = useNavigate();
@@ -51,14 +52,11 @@ export default function GoalContent() {
   ] = usePostGoalMutation();
 
   useEffect(() => {
-    editorState.forEach((item, index) => {
-      const rawContent = draftToHtml(convertToRaw(item.getCurrentContent()));
-      setHtmlContent((prev) => {
-        const updated = [...prev];
-        updated[index] = rawContent;
-        return updated;
-      });
-    });
+    setHtmlContent(
+      editorState.map((editor) =>
+        draftToHtml(convertToRaw(editor.getCurrentContent()))
+      )
+    );
   }, [editorState]);
 
   useEffect(() => {
@@ -128,9 +126,9 @@ export default function GoalContent() {
   
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -159,7 +157,7 @@ export default function GoalContent() {
           />
         </div>
 
-        <div className={classes.editText}>
+        <div className={styles.editText}>
           <div className={classes.five}>
             <select
               value={organization}

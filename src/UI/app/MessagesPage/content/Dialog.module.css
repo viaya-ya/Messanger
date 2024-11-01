@@ -8,20 +8,20 @@
 }
 
 .header {
-    height: 11%;
+    height: 80px;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
 }
 
 .fon {
-    height: 37%;
+    height:  32px;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
 
 .pomoshnik {
-    height: 63%;
+    height: 48px;
     display: flex;
     flex-direction: row;
     column-gap: 30px;
@@ -39,9 +39,10 @@
 }
 
 .main {
-    height: 84%;
+    height: calc(100vh - 80px - 24px - 25px - 50px);
     flex: 1 1 100px;
     overflow: auto;
+    padding-bottom: 5px;
     /* scrollbar-width: thin;
     scrollbar-color: #005475 #FFFFFF; */
 }
@@ -105,35 +106,6 @@
     color: #005475;
 }
 
-.element::before {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    height: 25px;
-    width: 25px;
-    background: url('../../../image/cursor.svg') no-repeat;
-    opacity: 0;
-    /* Начальное состояние: невидимый */
-    transition: opacity 0.3s ease;
-    /* Анимация появления */
-}
-
-.element:hover::before {
-    animation: appear 1s forwards;
-    /* Запускает анимацию появления */
-}
-
-@keyframes appear {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
 .element svg {
     transition: fill 0.3s ease;
     /* Добавляем анимацию для цвета SVG */
@@ -163,7 +135,7 @@
 }
 
 .footer {
-    height: 5%;
+    height: 40px;
     box-shadow: 0px -2px 4px 0px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: row;
@@ -228,3 +200,30 @@ input[type="search"]::-webkit-search-cancel-button {
     background-image: url('../../../image/iconСlose.svg');
     background-position: center;
 }
+
+
+/* .element::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    height: 25px;
+    width: 25px;
+    background: url('../../../image/cursor.svg') no-repeat;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.element:hover::before {
+    animation: appear 1s forwards;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+} */

@@ -122,7 +122,6 @@ input[type="search"]::-webkit-input-placeholder {
     max-width:100%;
     position: relative;
     font-family: 'Montserrat';
-    font-weight: 600;
     overflow: hidden;         
     text-overflow: ellipsis;          
 }
@@ -181,6 +180,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .main {
     position: relative;
+    height: calc(100vh - 170px - 24px - 25px);
     flex-grow: 1;
     flex-shrink: 1;
     overflow-y: auto;

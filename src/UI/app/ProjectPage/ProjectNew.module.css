@@ -8,7 +8,7 @@
 }
 
 .header {
-    height: 18%;
+    min-height: 170px;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
@@ -16,13 +16,13 @@
 }
 
 .fon {
-    height: 25%;
+    min-height: 40px;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
 
 .pomoshnikSearch {
-    height: 41%;
+    min-height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -93,7 +93,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .editText {
     padding: 0.1% 2%;
-    height: 45%;
+    min-height: 70px;
     width: 100%;
     background-color: #ffff;
     display: flex;
@@ -110,24 +110,25 @@ input[type="search"]::-webkit-input-placeholder {
     margin-right: 50px;
 }
 
+.nameList {
+    color: #3A3A3A;
+    font-family: "Montserrat";
+    text-align: center;
+    font-weight: 600;
+}
 
 .blockSelect {
     position: relative;
     margin-right: 30px;
+    
+    & > img:hover {
+        background-color: rgb(240, 240, 240);
+        border-radius: 20%;
+    }
 }
 
 .blockSelect:hover .option {
     display: block;
-}
-
-.select {
-    height: auto;
-    cursor: pointer;
-}
-
-.select:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
 }
 
 .optionNumber li:nth-child(n+2):after {
@@ -316,7 +317,6 @@ input[type="search"]::-webkit-input-placeholder {
 .select {
     position: relative;
     font-family: 'Montserrat';
-    font-weight: 600;
 }
 
 .div {
@@ -336,8 +336,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .main {
     position: relative;
-    height: 82%;
-    max-height: 80vh;
+    height: calc(100vh - 170px - 24px - 25px);
     width: 100%;
     overflow-y: auto;
     background-color: #B4B4B4;

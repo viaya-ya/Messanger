@@ -5,7 +5,7 @@ import telegram from "../../../image/telegram.svg"; // Путь к иконке 
 import vk from "../../../image/vk.svg"; // Путь к иконке VK
 import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
-
+//5000
 const socket = io("http://localhost:5000/auth"); // Подключение к сокету
 
 export default function Content() {

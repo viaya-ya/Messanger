@@ -282,6 +282,7 @@ export default function SpeedGoalNew() {
             </div>
           </div>
         </div>
+
         <div className={classes.selectHeader}>
           {["КРАТКОСРОЧАЯ ЦЕЛЬ", "СИТУАЦИЯ", "ПРИЧИНА"].map((text, index) => (
             <div
@@ -306,6 +307,7 @@ export default function SpeedGoalNew() {
             </div>
           ))}
         </div>
+        
         <div className={classes.editText}>
           <div className={classes.date}>
             <select

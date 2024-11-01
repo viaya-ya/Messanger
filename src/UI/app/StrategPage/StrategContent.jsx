@@ -14,7 +14,6 @@ import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
 import { useNavigate, useParams } from "react-router-dom";
-import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import formatDate from "../../Custom/FuncFormatedDate.js";
@@ -22,7 +21,9 @@ import {
   useGetStrategIdQuery,
   useGetStrategQuery,
   useUpdateStrategMutation,
+  useGetStrategNewQuery,
 } from "../../../BLL/strategApi.js";
+import styles from '../../Custom/CommonStyles.module.css';
 
 export default function StrategContent() {
   const navigate = useNavigate();
@@ -41,24 +42,42 @@ export default function StrategContent() {
   const [state, setState] = useState("");
   const [number, setNumber] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [strategToOrganizations, setStrategToOrganizations] = useState([]);
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
+  ///////// мазало насрало
+  const [organizationId, setOrganizationId] = useState(false);
+  const [updateOrganizationId, setUpdateOrganizationId] = useState("null");
+
+  const {
+    getOrganizations = [],
+    isLoadingNewStrateg,
+    isErrorNewStrateg,
+  } = useGetStrategNewQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      getOrganizations: data?.organizations || [],
+      isLoadingNewStrateg: isLoading,
+      isErrorNewStrateg: isError,
+    }),
+  });
 
   const {
     data = [],
     isLoadingStrateg,
     isErrorStrateg,
-  } = useGetStrategQuery(userId, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      data: data || [],
-      isLoadingStrateg: isLoading,
-      isErrorStrateg: isError,
-    }),
-  });
+  } = useGetStrategQuery(
+    { userId, organizationId },
+    {
+      selectFromResult: ({ data, isLoading, isError }) => ({
+        data: data || {},
+        isLoadingStrateg: isLoading,
+        isErrorStrateg: isError,
+      }),
+      skip: !organizationId,
+    }
+  );
+
   const {
     currentStrategy = {},
-    organizations = [],
     isLoadingGetStrategId,
     isErrorGetStrategId,
     isFetchingGetStrategId,
@@ -67,7 +86,6 @@ export default function StrategContent() {
     {
       selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
         currentStrategy: data?.currentStrategy || {},
-        organizations: data?.organizations || [],
         isLoadingGetStrategId: isLoading,
         isErrorGetStrategId: isError,
         isFetchingGetStrategId: isFetching,
@@ -107,20 +125,40 @@ export default function StrategContent() {
     },
   ] = useUpdateStrategMutation();
 
+  const reset = () => {
+    setManualSuccessReset(false);
+    setManualErrorReset(false);
+    setEditorState(EditorState.createEmpty());
+    setHtmlContent();
+    setNumber("");
+    setState("");
+    setSelectedDate("");
+    setUpdateOrganizationId("null");
+  };
+
   const saveUpdateStrateg = async () => {
+    const Data = [];
+    if (state !== "" && state !== currentStrategy.state) {
+      Data.state = state;
+    }
+    if (htmlContent !== currentStrategy.content) {
+      Data.content = htmlContent;
+    }
+    if (
+      updateOrganizationId !== "null" &&
+      updateOrganizationId !== currentStrategy.organization.id
+    ) {
+      Data.organizationId = updateOrganizationId;
+    }
     await updateStrateg({
       userId,
       strategyId: number,
       _id: number,
-      state: state || currentStrategy.state,
-      content: htmlContent,
-      strategyToOrganizations: strategToOrganizations,
+      ...Data,
     })
       .unwrap()
       .then(() => {
-        // После успешного обновления сбрасываем флаги
-        setManualSuccessReset(false);
-        setManualErrorReset(false);
+        reset();
       })
       .catch((error) => {
         // При ошибке также сбрасываем флаги
@@ -131,9 +169,9 @@ export default function StrategContent() {
 
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -162,19 +200,20 @@ export default function StrategContent() {
           />
         </div>
 
-        <div className={classes.editText}>
+        <div className={styles.editText}>
           <div className={classes.date}>
             <div>
               <span>Стратегия №</span>
               <select
                 value={number}
                 onChange={(e) => {
+                  reset();
                   const selectedId = e.target.value;
                   setManualSuccessReset(true);
                   setManualErrorReset(true);
                   setNumber(selectedId);
-                  const selectedItem = data.find(
-                    (item) => item.id === selectedId
+                  const selectedItem = data.strategyToOrganizations?.find(
+                    (item) => item?.strategy.id === selectedId
                   );
                   if (selectedItem) {
                     setSelectedDate(selectedItem.dateActive);
@@ -183,41 +222,88 @@ export default function StrategContent() {
                 className={classes.select}
               >
                 <option value=""> — </option>
-                {data?.map((item) => {
+                {data?.strategies?.map((item) => {
                   return (
-                    <option value={item.id}> {item.strategyNumber}</option>
+                    <option value={item?.id}> {item?.strategyNumber}</option>
                   );
                 })}
               </select>
             </div>
-            {(selectedDate && number) && (
+
+            <div>
+              <select
+                value={organizationId}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    reset();
+                    setOrganizationId(e.target.value);
+                  }
+                }}
+              >
+                <option value=""> Выберите организацию </option>
+                {getOrganizations?.map((item) => {
+                  return (
+                    <option value={item.id}> {item.organizationName}</option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {selectedDate && number && (
               <div>
                 <img src={watch} alt="watch" style={{ marginRight: "10px" }} />
                 <input type="date" value={formatDate(selectedDate)} readOnly />
               </div>
             )}
           </div>
+          
           {number ? (
             <>
-              <div className={classes.date}>
-                <select
-                  value={state || currentStrategy.state}
-                  onChange={(e) => {
-                    setState(e.target.value);
-                  }}
-                  className={classes.select}
-                >
-                  <option value=""> Выберите состояние</option>
-                  <option value="Активный">Активный</option>
-                  <option value="Черновик">Черновик</option>
-                </select>
+              <div className={classes.item}>
+                <div className={classes.itemName}>
+                  <span>
+                    Состояние <span style={{ color: "red" }}>*</span>
+                  </span>
+                </div>
+                <div className={classes.div}>
+                  <select
+                    name="mySelect"
+                    className={classes.select}
+                    value={state || currentStrategy.state}
+                    onChange={(e) => {
+                      setState(e.target.value);
+                    }}
+                  >
+                    <option value=""> Выберите состояние</option>
+                    <option value="Активный">Активный</option>
+                    <option value="Черновик">Черновик</option>
+                    <option value="Завершено">Завершено</option>
+                  </select>
+                </div>
               </div>
 
-              <CustomSelect
-                organizations={organizations}
-                selectOrganizations={currentStrategy.strategyToOrganizations}
-                setPolicyToOrganizations={setStrategToOrganizations}
-              ></CustomSelect>
+              <div className={classes.item}>
+                <div className={classes.itemName}>
+                  <span>Помененять организацию</span>
+                </div>
+                <div className={classes.div}>
+                  <select
+                    name="mySelect"
+                    className={classes.select}
+                    value={updateOrganizationId}
+                    onChange={(e) => {
+                      setUpdateOrganizationId(e.target.value);
+                    }}
+                  >
+                    <option value="null">Выберите опцию</option>
+                    {getOrganizations?.map((item) => {
+                      return (
+                        <option value={item.id}>{item.organizationName}</option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </div>
             </>
           ) : (
             <></>
@@ -225,7 +311,7 @@ export default function StrategContent() {
 
           <div className={classes.two}>
             <div className={classes.blockSelect}>
-              <img src={Select} alt="Select" className={classes.select} />
+              <img src={Select} alt="Select"/>
               <ul className={classes.option}>
                 <li>
                   {" "}
@@ -244,6 +330,7 @@ export default function StrategContent() {
               </ul>
             </div>
           </div>
+
           <div className={classes.actionButton}>
             <div className={classes.iconAdd}>
               <img
@@ -304,9 +391,11 @@ export default function StrategContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Стратегия обновлена"}
                           textError={
-                            Error?.data?.errors?.[0]?.errors?.[0] 
-                              ? Error.data.errors[0].errors[0] 
-                              : Error?.data?.message
+                            ErrorUpdateStrategMutation?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorUpdateStrategMutation.data.errors[0]
+                                  .errors[0]
+                              : ErrorUpdateStrategMutation?.data?.message
                           }
                         ></HandlerMutation>
                       </>

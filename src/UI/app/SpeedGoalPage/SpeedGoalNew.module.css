@@ -8,19 +8,19 @@
 }
 
 .header {
-    height: 22%;
+    height: 160px;
     display: flex;
     flex-direction: column;
 }
 
 .fon {
-    height: 20%;
+    min-height: 32px;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
 
 .pomoshnikSearch {
-    height: 35%;
+    height: 48px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -94,7 +94,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .editText {
     padding: 0.1% 2%;
-    height: 20%;
+    height: 40px;
     width: 100%;
     background-color: #ffff;
     display: flex;
@@ -118,18 +118,13 @@ input[type="search"]::-webkit-input-placeholder {
     border-radius: 20%;
 }
 
-.select {
-    height: auto;
-    cursor: pointer;
-}
-
-.select:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
-}
-
 .blockSelect {
     position: relative;
+    
+    & > img:hover {
+        background-color: rgb(240, 240, 240);
+        border-radius: 20%;
+    }
 }
 
 .option {
@@ -194,7 +189,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .date {
     height: 60%;
-    min-width: 30%;
+    min-width: 200px;
     display: flex;
     flex-direction: row;
     box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.25);
@@ -239,8 +234,7 @@ input[type="search"]::-webkit-input-placeholder {
 }
 .main {
     position: relative;
-    height: 78%;
-    max-height: 80vh;
+    height: calc(100vh - 160px - 24px - 25px);
     overflow-y: auto;
     background-color: #F0F0F0;
     padding-top: 1%;
@@ -315,16 +309,6 @@ input[type="search"]::-webkit-input-placeholder {
     fill: #FFFFFF;
     /* Меняем цвет SVG при наведении */
 }
-mark {
-    background-color: lightblue;
-    color: black;
-}
-
-.highlight {
-    background-color: yellow;
-    padding: 2px 5px;
-    border-radius: 3px;
-}
 
 .text {
     font-family: "Montserrat";
@@ -332,7 +316,7 @@ mark {
 }
 
 .selectHeader {
-    height: 25%;
+    height: 40px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;

@@ -5,6 +5,7 @@ import Select from "../../image/Select.svg";
 import iconBack from "../../image/iconBack.svg";
 import subbarSearch from "../../image/subbarSearch.svg";
 import iconSavetmp from "../../image/iconSavetmp.svg";
+import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import email from "../../image/email.svg";
 import iconGroup from "../../image/iconGroup.svg";
 import greySavetmp from "../../image/greySavetmp.svg";
@@ -20,6 +21,7 @@ import { convertToRaw } from "draft-js";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import styles from '../../Custom/CommonStyles.module.css';
 
 export default function NewPolicy() {
   const navigate = useNavigate();
@@ -101,9 +103,9 @@ export default function NewPolicy() {
 
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -132,7 +134,7 @@ export default function NewPolicy() {
           /> */}
         </div>
 
-        <div className={classes.editText}>
+        <div className={styles.editText}>
 
         <div className={classes.item}>
             <div className={classes.itemName}>
@@ -208,8 +210,8 @@ export default function NewPolicy() {
             </div>
             <div className={classes.blockIconSavetmp}>
               <img
-                src={iconSavetmp}
-                alt="iconSavetmp"
+                src={Blacksavetmp}
+                alt="Blacksavetmp"
                 className={classes.iconSavetmp}
                 style={{ marginLeft: "0.5%" }}
                 onClick={() => savePolicy()}

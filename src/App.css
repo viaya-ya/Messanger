@@ -9,9 +9,15 @@
     min-height: 100vh;
     min-width: 100%;
     display: grid;
-    grid-template-columns: 0.027fr 1fr;
-    grid-template-rows: 0.023fr 1fr;
+    grid-template-columns: 50px 1fr;
+    grid-template-rows: 24px 1fr;
     grid-template-areas:
     "header header"
     "block content";
+}
+
+@media  (max-width: 1400px) {
+    .messages{
+        grid-template-columns: 40px 1fr;
+    }
 }

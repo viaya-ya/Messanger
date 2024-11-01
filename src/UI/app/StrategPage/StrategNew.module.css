@@ -232,23 +232,10 @@ background-color: rgb(240, 240, 240)
     border-radius: 20%;
     cursor: pointer;
 }
-.select {
-    height: auto;
-    cursor: pointer;
-    position: relative;
-    font-family: 'Montserrat';
-    font-weight: 600;
-}
-
-.select:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
-}
 
 .main {
     position: relative;
-    height: 84%;
-    max-height: 80vh;
+    height: calc(100vh - 120px - 24px - 25px);
     overflow-y: auto;
     /* scrollbar-width: thin;
     scrollbar-color: #005475 #FFFFFF; */

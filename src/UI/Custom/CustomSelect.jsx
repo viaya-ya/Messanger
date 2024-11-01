@@ -53,7 +53,11 @@ export default function CustomSelect({ organizations, selectOrganizations, setPo
     <div className="custom-select" ref={selectRef}>
       <div className="select-header" onClick={toggleDropdown}>
         {selectedItems.length > 0
-          ? `Выбрано: ${selectedItems.length}`
+          ? (
+            <>
+              Организации <span style={{ color: "red" }}>*</span> : {selectedItems.length}
+            </>
+          ) 
           :(
             <>
               Организации <span style={{ color: "red" }}>*</span>

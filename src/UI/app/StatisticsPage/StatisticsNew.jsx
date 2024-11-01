@@ -13,6 +13,7 @@ import {
 } from "../../../BLL/statisticsApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import styles from '../../Custom/CommonStyles.module.css';
 
 export default function StatisticsNew() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function StatisticsNew() {
   };
 
   const [type, setType] = useState("");
-  const [name, setName] = useState("");
+  const [name, setName] = useState("Статистика");
   const [postId, setPostId] = useState("");
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState([{ valueDate: "", value: 0 }]);
@@ -39,13 +40,15 @@ export default function StatisticsNew() {
     }),
   });
 
-  const [postStatistics,
+  const [
+    postStatistics,
     {
       isLoading: isLoadingPostStatisticMutation,
       isSuccess: isSuccessPostStatisticMutation,
       isError: isErrorPostStatisticMutation,
       error: Error,
-    },] = usePostStatisticsMutation();
+    },
+  ] = usePostStatisticsMutation();
 
   const addPoint = () => {
     setPoints((prevState) => [...prevState, { valueDate: "", value: 0 }]);
@@ -80,11 +83,18 @@ export default function StatisticsNew() {
         valueDate: new Date(item.valueDate),
       };
     });
+    const Data = [];
+
+    if (description !== "") {
+      Data.description = description;
+    }
+    console.log(`userId = ${userId}`);
+    console.log(`postId = ${postId}`);
     await postStatistics({
       userId,
       type: type,
       name: name,
-      description: description,
+      ...Data,
       postId: postId,
       statisticDataCreateDtos: formatDate,
     })
@@ -99,9 +109,9 @@ export default function StatisticsNew() {
 
   return (
     <div className={classes.dialog}>
-      <div className={classes.header}>
-        <div className={classes.fon}></div>
-        <div className={classes.pomoshnikSearch}>
+      <div className={styles.header}>
+        <div className={styles.fon}></div>
+        <div className={styles.pomoshnikSearch}>
           <div className={classes.pomoshnik}>
             <img
               src={iconBack}
@@ -129,7 +139,7 @@ export default function StatisticsNew() {
             // onChange={handleSearchChange}
           />
         </div>
-        <div className={classes.editText}>
+        <div className={styles.editText}>
           <div className={classes.five}>
             <div className={classes.iconSave}>
               <img
@@ -144,8 +154,7 @@ export default function StatisticsNew() {
       </div>
 
       <div className={classes.main}>
-
-      {isErrorNewStatistic ? (
+        {isErrorNewStatistic ? (
           <HandlerQeury Error={isErrorNewStatistic}></HandlerQeury>
         ) : (
           <>
@@ -153,104 +162,115 @@ export default function StatisticsNew() {
               <HandlerQeury Loading={isLoadingNewStatistic}></HandlerQeury>
             ) : (
               <>
-        
-        <div className={classes.block1}>
-          <Graphic data={points} name="Статистика"></Graphic>
-        </div>
-
-        <div className={classes.block2}>
-          <div className={classes.deletePoint} onClick={deletePoint}>
-            <img src={statisticsArrowLeft} alt="statisticsArrowLeft" />
-          </div>
-
-          <div className={classes.points}>
-            {points.map((_, index) => {
-              return (
-                <div className={classes.item}>
-                  <input
-                    type="date"
-                    onChange={(e) => {
-                      onChangePoints(e.target.value, "valueDate", index);
-                    }}
-                    className={classes.date}
-                  />
-                  <input
-                    type="number"
-                    onChange={(e) => {
-                      onChangePoints(e.target.value, "value", index);
-                    }}
-                    className={classes.number}
-                  />
+                <div className={classes.block1}>
+                  <Graphic
+                    data={points}
+                    name={name}
+                    setName={setName}
+                  ></Graphic>
                 </div>
-              );
-            })}
-          </div>
 
-          <div className={classes.addPoint} onClick={addPoint}>
-            <img src={statisticsArrowRight} alt="statisticsArrowRight" />
-          </div>
-        </div>
+                <div className={classes.block2}>
+                  <div className={classes.deletePoint} onClick={deletePoint}>
+                    <img src={statisticsArrowLeft} alt="statisticsArrowLeft" />
+                  </div>
 
-        <div className={classes.block3}>
-          <div className={classes.row1}>
-            <input
-              type="text"
-              value={name}
-              className={classes.element}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Название статистики"
-            />
+                  <div className={classes.points}>
+                    {points.map((_, index) => {
+                      return (
+                        <div className={classes.item}>
+                          <input
+                            type="date"
+                            onChange={(e) => {
+                              onChangePoints(
+                                e.target.value,
+                                "valueDate",
+                                index
+                              );
+                            }}
+                            className={classes.date}
+                          />
+                          <input
+                            type="number"
+                            onChange={(e) => {
+                              onChangePoints(e.target.value, "value", index);
+                            }}
+                            className={classes.number}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
 
-            <select
-              value={type} // Устанавливаем ID, по умолчанию пустая строка
-              onChange={(e) => {
-                setType(e.target.value);
-              }}
-              className={classes.element}
-            >
-              <option value="" disabled>
-                Выберите тип
-              </option>
+                  <div className={classes.addPoint} onClick={addPoint}>
+                    <img
+                      src={statisticsArrowRight}
+                      alt="statisticsArrowRight"
+                    />
+                  </div>
+                </div>
 
-              <option value="Прямая">Прямая</option>
-              <option value="Обратная">Обратная</option>
-            </select>
+                <div className={classes.block3}>
+                  <div className={classes.row1}>
+                    <input
+                      type="text"
+                      value={name}
+                      className={classes.element}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Название статистики"
+                    />
 
-            <select
-              value={postId} // Устанавливаем ID, по умолчанию пустая строка
-              onChange={(e) => {
-                setPostId(e.target.value);
-              }}
-              className={classes.element}
-            >
-              <option value="" disabled>
-                Выберите пост
-              </option>
-              {posts.map((item) => {
-                return <option value={item.id}>{item.postName}</option>;
-              })}
-            </select>
-          </div>
-          <div className={classes.row2}>
-            <textarea
-              placeholder="Описание статистики: что и как считать"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            ></textarea>
-          </div>
-        </div>
-              <HandlerMutation
-                Loading={isLoadingPostStatisticMutation}
-                Error={isErrorPostStatisticMutation}
-                Success={isSuccessPostStatisticMutation}
-                textSuccess={"Статистика успешно создана."}
-                textError={
-                  Error?.data?.errors?.[0]?.errors?.[0] 
-                    ? Error.data.errors[0].errors[0] 
-                    : Error?.data?.message
-                }
-              />
-            </>
+                    <select
+                      value={type} // Устанавливаем ID, по умолчанию пустая строка
+                      onChange={(e) => {
+                        setType(e.target.value);
+                      }}
+                      className={classes.element}
+                    >
+                      <option value="" disabled>
+                        Выберите тип
+                      </option>
+
+                      <option value="Прямая">Прямая</option>
+                      <option value="Обратная">Обратная</option>
+                    </select>
+
+                    <select
+                      value={postId} // Устанавливаем ID, по умолчанию пустая строка
+                      onChange={(e) => {
+                        setPostId(e.target.value);
+                      }}
+                      className={classes.element}
+                    >
+                      <option value="" disabled>
+                        Выберите пост
+                      </option>
+                      {posts.map((item) => {
+                        return <option value={item.id}>{item.postName}</option>;
+                      })}
+                    </select>
+                  </div>
+                  <div className={classes.row2}>
+                    <textarea
+                      placeholder="Описание статистики: что и как считать"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    ></textarea>
+                  </div>
+                </div>
+                
+                <HandlerMutation
+                  Loading={isLoadingPostStatisticMutation}
+                  Error={isErrorPostStatisticMutation}
+                  Success={isSuccessPostStatisticMutation}
+                  textSuccess={"Статистика успешно создана."}
+                  textError={
+                    Error?.data?.errors?.[0]?.errors?.[0]
+                      ? Error.data.errors[0].errors[0]
+                      : Error?.data?.message
+                  }
+                />
+              </>
             )}
           </>
         )}

@@ -3,6 +3,8 @@ import classes from "./Dialog.module.css";
 import icon from "../../../image/iconHeader.svg";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+
+
 export default function Dialog() {
   const [inputValue, setInputValue] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);

@@ -9,7 +9,8 @@
     box-shadow: 2px 0px 2px 0px rgba(0, 0, 0, 0.25);
     padding-bottom: 15px;
 }
-.block span{
+
+.row span{
     font-family: 'Montserrat';
     color:#FFFFFF;
     font-size: 10px;
@@ -19,20 +20,30 @@
     letter-spacing: 0.5px;
     transition: opacity 0.3s ease;
 }
-.block svg{
+
+.row{
     cursor:pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    row-gap: 5px;
 }
-.block svg path {
+
+.row:hover{
+    cursor:pointer;
+    span {
+        opacity:1;
+    }
+    g path {
+        stroke-opacity: 1 !important;
+    }
+    svg path {
+        stroke-opacity: 1 !important;
+    }
+}
+
+.row svg path {
     transition: stroke-opacity 0.3s ease; /* Добавляем плавный переход */
 }
-.block:hover svg g path {
-    stroke-opacity: 1 !important;
-}
 
-.block:hover svg path {
-    stroke-opacity: 1 !important;
-}
-
-.block:hover span{
-    opacity:1;
-}

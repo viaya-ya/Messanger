@@ -3,6 +3,7 @@ import classes from "./Block.module.css";
 export default function Block() {
   return (
     <div className={classes.block}>
+      <div className={classes.row}>
       <svg width="25.000000" height="25.000000" viewBox="0 0 25 25" fill="none">
         <desc>Created with Pixso.</desc>
         <defs>
@@ -47,6 +48,7 @@ export default function Block() {
         </g>
       </svg>
       <span>выйти</span>
+      </div>
     </div>
   );
 }

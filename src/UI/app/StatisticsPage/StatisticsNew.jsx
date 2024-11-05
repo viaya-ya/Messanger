@@ -200,7 +200,7 @@ export default function StatisticsNew() {
                     })}
                   </div>
 
-                  <div className={classes.addPoint} onClick={addPoint}>
+                  <div className={classes.  addPoint} onClick={addPoint}>
                     <img
                       src={statisticsArrowRight}
                       alt="statisticsArrowRight"

@@ -101,36 +101,17 @@ export default function StatisticsContent() {
     },
   ] = useUpdateStatisticsMutation();
 
-  // useEffect(() => {
-  //   reset(currentStatistic.name);
-  //   if (statisticDatas.length > 0) {
-  //     const updatedPoints = statisticDatas.map((item) => ({
-  //       ...item,
-  //       valueDate: item.valueDate.split("T")[0],
-  //     }));
-  //     const updatedPoints1 = statisticDatas.map((item) => ({
-  //       ...item,
-  //       valueDate: item.valueDate.split("T")[0],
-  //     }));
-
-  //     if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
-  //       setOldReceivedPoints(updatedPoints);
-  //       setReceivedPoints(updatedPoints1);
-  //     }
-  //   }
-  // }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
-
   useEffect(() => {
-    reset(currentStatistic.name);
+    // reset(currentStatistic.name);
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
       const dayNow = new Date();
       const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
-      
+
       // Определяем начальную дату - ближайший предыдущий день `day`, не более 7 дней назад
       const startDate = new Date(dayNow);
       let dayDifference;
-      
+
       if (currentWeekday >= day) {
         // Если текущий день >= day, включаем текущую дату или ищем ближайший `day` ранее
         dayDifference = currentWeekday - day;
@@ -138,17 +119,17 @@ export default function StatisticsContent() {
         // Если текущий день < day, откатываемся на предыдущую неделю
         dayDifference = 7 - (day - currentWeekday);
       }
-      
+
       startDate.setDate(dayNow.getDate() - dayDifference - 1);
-      
+
       // Ограничиваем начальную дату максимум 7 днями назад от текущего дня
       const maxStartDate = new Date(dayNow);
       maxStartDate.setDate(dayNow.getDate() - 7); // Последние 7 дней включают сегодня и 6 предыдущих дней
-      
+
       if (startDate < maxStartDate) {
         startDate.setTime(maxStartDate.getTime());
       }
-      
+
       // Фильтруем данные, оставляя записи от `startDate` до `dayNow` включительно
       const updatedPoints = statisticDatas
         .filter((item) => {
@@ -160,94 +141,277 @@ export default function StatisticsContent() {
           valueDate: item.valueDate.split("T")[0],
         }))
         .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
-        
-     
 
+      const updatedPoints1 = statisticDatas
+        .filter((item) => {
+          const itemDate = new Date(item.valueDate);
+          return startDate <= itemDate && itemDate <= dayNow;
+        })
+        .map((item) => ({
+          ...item,
+          valueDate: item.valueDate.split("T")[0],
+        }))
+        .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
 
       if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
         setOldReceivedPoints(updatedPoints);
-        setReceivedPoints(updatedPoints);
+        setReceivedPoints(updatedPoints1);
       }
     }
 
-    // if (statisticDatas.length > 0 && typeGraphic === "Месяц" && day !== "") {
+    if (statisticDatas.length > 0 && typeGraphic === "Ежемесячный") {
+      // Группируем данные по месяцам и суммируем `valueDate` за каждый месяц
+      const monthlyData = statisticDatas.reduce((acc, item) => {
+        const itemDate = new Date(item.valueDate);
+        const monthKey = `${itemDate.getFullYear()}-${itemDate.getMonth() + 1}`; // Год-месяц как ключ
 
-    //   const start = new Date(startDay);
-    //   const end = new Date(endDay);
-    //   const selectedDayOfWeek = parseInt(day); // Преобразуем выбранный день недели (1=Пн, 2=Вт, ... , 7=Вс)
-    
-    //   const result = [];
-    //   let currentDate = new Date(start);
-    //   let nextDate;
-    //   let currentSum = 0;
-    
-    //   // Находим первую дату, соответствующую выбранному дню недели, начиная с `start`
-    //   while (currentDate.getDay() !== (selectedDayOfWeek % 7)) {
-    //     currentDate.setDate(currentDate.getDate() + 1);
-    //   }
-    
-    //   // Считаем сумму для первой точки от `start` до первого дня `day`, включая этот день
-    //   currentSum = statisticDatas
-    //     .filter((item) => {
-    //       const itemDate = new Date(item.valueDate);
-    //       return itemDate >= start && itemDate <= currentDate;
-    //     })
-    //     .reduce((sum, item) => sum + item.value, 0);
-    
-    //   // Добавляем первую точку данных
-    //   result.push({
-    //     value: currentSum,
-    //     valueDate: currentDate.toISOString().split("T")[0],
-    //   });
-    
-    //   // Переходим к следующей точке
-    //   while (currentDate <= end) {
-    //     nextDate = new Date(currentDate);
-    //     nextDate.setDate(currentDate.getDate() + 7); // Следующий выбранный день недели
-    
-    //     // Проверяем, превышает ли `nextDate` `endDay`
-    //     if (nextDate > end) {
-    //       // Если превышает, суммируем до `end`
-    //       currentSum = statisticDatas
-    //         .filter((item) => {
-    //           const itemDate = new Date(item.valueDate);
-    //           return itemDate > currentDate && itemDate <= end; // Считаем до `endDay`
-    //         })
-    //         .reduce((sum, item) => sum + item.value, 0);
-    
-    //       // Добавляем точку данных с `endDay` как `valueDate`
-    //       result.push({
-    //         value: currentSum,
-    //         valueDate: end.toISOString().split("T")[0], // Используем `endDay` как `valueDate`
-    //       });
-    //       break; // Завершаем цикл, так как достигли конца
-    //     }
-    
-    //     // Считаем сумму от `currentDate` (не включая его) до `nextDate`, включая `nextDate`
-    //     currentSum = statisticDatas
-    //       .filter((item) => {
-    //         const itemDate = new Date(item.valueDate);
-    //         return itemDate > currentDate && itemDate <= nextDate;
-    //       })
-    //       .reduce((sum, item) => sum + item.value, 0);
-    
-    //     // Добавляем точку данных для текущего интервала
-    //     result.push({
-    //       value: currentSum,
-    //       valueDate: nextDate.toISOString().split("T")[0], // Дата следующего `day`
-    //     });
-    
-    //     // Обновляем `currentDate` на `nextDate` для следующего цикла
-    //     currentDate = nextDate;
-    //   }
-    
-    //   console.log(result); // Массив с суммами и датами для каждого найденного дня недели
-    
-    //   // Обновляем состояние с результатом
-    //   setOldReceivedPoints(result);
-    //   setReceivedPoints(result);
-    // }
-    
+        if (!acc[monthKey]) {
+          acc[monthKey] = {
+            valueSum: 0,
+            year: itemDate.getFullYear(),
+            month: itemDate.getMonth() + 1,
+          };
+        }
+
+        // Добавляем значение к текущей сумме за месяц
+        acc[monthKey].valueSum += item.value; // Предполагается, что `value` числовой
+        return acc;
+      }, {});
+
+      // Формируем новый массив, включающий `valueDate` и `date` (последний день месяца)
+      const updatedMonthlyPoints = Object.values(monthlyData).map((month) => {
+        const lastDayOfMonth = new Date(month.year, month.month, 0); // Создание даты для последнего дня месяца
+
+        // Получаем год и месяц
+        const year = lastDayOfMonth.getFullYear();
+        const monthValue = lastDayOfMonth.getMonth() + 1; // Месяцы начинаются с 0
+        const date = lastDayOfMonth.getDate(); // Дата
+
+        return {
+          valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
+          value: month.valueSum, // Сумма за месяц
+        };
+      });
+
+      const updatedMonthlyPoints1 = Object.values(monthlyData).map((month) => {
+        const lastDayOfMonth = new Date(month.year, month.month, 0); // Создание даты для последнего дня месяца
+
+        // Получаем год и месяц
+        const year = lastDayOfMonth.getFullYear();
+        const monthValue = lastDayOfMonth.getMonth() + 1; // Месяцы начинаются с 0
+        const date = lastDayOfMonth.getDate(); // Дата
+
+        return {
+          valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
+          value: month.valueSum, // Сумма за месяц
+        };
+      });
+
+      // Обновляем состояние, если есть изменения
+      if (
+        JSON.stringify(oldReceivedPoints) !==
+        JSON.stringify(updatedMonthlyPoints)
+      ) {
+        setOldReceivedPoints(updatedMonthlyPoints);
+        setReceivedPoints(updatedMonthlyPoints1);
+      }
+    }
+
+    if (statisticDatas.length > 0 && typeGraphic === "Ежегодовой") {
+      // Группируем данные по месяцам и суммируем `valueDate` за каждый месяц
+      const yearData = statisticDatas.reduce((acc, item) => {
+        const itemDate = new Date(item.valueDate);
+        const yearKey = `${itemDate.getFullYear()}`; // Год-месяц как ключ
+
+        if (!acc[yearKey]) {
+          acc[yearKey] = {
+            valueSum: 0,
+            year: itemDate.getFullYear(),
+          };
+        }
+
+        // Добавляем значение к текущей сумме за месяц
+        acc[yearKey].valueSum += item.value; // Предполагается, что `value` числовой
+        return acc;
+      }, {});
+
+      // Формируем новый массив, включающий `valueDate` и `date` (последний день месяца)
+      const updatedYearPoints = Object.values(yearData).map((year) => {
+        return {
+          valueDate: `${year.year}`,
+          value: year.valueSum, // Сумма за месяц
+        };
+      });
+
+      const updatedYearPoints1 = Object.values(yearData).map((year) => {
+        return {
+          valueDate: `${year.year}`,
+          value: year.valueSum, // Сумма за месяц
+        };
+      });
+
+      // Обновляем состояние, если есть изменения
+      if (
+        JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedYearPoints)
+      ) {
+        setOldReceivedPoints(updatedYearPoints);
+        setReceivedPoints(updatedYearPoints1);
+      }
+    }
+
+    if (statisticDatas.length > 0 && typeGraphic === "13") {
+      const today = new Date();
+      const end = new Date(today);
+      const start = new Date();
+      start.setDate(today.getDate() - 13 * 7);
+      
+      const selectedDayOfWeek = parseInt(day);
+      const result = [];
+      let currentDate = new Date(start);
+      let currentSum = 0;
+      
+      // Перемещаем currentDate на первый выбранный день недели
+      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+          currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Цикл по неделям
+      while (currentDate <= end) {
+          const nextDate = new Date(currentDate);
+          nextDate.setDate(currentDate.getDate() + 7);
+      
+          // Фильтруем и суммируем значения для текущей недели
+          currentSum = statisticDatas
+              .filter((item) => {
+                  const itemDate = new Date(item.valueDate);
+                  return currentDate <= itemDate && itemDate < nextDate;
+              })
+              .reduce((sum, item) => sum + item.value, 0);
+      
+          // Создаем новую дату на день позже
+          const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
+          
+          // Проверяем, что valueDate не позже сегодняшней даты
+          if (valueDate <= today) {
+              result.push({
+                  value: currentSum,
+                  valueDate: valueDate.toISOString().split("T")[0],
+              });
+          }
+      
+          currentDate = nextDate; // Переходим к следующей неделе
+      }
+      
+      console.log(result);
+      
+
+      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(result)) {
+        setOldReceivedPoints(result);
+        setReceivedPoints(result);
+      }
+    }
+    if (statisticDatas.length > 0 && typeGraphic === "26") {
+      const today = new Date();
+      const end = new Date(today);
+      const start = new Date();
+      start.setDate(today.getDate() - 26 * 7);
+      
+      const selectedDayOfWeek = parseInt(day);
+      const result = [];
+      let currentDate = new Date(start);
+      let currentSum = 0;
+      
+      // Перемещаем currentDate на первый выбранный день недели
+      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+          currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Цикл по неделям
+      while (currentDate <= end) {
+          const nextDate = new Date(currentDate);
+          nextDate.setDate(currentDate.getDate() + 7);
+      
+          // Фильтруем и суммируем значения для текущей недели
+          currentSum = statisticDatas
+              .filter((item) => {
+                  const itemDate = new Date(item.valueDate);
+                  return currentDate <= itemDate && itemDate < nextDate;
+              })
+              .reduce((sum, item) => sum + item.value, 0);
+      
+          // Создаем новую дату на день позже
+          const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
+          
+          // Проверяем, что valueDate не позже сегодняшней даты
+          if (valueDate <= today) {
+              result.push({
+                  value: currentSum,
+                  valueDate: valueDate.toISOString().split("T")[0],
+              });
+          }
+      
+          currentDate = nextDate; // Переходим к следующей неделе
+      }
+      
+      console.log(result);
+      
+
+      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(result)) {
+        setOldReceivedPoints(result);
+        setReceivedPoints(result);
+      }
+    }
+    if (statisticDatas.length > 0 && typeGraphic === "52") {
+      const today = new Date();
+      const end = new Date(today);
+      const start = new Date();
+      start.setDate(today.getDate() - 52 * 7);
+      
+      const selectedDayOfWeek = parseInt(day);
+      const result = [];
+      let currentDate = new Date(start);
+      let currentSum = 0;
+      
+      // Перемещаем currentDate на первый выбранный день недели
+      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+          currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Цикл по неделям
+      while (currentDate <= end) {
+          const nextDate = new Date(currentDate);
+          nextDate.setDate(currentDate.getDate() + 7);
+      
+          // Фильтруем и суммируем значения для текущей недели
+          currentSum = statisticDatas
+              .filter((item) => {
+                  const itemDate = new Date(item.valueDate);
+                  return currentDate <= itemDate && itemDate < nextDate;
+              })
+              .reduce((sum, item) => sum + item.value, 0);
+      
+          // Создаем новую дату на день позже
+          const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
+          
+          // Проверяем, что valueDate не позже сегодняшней даты
+          if (valueDate <= today) {
+              result.push({
+                  value: currentSum,
+                  valueDate: valueDate.toISOString().split("T")[0],
+              });
+          }
+      
+          currentDate = nextDate; // Переходим к следующей неделе
+      }
+      
+      console.log(result);
+      
+
+      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(result)) {
+        setOldReceivedPoints(result);
+        setReceivedPoints(result);
+      }
+    }
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
 
   function compareArrays(oldArray, newArray) {
@@ -416,11 +580,14 @@ export default function StatisticsContent() {
             value={typeGraphic}
             onChange={(e) => setTypeGraphic(e.target.value)}
           >
-            <option value="">---</option>
+            <option value="">Выберите тип отображения графика</option>
             <option value="Ежедневный"> Ежедневный (за один день)</option>
-            <option value="Еженедельный">Еженедельный (суммма за 7 дней)</option>
-            <option value="Ежемесячный">Ежемесячный (сумма за календарный месяц)</option>
-            <option value="Ежегодовой">Ежегодовой (сумма за календарный год)</option>
+            <option value="Ежемесячный">
+              Ежемесячный (сумма за календарный месяц)
+            </option>
+            <option value="Ежегодовой">
+              Ежегодовой (сумма за календарный год)
+            </option>
             <option value="13">13 недель</option>
             <option value="26">26 недель</option>
             <option value="52">52 недели</option>

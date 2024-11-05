@@ -173,7 +173,6 @@ input[type="search"]::-webkit-input-placeholder {
     min-height: 60px;
     flex-direction: row;
     column-gap: 5px;
-    overflow-x: auto;
 }
 
 .block3{
@@ -229,7 +228,7 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 .points{
-    width: 99%;
+    width: 73vw;
     display: flex;
     flex-direction: row;
     column-gap: 5px;

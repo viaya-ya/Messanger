@@ -166,6 +166,7 @@ input[type="search"]::-webkit-input-placeholder {
 
 .main {
     position: relative;
+    width: 100%;
     height: calc(100vh - 120px - 24px - 25px);
     max-height: 80vh;
     background-color: #ffff;
@@ -178,23 +179,23 @@ input[type="search"]::-webkit-input-placeholder {
     overflow-y: auto;
 }
 
-.block1{
+.block1 {
     flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
 
 }
-.block2{
-    display: flex;
+
+.block2 {
     width: 99%;
+    display: flex;
     min-height: 60px;
     flex-direction: row;
     column-gap: 5px;
-    overflow-x: auto;
 }
 
-.block3{
+.block3 {
     width: 99%;
     display: flex;
     flex-direction: column;
@@ -203,24 +204,25 @@ input[type="search"]::-webkit-input-placeholder {
     border-top: solid 3px #B4B4B4;
     min-height: 200px;
 
-    & .row1{
+    & .row1 {
         width: 99%;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         column-gap: 5px;
 
-        & .element{
-            width:30%;
-            max-width:30%;
+        & .element {
+            width: 30%;
+            max-width: 30%;
             height: 25px;
-            border-bottom:solid 1px #B4B4B4;
+            border-bottom: solid 1px #B4B4B4;
         }
     }
 
-    & .row2{
+    & .row2 {
         min-height: 85%;
-        & textarea{
+
+        & textarea {
             width: 99%;
             min-height: 100%;
             padding: 15px;
@@ -228,7 +230,7 @@ input[type="search"]::-webkit-input-placeholder {
             overflow-y: auto;
         }
     }
-    
+
 }
 
 
@@ -236,18 +238,20 @@ input[type="search"]::-webkit-input-placeholder {
     width: 30px;
     height: 50px;
     border: solid 2px #B4B4B4;
-    &:hover{
+
+    &:hover {
         cursor: pointer;
         background-color: #8a8989;
     }
-    & img{
-        margin-top: 12px; 
+
+    & img {
+        margin-top: 12px;
         margin-left: 5px;
     }
 }
 
-.points{
-    width: 99%;
+.points {
+    width: 73vw;
     display: flex;
     flex-direction: row;
     column-gap: 5px;
@@ -262,12 +266,12 @@ input[type="search"]::-webkit-input-placeholder {
         border: solid 2px #B4B4B4;
         text-align: center;
 
-        & .date{
+        & .date {
             height: 24px;
-            border-bottom:solid 2px #B4B4B4;
+            border-bottom: solid 2px #B4B4B4;
         }
 
-        & .number{
+        & .number {
             height: 24px;
         }
     }
@@ -279,12 +283,13 @@ input[type="search"]::-webkit-input-placeholder {
     margin-left: auto;
     border: solid 2px #B4B4B4;
     text-align: center;
-    &:hover{
+
+    &:hover {
         cursor: pointer;
         background-color: #8a8989;
     }
-    & img{
-        margin-top: 12px; 
+
+    & img {
+        margin-top: 12px;
     }
 }
-

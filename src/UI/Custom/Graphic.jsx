@@ -18,7 +18,7 @@ const Graphic = ({ data, name, setName }) => {
     // Размеры графика
     const width = 900;
     const height = 600;
-    const margin = { top: 40, right: 30, bottom: 30, left: 40 };
+    const margin = { top: 40, right: 30, bottom: 80, left: 50 }; // Увеличен левый отступ для большей свободы
 
     // Вычисляем минимальное и максимальное значения
     const minValue = d3.min(data, (d) => d.value);
@@ -28,7 +28,8 @@ const Graphic = ({ data, name, setName }) => {
     const x = d3
       .scalePoint()
       .domain(data.map((d) => d.valueDate))
-      .range([margin.left, width - margin.right]);
+      .range([margin.left, width - margin.right])
+      .padding(0.5); // Добавляем немного отступа между метками
 
     const y = d3
       .scaleLinear()
@@ -51,15 +52,6 @@ const Graphic = ({ data, name, setName }) => {
       .select(svgRef.current)
       .attr("width", width)
       .attr("height", height);
-
-    // Добавление заголовка
-    // svg.append('text')
-    //   .attr('x', width / 2)
-    //   .attr('y', margin.top / 2)
-    //   .attr('text-anchor', 'middle')
-    //   .style('font-size', '16px')
-    //   .style('font-weight', 'bold')
-    //   .text(name); // Используем динамический заголовок
 
     // Добавление сетки за графиком
     const tickValues = data.map((d) => d.valueDate);
@@ -96,10 +88,19 @@ const Graphic = ({ data, name, setName }) => {
       .attr("opacity", 0.7);
 
     // Добавление осей
-    svg
-      .append("g")
+    const xAxis = d3.axisBottom(x);
+
+    // Добавление оси X с поворотом меток
+    svg.append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x));
+      .call(xAxis)
+      .selectAll("text")
+      .attr("transform", "rotate(-45)") // Поворачиваем текст на 45 градусов
+      .attr("text-anchor", "end") // Выравнивание текста по концу
+      .attr("dx", "-10px") // Сдвигаем текст влево
+      .attr("dy", "0px") // Убираем сдвиг вверх
+      .style("font-weight", "bold") // Делаем текст жирным
+      .style("font-size", "12px");
 
     // Ось Y с делениями, соответствующими значениям точек
     svg
@@ -175,11 +176,11 @@ const Graphic = ({ data, name, setName }) => {
           .style("font-weight", "bold"); // Жирный шрифт
       })
       .on("mouseout", (event) => {
-        const d = d3.select(event.currentTarget).datum(); // Get the data associated with the current target
-        const index = data.indexOf(d); // Find the index of that data point
+        const d = d3.select(event.currentTarget).datum(); // Получаем данные, связанные с текущей точкой
+        const index = data.indexOf(d); // Находим индекс этих данных
         d3.select(event.currentTarget)
           .attr("r", 5)
-          .attr("fill", getColor(d.value, index)); // Use the correct index
+          .attr("fill", getColor(d.value, index)); // Используем правильный индекс
         svg.select("#tooltip").remove();
       });
   }, [data]); // Зависимость от data и title для обновления графика при изменении данных и заголовка

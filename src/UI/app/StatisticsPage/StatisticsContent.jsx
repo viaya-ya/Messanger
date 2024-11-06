@@ -17,6 +17,7 @@ import {
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
+import { format, parse } from 'date-fns'; 
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export default function StatisticsContent() {
   ///
   const [day, setDay] = useState("");
   const [typeGraphic, setTypeGraphic] = useState("");
+  const [disabledPoints, setDisabledPoints] = useState(false);
 
   const {
     statistics = [],
@@ -102,6 +104,14 @@ export default function StatisticsContent() {
   ] = useUpdateStatisticsMutation();
 
   useEffect(() => {
+    if (typeGraphic !== "Ежедневный") {
+      setDisabledPoints(true);
+    } else {
+      setDisabledPoints(false);
+    }
+  }, [typeGraphic]);
+
+  useEffect(() => {
     // reset(currentStatistic.name);
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
@@ -140,7 +150,7 @@ export default function StatisticsContent() {
           ...item,
           valueDate: item.valueDate.split("T")[0],
         }))
-        .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
+        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
 
       const updatedPoints1 = statisticDatas
         .filter((item) => {
@@ -151,7 +161,7 @@ export default function StatisticsContent() {
           ...item,
           valueDate: item.valueDate.split("T")[0],
         }))
-        .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
+        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
 
       if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
         setOldReceivedPoints(updatedPoints);
@@ -179,42 +189,23 @@ export default function StatisticsContent() {
       }, {});
 
       // Формируем новый массив, включающий `valueDate` и `date` (последний день месяца)
-      const updatedMonthlyPoints = Object.values(monthlyData).map((month) => {
-        const lastDayOfMonth = new Date(month.year, month.month, 0); // Создание даты для последнего дня месяца
+      const updatedMonthlyPoints = Object.values(monthlyData)
+        .map((month) => {
+          const lastDayOfMonth = new Date(month.year, month.month, 0); // Создание даты для последнего дня месяца
 
-        // Получаем год и месяц
-        const year = lastDayOfMonth.getFullYear();
-        const monthValue = lastDayOfMonth.getMonth() + 1; // Месяцы начинаются с 0
-        const date = lastDayOfMonth.getDate(); // Дата
+          // Получаем год и месяц
+          const year = lastDayOfMonth.getFullYear();
+          const monthValue = lastDayOfMonth.getMonth() + 1; // Месяцы начинаются с 0
+          const date = lastDayOfMonth.getDate(); // Дата
 
-        return {
-          valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
-          value: month.valueSum, // Сумма за месяц
-        };
-      });
+          return {
+            valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
+            value: month.valueSum, // Сумма за месяц
+          };
+        })
+        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
 
-      const updatedMonthlyPoints1 = Object.values(monthlyData).map((month) => {
-        const lastDayOfMonth = new Date(month.year, month.month, 0); // Создание даты для последнего дня месяца
-
-        // Получаем год и месяц
-        const year = lastDayOfMonth.getFullYear();
-        const monthValue = lastDayOfMonth.getMonth() + 1; // Месяцы начинаются с 0
-        const date = lastDayOfMonth.getDate(); // Дата
-
-        return {
-          valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
-          value: month.valueSum, // Сумма за месяц
-        };
-      });
-
-      // Обновляем состояние, если есть изменения
-      if (
-        JSON.stringify(oldReceivedPoints) !==
-        JSON.stringify(updatedMonthlyPoints)
-      ) {
-        setOldReceivedPoints(updatedMonthlyPoints);
-        setReceivedPoints(updatedMonthlyPoints1);
-      }
+      setReceivedPoints(updatedMonthlyPoints);
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежегодовой") {
@@ -236,27 +227,16 @@ export default function StatisticsContent() {
       }, {});
 
       // Формируем новый массив, включающий `valueDate` и `date` (последний день месяца)
-      const updatedYearPoints = Object.values(yearData).map((year) => {
-        return {
-          valueDate: `${year.year}`,
-          value: year.valueSum, // Сумма за месяц
-        };
-      });
+      const updatedYearPoints = Object.values(yearData)
+        .map((year) => {
+          return {
+            valueDate: `${year.year}`,
+            value: year.valueSum, // Сумма за месяц
+          };
+        })
+        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
 
-      const updatedYearPoints1 = Object.values(yearData).map((year) => {
-        return {
-          valueDate: `${year.year}`,
-          value: year.valueSum, // Сумма за месяц
-        };
-      });
-
-      // Обновляем состояние, если есть изменения
-      if (
-        JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedYearPoints)
-      ) {
-        setOldReceivedPoints(updatedYearPoints);
-        setReceivedPoints(updatedYearPoints1);
-      }
+      setReceivedPoints(updatedYearPoints);
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "13") {
@@ -264,155 +244,157 @@ export default function StatisticsContent() {
       const end = new Date(today);
       const start = new Date();
       start.setDate(today.getDate() - 13 * 7);
-      
+
       const selectedDayOfWeek = parseInt(day);
       const result = [];
       let currentDate = new Date(start);
       let currentSum = 0;
-      
+
       // Перемещаем currentDate на первый выбранный день недели
       while (currentDate.getDay() !== selectedDayOfWeek - 1) {
-          currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-      
+
       // Цикл по неделям
       while (currentDate <= end) {
-          const nextDate = new Date(currentDate);
-          nextDate.setDate(currentDate.getDate() + 7);
-      
-          // Фильтруем и суммируем значения для текущей недели
-          currentSum = statisticDatas
-              .filter((item) => {
-                  const itemDate = new Date(item.valueDate);
-                  return currentDate <= itemDate && itemDate < nextDate;
-              })
-              .reduce((sum, item) => sum + item.value, 0);
-      
-          // Создаем новую дату на день позже
-          const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
-          
-          // Проверяем, что valueDate не позже сегодняшней даты
-          if (valueDate <= today) {
-              result.push({
-                  value: currentSum,
-                  valueDate: valueDate.toISOString().split("T")[0],
-              });
-          }
-      
-          currentDate = nextDate; // Переходим к следующей неделе
-      }
-      
-      console.log(result);
-      
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 7);
 
-      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(result)) {
-        setOldReceivedPoints(result);
-        setReceivedPoints(result);
+        // Фильтруем и суммируем значения для текущей недели
+        currentSum = statisticDatas
+          .filter((item) => {
+            const itemDate = new Date(item.valueDate);
+            return currentDate <= itemDate && itemDate < nextDate;
+          })
+          .reduce((sum, item) => sum + item.value, 0);
+
+        // Создаем новую дату на день позже
+        const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
+
+        // Проверяем, что valueDate не позже сегодняшней даты
+        if (valueDate <= today) {
+          result.push({
+            value: currentSum,
+            valueDate: valueDate.toISOString().split("T")[0],
+          });
+        }
+
+        currentDate = nextDate; // Переходим к следующей неделе
       }
+
+      console.log(result);
+
+      setReceivedPoints(
+        result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
+      );
     }
+
     if (statisticDatas.length > 0 && typeGraphic === "26") {
       const today = new Date();
       const end = new Date(today);
       const start = new Date();
       start.setDate(today.getDate() - 26 * 7);
-      
+
       const selectedDayOfWeek = parseInt(day);
       const result = [];
       let currentDate = new Date(start);
       let currentSum = 0;
-      
+
       // Перемещаем currentDate на первый выбранный день недели
       while (currentDate.getDay() !== selectedDayOfWeek - 1) {
-          currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-      
+
       // Цикл по неделям
       while (currentDate <= end) {
-          const nextDate = new Date(currentDate);
-          nextDate.setDate(currentDate.getDate() + 7);
-      
-          // Фильтруем и суммируем значения для текущей недели
-          currentSum = statisticDatas
-              .filter((item) => {
-                  const itemDate = new Date(item.valueDate);
-                  return currentDate <= itemDate && itemDate < nextDate;
-              })
-              .reduce((sum, item) => sum + item.value, 0);
-      
-          // Создаем новую дату на день позже
-          const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
-          
-          // Проверяем, что valueDate не позже сегодняшней даты
-          if (valueDate <= today) {
-              result.push({
-                  value: currentSum,
-                  valueDate: valueDate.toISOString().split("T")[0],
-              });
-          }
-      
-          currentDate = nextDate; // Переходим к следующей неделе
-      }
-      
-      console.log(result);
-      
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 7);
 
-      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(result)) {
-        setOldReceivedPoints(result);
-        setReceivedPoints(result);
+        // Фильтруем и суммируем значения для текущей недели
+        currentSum = statisticDatas
+          .filter((item) => {
+            const itemDate = new Date(item.valueDate);
+            return currentDate <= itemDate && itemDate < nextDate;
+          })
+          .reduce((sum, item) => sum + item.value, 0);
+
+        // Создаем новую дату на день позже
+        const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
+
+        // Проверяем, что valueDate не позже сегодняшней даты
+        if (valueDate <= today) {
+          result.push({
+            value: currentSum,
+            valueDate: valueDate.toISOString().split("T")[0],
+          });
+        }
+
+        currentDate = nextDate; // Переходим к следующей неделе
       }
+
+      console.log(result);
+
+      setReceivedPoints(
+        result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
+      );
     }
+
     if (statisticDatas.length > 0 && typeGraphic === "52") {
       const today = new Date();
       const end = new Date(today);
       const start = new Date();
       start.setDate(today.getDate() - 52 * 7);
-      
+
       const selectedDayOfWeek = parseInt(day);
       const result = [];
       let currentDate = new Date(start);
       let currentSum = 0;
-      
+
       // Перемещаем currentDate на первый выбранный день недели
       while (currentDate.getDay() !== selectedDayOfWeek - 1) {
-          currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-      
+
       // Цикл по неделям
       while (currentDate <= end) {
-          const nextDate = new Date(currentDate);
-          nextDate.setDate(currentDate.getDate() + 7);
-      
-          // Фильтруем и суммируем значения для текущей недели
-          currentSum = statisticDatas
-              .filter((item) => {
-                  const itemDate = new Date(item.valueDate);
-                  return currentDate <= itemDate && itemDate < nextDate;
-              })
-              .reduce((sum, item) => sum + item.value, 0);
-      
-          // Создаем новую дату на день позже
-          const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
-          
-          // Проверяем, что valueDate не позже сегодняшней даты
-          if (valueDate <= today) {
-              result.push({
-                  value: currentSum,
-                  valueDate: valueDate.toISOString().split("T")[0],
-              });
-          }
-      
-          currentDate = nextDate; // Переходим к следующей неделе
-      }
-      
-      console.log(result);
-      
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 7);
 
-      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(result)) {
-        setOldReceivedPoints(result);
-        setReceivedPoints(result);
+        // Фильтруем и суммируем значения для текущей недели
+        currentSum = statisticDatas
+          .filter((item) => {
+            const itemDate = new Date(item.valueDate);
+            return currentDate <= itemDate && itemDate < nextDate;
+          })
+          .reduce((sum, item) => sum + item.value, 0);
+
+        // Создаем новую дату на день позже
+        const valueDate = new Date(nextDate.getTime() + 24 * 60 * 60 * 1000);
+
+        // Проверяем, что valueDate не позже сегодняшней даты
+        if (valueDate <= today) {
+          result.push({
+            value: currentSum,
+            valueDate: valueDate.toISOString().split("T")[0],
+          });
+        }
+
+        currentDate = nextDate; // Переходим к следующей неделе
       }
+
+      console.log(result);
+      setReceivedPoints(
+        result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
+      );
     }
-  }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
+  }, [
+    currentStatistic,
+    isLoadingGetStatisticId,
+    isFetchingGetStatisticId,
+    typeGraphic,
+    day,
+    type
+  ]);
 
   function compareArrays(oldArray, newArray) {
     const changes = [];
@@ -559,40 +541,6 @@ export default function StatisticsContent() {
           />
         </div>
         <div className={styles.editText}>
-          <span> Отчетный день: </span>
-          <select
-            name=""
-            id=""
-            value={day}
-            onChange={(e) => setDay(e.target.value)}
-          >
-            <option value="">---</option>
-            <option value={1}>Пн</option>
-            <option value={2}>Вт</option>
-            <option value={3}>Ср</option>
-            <option value={4}>Чт</option>
-            <option value={5}>Пт</option>
-            <option value={6}>Сб</option>
-            <option value={0}>Вс</option>
-          </select>
-
-          <select
-            value={typeGraphic}
-            onChange={(e) => setTypeGraphic(e.target.value)}
-          >
-            <option value="">Выберите тип отображения графика</option>
-            <option value="Ежедневный"> Ежедневный (за один день)</option>
-            <option value="Ежемесячный">
-              Ежемесячный (сумма за календарный месяц)
-            </option>
-            <option value="Ежегодовой">
-              Ежегодовой (сумма за календарный год)
-            </option>
-            <option value="13">13 недель</option>
-            <option value="26">26 недель</option>
-            <option value="52">52 недели</option>
-          </select>
-
           <div className={classes.five}>
             <div className={classes.iconAdd}>
               <img
@@ -646,14 +594,13 @@ export default function StatisticsContent() {
                               name !== "null" ? name : currentStatistic?.name
                             }
                             setName={setName}
+                            typeGraphic={typeGraphic}
+                            type={type}
                           ></Graphic>
                         </div>
 
                         <div className={classes.block2}>
-                          <div
-                            className={classes.deletePoint}
-                            onClick={deletePoint}
-                          >
+                          <div className={classes.addPoint} onClick={addPoint}>
                             <img
                               src={statisticsArrowLeft}
                               alt="statisticsArrowLeft"
@@ -661,7 +608,12 @@ export default function StatisticsContent() {
                           </div>
 
                           <div className={classes.points}>
-                            {receivedPoints?.map((item, index) => {
+                            {createPoints?.map((item, index) => {
+                              if (item.valueDate === "") {
+                                item.valueDate = new Date()
+                                  .toISOString()
+                                  .split("T")[0];
+                              }
                               return (
                                 <div className={classes.item}>
                                   <input
@@ -669,7 +621,7 @@ export default function StatisticsContent() {
                                     value={item.valueDate}
                                     onChange={(e) => {
                                       onChangePoints(
-                                        "received",
+                                        "",
                                         e.target.value,
                                         "valueDate",
                                         index
@@ -678,12 +630,16 @@ export default function StatisticsContent() {
                                     className={classes.date}
                                   />
                                   <input
-                                    type="number"
+                                    type="text"
                                     value={item.value}
                                     onChange={(e) => {
+                                      const newValue = e.target.value.replace(
+                                        /[^0-9]/g,
+                                        ""
+                                      );
                                       onChangePoints(
-                                        "received",
-                                        e.target.value,
+                                        "",
+                                        newValue,
                                         "value",
                                         index
                                       );
@@ -693,41 +649,68 @@ export default function StatisticsContent() {
                                 </div>
                               );
                             })}
-                            {createPoints?.map((item, index) => {
+
+                            {receivedPoints?.map((item, index) => {
                               return (
                                 <div className={classes.item}>
-                                  <input
-                                    type="date"
-                                    value={item.valueDate}
-                                    onChange={(e) => {
-                                      onChangePoints(
-                                        "",
-                                        e.target.value,
-                                        "valueDate",
-                                        index
-                                      );
-                                    }}
-                                    className={classes.date}
-                                  />
-                                  <input
-                                    type="number"
+                                  {typeGraphic === "Ежедневный" ? (
+                                    <>
+                                      <input
+                                        type="date"
+                                        value={item.valueDate}
+                                        onChange={(e) => {
+                                          onChangePoints(
+                                            "received",
+                                            e.target.value,
+                                            "valueDate",
+                                            index
+                                          );
+                                        }}
+                                        className={`${classes.date}`}
+                                        disabled={disabledPoints}
+                                      />
+                                    </>
+                                  ) : (
+                                    <span
+                                      disabled={disabledPoints}
+                                      className={`${classes.date} ${classes.textGrey}`}
+                                    >
+                                      {new Date(
+                                        item.valueDate
+                                      ).toLocaleDateString("ru-RU", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "2-digit",
+                                      })}
+                                    </span>
+                                  )}
+                                   <input
+                                    type="text"
                                     value={item.value}
                                     onChange={(e) => {
+                                      const newValue = e.target.value.replace(
+                                        /[^0-9]/g,
+                                        ""
+                                      );
                                       onChangePoints(
                                         "",
-                                        e.target.value,
+                                        newValue,
                                         "value",
                                         index
                                       );
                                     }}
                                     className={classes.number}
+                                    disabled={disabledPoints}
                                   />
                                 </div>
                               );
                             })}
                           </div>
 
-                          <div className={classes.addPoint} onClick={addPoint}>
+                          <div
+                            className={classes.deletePoint}
+                            onClick={deletePoint}
+                          >
                             <img
                               src={statisticsArrowRight}
                               alt="statisticsArrowRight"
@@ -796,6 +779,48 @@ export default function StatisticsContent() {
                                   </option>
                                 );
                               })}
+                            </select>
+
+                            <select
+                              name=""
+                              id=""
+                              value={day}
+                              onChange={(e) => setDay(e.target.value)}
+                              className={classes.element}
+                            >
+                              <option value="" disabled>
+                                Отчетный день
+                              </option>
+                              <option value={1}>Пн</option>
+                              <option value={2}>Вт</option>
+                              <option value={3}>Ср</option>
+                              <option value={4}>Чт</option>
+                              <option value={5}>Пт</option>
+                              <option value={6}>Сб</option>
+                              <option value={0}>Вс</option>
+                            </select>
+
+                            <select
+                              value={typeGraphic}
+                              onChange={(e) => setTypeGraphic(e.target.value)}
+                              className={classes.element}
+                            >
+                              <option value="" disabled>
+                                Выберите тип отображения графика
+                              </option>
+                              <option value="Ежедневный">
+                                {" "}
+                                Ежедневный (за один день)
+                              </option>
+                              <option value="Ежемесячный">
+                                Ежемесячный (сумма за календарный месяц)
+                              </option>
+                              <option value="Ежегодовой">
+                                Ежегодовой (сумма за календарный год)
+                              </option>
+                              <option value="13">13 недель</option>
+                              <option value="26">26 недель</option>
+                              <option value="52">52 недели</option>
                             </select>
                           </div>
                           <div className={classes.row2}>
@@ -884,6 +909,48 @@ export default function StatisticsContent() {
                               <option value="null" disabled>
                                 Выберите пост
                               </option>
+                            </select>
+
+                            <select
+                              name=""
+                              id=""
+                              value={day}
+                              onChange={(e) => setDay(e.target.value)}
+                              className={classes.element}
+                            >
+                              <option value="" disabled>
+                                Отчетный день
+                              </option>
+                              <option value={1}>Пн</option>
+                              <option value={2}>Вт</option>
+                              <option value={3}>Ср</option>
+                              <option value={4}>Чт</option>
+                              <option value={5}>Пт</option>
+                              <option value={6}>Сб</option>
+                              <option value={0}>Вс</option>
+                            </select>
+
+                            <select
+                              value={typeGraphic}
+                              onChange={(e) => setTypeGraphic(e.target.value)}
+                              className={classes.element}
+                            >
+                              <option value="" disabled>
+                                Выберите тип отображения графика
+                              </option>
+                              <option value="Ежедневный">
+                                {" "}
+                                Ежедневный (за один день)
+                              </option>
+                              <option value="Ежемесячный">
+                                Ежемесячный (сумма за календарный месяц)
+                              </option>
+                              <option value="Ежегодовой">
+                                Ежегодовой (сумма за календарный год)
+                              </option>
+                              <option value="13">13 недель</option>
+                              <option value="26">26 недель</option>
+                              <option value="52">52 недели</option>
                             </select>
                           </div>
                           <div className={classes.row2}>

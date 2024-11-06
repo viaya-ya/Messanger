@@ -212,8 +212,8 @@ input[type="search"]::-webkit-input-placeholder {
         column-gap: 5px;
 
         & .element {
-            width: 30%;
-            max-width: 30%;
+            width: 18%;
+            max-width: 18%;
             height: 25px;
             border-bottom: solid 1px #B4B4B4;
         }
@@ -234,7 +234,7 @@ input[type="search"]::-webkit-input-placeholder {
 }
 
 
-.deletePoint {
+.addPoint {
     width: 30px;
     height: 50px;
     border: solid 2px #B4B4B4;
@@ -250,34 +250,7 @@ input[type="search"]::-webkit-input-placeholder {
     }
 }
 
-.points {
-    width: 73vw;
-    display: flex;
-    flex-direction: row;
-    column-gap: 5px;
-    overflow-x: auto;
-
-    & .item {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        width: 120px;
-        height: 50px;
-        border: solid 2px #B4B4B4;
-        text-align: center;
-
-        & .date {
-            height: 24px;
-            border-bottom: solid 2px #B4B4B4;
-        }
-
-        & .number {
-            height: 24px;
-        }
-    }
-}
-
-.addPoint {
+.deletePoint {
     width: 30px;
     height: 50px;
     margin-left: auto;
@@ -293,3 +266,63 @@ input[type="search"]::-webkit-input-placeholder {
         margin-top: 12px;
     }
 }
+
+.points {
+    width: 73vw;
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+    overflow-x: auto;
+
+    & .item {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 90px;
+        height: 50px;
+        border: solid 2px #B4B4B4;
+        text-align: center;
+
+        & .date {
+            height: 24px;
+            border-bottom: solid 2px #B4B4B4;
+            padding: 2px;
+            padding-left: 8px;
+        }
+
+        & .number {
+            height: 24px;
+            padding: 2px;
+            text-align: center;
+        }
+    }
+}
+
+.textGrey{
+    font-family: "Montserrat";
+    font-size: 13px;
+    color:grey;
+    text-align: center;
+    margin-top: 2px;
+}
+
+input[type="date"] {
+    position: relative;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    color: transparent;
+    background: transparent;
+  }
+  
+ 
+  
+  
+  

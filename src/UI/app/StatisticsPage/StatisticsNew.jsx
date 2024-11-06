@@ -13,7 +13,7 @@ import {
 } from "../../../BLL/statisticsApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
-import styles from '../../Custom/CommonStyles.module.css';
+import styles from "../../Custom/CommonStyles.module.css";
 
 export default function StatisticsNew() {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ export default function StatisticsNew() {
   const [postId, setPostId] = useState("");
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState([{ valueDate: "", value: 0 }]);
+  const [day, setDay] = useState("");
 
   const {
     posts = [],
@@ -51,7 +52,7 @@ export default function StatisticsNew() {
   ] = usePostStatisticsMutation();
 
   const addPoint = () => {
-    setPoints((prevState) => [...prevState, { valueDate: "", value: 0 }]);
+    setPoints((prevState) => [ ...prevState, { valueDate: "", value: 0 }]);
   };
 
   const deletePoint = () => {
@@ -165,18 +166,19 @@ export default function StatisticsNew() {
                     data={points}
                     name={name}
                     setName={setName}
+                    type={type}
                   ></Graphic>
                 </div>
 
                 <div className={classes.block2}>
-                  <div className={classes.deletePoint} onClick={deletePoint}>
+                  <div className={classes.addPoint} onClick={addPoint}>
                     <img src={statisticsArrowLeft} alt="statisticsArrowLeft" />
                   </div>
-
+                  
                   <div className={classes.points}>
                     {points.map((_, index) => {
                       return (
-                        <div className={classes.item}>
+                        <div key={index} className={classes.item}>
                           <input
                             type="date"
                             onChange={(e) => {
@@ -200,7 +202,7 @@ export default function StatisticsNew() {
                     })}
                   </div>
 
-                  <div className={classes.  addPoint} onClick={addPoint}>
+                  <div className={classes.deletePoint} onClick={deletePoint}>
                     <img
                       src={statisticsArrowRight}
                       alt="statisticsArrowRight"
@@ -247,6 +249,25 @@ export default function StatisticsNew() {
                         return <option value={item.id}>{item.postName}</option>;
                       })}
                     </select>
+
+                    <select
+                      name=""
+                      id=""
+                      value={day}
+                      onChange={(e) => setDay(e.target.value)}
+                      className={classes.element}
+                    >
+                      <option value="" disabled>
+                        Отчетный день
+                      </option>
+                      <option value={1}>Пн</option>
+                      <option value={2}>Вт</option>
+                      <option value={3}>Ср</option>
+                      <option value={4}>Чт</option>
+                      <option value={5}>Пт</option>
+                      <option value={6}>Сб</option>
+                      <option value={0}>Вс</option>
+                    </select>
                   </div>
                   <div className={classes.row2}>
                     <textarea
@@ -256,7 +277,7 @@ export default function StatisticsNew() {
                     ></textarea>
                   </div>
                 </div>
-                
+
                 <HandlerMutation
                   Loading={isLoadingPostStatisticMutation}
                   Error={isErrorPostStatisticMutation}

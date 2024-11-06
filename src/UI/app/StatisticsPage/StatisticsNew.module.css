@@ -192,8 +192,8 @@ input[type="search"]::-webkit-input-placeholder {
         column-gap: 5px;
 
         & .element{
-            width:30%;
-            max-width:30%;
+            width:22%;
+            max-width:22%;
             height: 25px;
             border-bottom:solid 1px #B4B4B4;
         }
@@ -216,18 +216,21 @@ input[type="search"]::-webkit-input-placeholder {
 .deletePoint {
     width: 30px;
     height: 50px;
+    margin-left: auto;
     border: solid 2px #B4B4B4;
-    &:hover{
+    text-align: center;
+
+    &:hover {
         cursor: pointer;
         background-color: #8a8989;
     }
-    & img{
-        margin-top: 12px; 
-        margin-left: 5px;
+
+    & img {
+        margin-top: 12px;
     }
 }
 
-.points{
+.points {
     width: 73vw;
     display: flex;
     flex-direction: row;
@@ -238,18 +241,22 @@ input[type="search"]::-webkit-input-placeholder {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        width: 120px;
+        width: 90px;
         height: 50px;
         border: solid 2px #B4B4B4;
         text-align: center;
 
-        & .date{
+        & .date {
             height: 24px;
-            border-bottom:solid 2px #B4B4B4;
+            border-bottom: solid 2px #B4B4B4;
+            padding: 2px;
+            padding-left: 8px;
         }
 
-        & .number{
+        & .number {
             height: 24px;
+            padding: 2px;
+            text-align: center;
         }
     }
 }
@@ -257,15 +264,47 @@ input[type="search"]::-webkit-input-placeholder {
 .addPoint {
     width: 30px;
     height: 50px;
-    margin-left: auto;
     border: solid 2px #B4B4B4;
-    text-align: center;
-    &:hover{
+
+    &:hover {
         cursor: pointer;
         background-color: #8a8989;
     }
-    & img{
-        margin-top: 12px; 
+
+    & img {
+        margin-top: 12px;
+        margin-left: 5px;
     }
+}
+
+
+.textGrey{
+    color:grey;
+}
+
+input[type="date"] {
+    position: relative;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    color: transparent;
+    background: transparent;
+  }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
 }
 

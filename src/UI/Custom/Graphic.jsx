@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import classes from "./Graphic.module.css";
 
-const Graphic = ({ data, name, setName }) => {
+const Graphic = ({ data, name, setName, typeGraphic, type }) => {
   const svgRef = useRef();
   const [nameStatistics, setNameStatistics] = useState(name);
+
+  const [width, setWidth] = useState(900);
+  const [height, setHeight] = useState(600);
 
   useEffect(() => {
     setNameStatistics(name);
@@ -14,65 +17,97 @@ const Graphic = ({ data, name, setName }) => {
     setName(nameStatistics);
   }, [nameStatistics]);
 
+  // Обновляем ширину и высоту в зависимости от типа графика
   useEffect(() => {
-    // Размеры графика
-    const width = 900;
-    const height = 600;
-    const margin = { top: 40, right: 30, bottom: 80, left: 50 }; // Увеличен левый отступ для большей свободы
+    if (typeGraphic === "26" || typeGraphic === "52") {
+      setWidth(900);
+      setHeight(600);
+    } else {
+      if (!typeGraphic) {
+        setWidth(900);
+        setHeight(600);
+      } else {
+        setWidth(600);
+        setHeight(700);
+      }
+    }
+  }, [typeGraphic]);
 
-    // Вычисляем минимальное и максимальное значения
+  useEffect(() => {
+    data.sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
+
+    const formatDate = d3.timeFormat("%d.%m.%y");
+    const parseDate = d3.timeParse("%Y-%m-%d");
+
+    const margin = { top: 40, right: 30, bottom: 80, left: 50 };
+
     const minValue = d3.min(data, (d) => d.value);
     const maxValue = d3.max(data, (d) => d.value);
 
-    // Создание масштаба для оси X и Y
+    // Устанавливаем верхнюю границу оси Y с небольшим запасом
+    const upperLimit = maxValue * 1.1;  // Увеличиваем максимальное значение на 10%
+
     const x = d3
       .scalePoint()
-      .domain(data.map((d) => d.valueDate))
+      .domain(
+        data.map((d) =>
+          d.valueDate === "" || d.valueDate === null
+            ? "дата"
+            : formatDate(parseDate(d.valueDate))
+        )
+      )
       .range([margin.left, width - margin.right])
-      .padding(0.5); // Добавляем немного отступа между метками
+      .padding(0.5);
 
-    const y = d3
-      .scaleLinear()
-      .domain([minValue, maxValue])
-      .nice() // Округляет границы оси Y
-      .range([height - margin.bottom, margin.top]);
+    // Если type === "Обратная", то ось Y будет инвертирована, а верхний предел будет больше
+    const y = type === "Обратная"
+      ? d3.scaleLinear().domain([0, upperLimit]).nice().range([margin.top, height - margin.bottom])
+      : d3.scaleLinear().domain([minValue, upperLimit]).nice().range([height - margin.bottom, margin.top]);
 
-    // Создание линии
     const line = d3
       .line()
-      .x((d) => x(d.valueDate))
+      .x((d) =>
+        x(
+          d.valueDate === "" || d.valueDate === null
+            ? "дата"
+            : formatDate(parseDate(d.valueDate))
+        )
+      )
       .y((d) => y(d.value))
-      .defined((d) => d.value !== null); // Не рисовать линию, если значение null
+      .defined((d) => d.value !== null);
 
-    // Удаление старого SVG, если он есть
     d3.select(svgRef.current).selectAll("*").remove();
 
-    // Создание SVG элемента
     const svg = d3
       .select(svgRef.current)
       .attr("width", width)
       .attr("height", height);
 
-    // Добавление сетки за графиком
-    const tickValues = data.map((d) => d.valueDate);
-    const yTickValues = data.map((d) => d.value); // Значения точек для оси Y
+    const tickValues = data.map((d) =>
+      d.valueDate === "" || d.valueDate === null
+        ? "дата"
+        : formatDate(parseDate(d.valueDate))
+    );
 
-    // Вертикальные линии сетки
+    // Получаем значения для горизонтальных линий сетки с использованием y.ticks()
+    const yTickValues = y.ticks(5);  // Используем метод ticks() для точных значений
+
+    // Добавляем вертикальные линии сетки
     svg
-      .selectAll(".grid")
+      .selectAll(".grid-vertical")
       .data(tickValues)
       .enter()
       .append("line")
-      .attr("class", "grid")
+      .attr("class", "grid-vertical")
       .attr("x1", (d) => x(d))
       .attr("x2", (d) => x(d))
       .attr("y1", margin.top)
       .attr("y2", height - margin.bottom)
-      .attr("stroke", "#ccc")
+      .attr("stroke", "#4a4a4a") // Темный цвет для сетки
       .attr("stroke-width", 1)
-      .attr("opacity", 0.7);
+      .attr("opacity", 0.3);
 
-    // Горизонтальные линии сетки для значений точек
+    // Добавляем горизонтальные линии сетки
     svg
       .selectAll(".grid-horizontal")
       .data(yTickValues)
@@ -83,107 +118,146 @@ const Graphic = ({ data, name, setName }) => {
       .attr("x2", width - margin.right)
       .attr("y1", (d) => y(d))
       .attr("y2", (d) => y(d))
-      .attr("stroke", "#ccc")
+      .attr("stroke", "#4a4a4a")  // Темный цвет для сетки
       .attr("stroke-width", 1)
-      .attr("opacity", 0.7);
+      .attr("opacity", 0.3);
 
-    // Добавление осей
     const xAxis = d3.axisBottom(x);
 
-    // Добавление оси X с поворотом меток
-    svg.append("g")
+    svg
+      .append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
       .call(xAxis)
       .selectAll("text")
-      .attr("transform", "rotate(-45)") // Поворачиваем текст на 45 градусов
-      .attr("text-anchor", "end") // Выравнивание текста по концу
-      .attr("dx", "-10px") // Сдвигаем текст влево
-      .attr("dy", "0px") // Убираем сдвиг вверх
-      .style("font-weight", "bold") // Делаем текст жирным
+      .attr("transform", "rotate(-90)")
+      .attr("text-anchor", "end")
+      .attr("dx", "-10px")
+      .attr("dy", "-5px")
+      .style("font-weight", "bold")
       .style("font-size", "12px");
 
-    // Ось Y с делениями, соответствующими значениям точек
     svg
       .append("g")
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y).tickValues(yTickValues)); // Используем значения точек для оси Y
+      .call(d3.axisLeft(y).ticks(5)); // Ось Y с интервалом
 
-    // Обработка цвета линии в зависимости от направления
     data.forEach((d, i) => {
       if (i > 0) {
         const prevValue = data[i - 1].value;
-        const color = d.value < prevValue ? "red" : "blue"; // Красный, если текущее значение меньше предыдущего
+        // Reverse the line color logic based on the 'type' prop
+        const color = type === "Обратная" 
+          ? (d.value < prevValue ? "blue" : "red") // Reverse logic for line color
+          : (d.value < prevValue ? "red" : "blue"); // Normal logic for line color
 
         svg
           .append("path")
-          .datum([data[i - 1], d]) // Линия между предыдущей и текущей точкой
+          .datum([data[i - 1], d])
           .attr("fill", "none")
-          .attr("stroke", color) // Цвет линии
+          .attr("stroke", color)
           .attr("stroke-width", 2)
           .attr("d", line);
       }
     });
 
-    // Функция для определения цвета точки в зависимости от значения и направления линии
     const getColor = (value, index) => {
       if (index > 0) {
         const prevValue = data[index - 1].value;
-        return value < prevValue ? "red" : "blue"; // Красный, если значение ниже предыдущего
+        // Reverse the color logic for points as well
+        return type === "Обратная" 
+          ? (value < prevValue ? "blue" : "red") // Reverse logic for points
+          : (value < prevValue ? "red" : "blue"); // Normal logic for points
       } else {
-        return "green"; // Зеленая точка для первого значения
+        return "green";
       }
     };
 
-    // Добавление точек на график
     svg
       .selectAll("circle")
       .data(data)
       .enter()
       .append("circle")
-      .attr("cx", (d) => x(d.valueDate))
+      .attr("cx", (d) =>
+        x(
+          d.valueDate === "" || d.valueDate === null
+            ? "дата"
+            : formatDate(parseDate(d.valueDate))
+        )
+      )
       .attr("cy", (d) => y(d.value))
       .attr("r", 5)
-      .attr("fill", (d, i) => getColor(d.value, i)) // Используем функцию для получения цвета
-      .on("mouseover", (event, d, i) => {
+      .attr("fill", (d, i) => getColor(d.value, i)) // Apply the reversed color logic here
+      .on("mouseover", (event, d) => {
         d3.select(event.currentTarget).attr("r", 7).attr("fill", "orange");
 
-        // Добавляем фон подсказки
+        const tooltipX = x(
+          d.valueDate === "" || d.valueDate === null
+            ? "дата"
+            : formatDate(parseDate(d.valueDate))
+        );
+        const tooltipY = y(d.value) - 15;
+
+        // Формируем текст для тултипа
+        const dateText = `Дата: ${d.valueDate === "" || d.valueDate === null ? "дата" : formatDate(parseDate(d.valueDate))}`;
+        const valueText = `Значение: ${d.value}`;
+        const textWidth = Math.max(dateText.length, valueText.length) * 6; // Оценочная ширина в пикселях
+
+        // Ширина тултипа
+        const tooltipWidth = Math.max(120, textWidth + 20);
+        const tooltipHeight = 50;
+
+        // Проверка на выход за границы
+        const isTopOutOfBound = tooltipY - tooltipHeight < margin.top;
+        const isRightOutOfBound = tooltipX + tooltipWidth / 2 > width - margin.right;
+        const isLeftOutOfBound = tooltipX - tooltipWidth / 2 < margin.left;
+
+        let adjustedX = tooltipX;
+        if (isRightOutOfBound) adjustedX = width - margin.right - tooltipWidth / 2;
+        else if (isLeftOutOfBound) adjustedX = margin.left + tooltipWidth / 2;
+
+        const adjustedY = isTopOutOfBound ? tooltipY + tooltipHeight : tooltipY;
+
         const tooltipGroup = svg
           .append("g")
           .attr("id", "tooltip")
-          .attr(
-            "transform",
-            `translate(${x(d.valueDate)}, ${y(d.value) - 15})`
-          );
+          .attr("transform", `translate(${adjustedX}, ${adjustedY})`);
 
         tooltipGroup
           .append("rect")
-          .attr("x", -30) // Половина ширины прямоугольника
-          .attr("y", -25) // Половина высоты прямоугольника
-          .attr("width", 60) // Ширина
-          .attr("height", 30) // Высота
-          .attr("fill", "rgba(0, 0, 0, 0.7)") // Полупрозрачный чёрный фон
-          .attr("rx", 4) // Скругление углов
-          .attr("ry", 4); // Скругление углов
+          .attr("x", -tooltipWidth / 2)
+          .attr("y", isTopOutOfBound ? 0 : -tooltipHeight)
+          .attr("width", tooltipWidth)
+          .attr("height", tooltipHeight)
+          .attr("fill", "rgba(0, 0, 0, 0.7)")
+          .attr("rx", 4)
+          .attr("ry", 4);
 
         tooltipGroup
           .append("text")
           .attr("text-anchor", "middle")
-          .attr("y", -5) // Половина высоты прямоугольника
-          .text(`(${d.valueDate}, ${d.value})`)
-          .style("font-size", "12px")
-          .style("fill", "white") // Цвет текста
-          .style("font-weight", "bold"); // Жирный шрифт
+          .attr("y", isTopOutOfBound ? 15 : -30)
+          .style("font-size", "11px")
+          .style("fill", "white")
+          .style("font-family", "Montserrat, sans-serif")
+          .text(dateText);
+
+        tooltipGroup
+          .append("text")
+          .attr("text-anchor", "middle")
+          .attr("y", isTopOutOfBound ? 35 : -10)
+          .style("font-size", "11px")
+          .style("fill", "white")
+          .style("font-family", "Montserrat, sans-serif")
+          .text(valueText);
       })
       .on("mouseout", (event) => {
-        const d = d3.select(event.currentTarget).datum(); // Получаем данные, связанные с текущей точкой
-        const index = data.indexOf(d); // Находим индекс этих данных
+        const d = d3.select(event.currentTarget).datum();
+        const index = data.indexOf(d);
         d3.select(event.currentTarget)
           .attr("r", 5)
-          .attr("fill", getColor(d.value, index)); // Используем правильный индекс
+          .attr("fill", getColor(d.value, index)); // Apply the reversed color logic here
         svg.select("#tooltip").remove();
       });
-  }, [data]); // Зависимость от data и title для обновления графика при изменении данных и заголовка
+  }, [data, width, height, type]);
 
   return (
     <div className={classes.block}>

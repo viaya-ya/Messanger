@@ -50,11 +50,6 @@ export default function StatisticsContent() {
   const [arrayPoints, setArrayPoints] = useState([]);
   const [showPoints, setShowPoints] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-
-  // const [allPointsDatabase, setPointsDatabase] = useState([]);
-  // const [createPointsModal, setCreatePointsModal] = useState([]);
-  // const [receivedPointsModal, setReceivedPointsModal] = useState([]);
-
   const [activeIndex, setActiveIndex] = useState(null);
 
   const {
@@ -124,6 +119,9 @@ export default function StatisticsContent() {
   useEffect(() => {
     if (statisticDatas.length > 0) {
       // reset(currentStatistic.name);
+      setReceivedPoints([]);
+      setArrayPoints([]);
+      setShowPoints([]);
     }
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
       const dayNow = new Date();
@@ -155,7 +153,11 @@ export default function StatisticsContent() {
       const updatedPoints = statisticDatas
         .filter((item) => {
           const itemDate = new Date(item.valueDate);
-          return startDate <= itemDate && itemDate <= dayNow;
+          return (
+            startDate <= itemDate &&
+            itemDate <= dayNow &&
+            item.isCorrelation !== true
+          );
         })
         .map((item) => ({
           ...item,
@@ -166,7 +168,11 @@ export default function StatisticsContent() {
       const updatedPoints1 = statisticDatas
         .filter((item) => {
           const itemDate = new Date(item.valueDate);
-          return startDate <= itemDate && itemDate <= dayNow;
+          return (
+            startDate <= itemDate &&
+            itemDate <= dayNow &&
+            item.isCorrelation !== true
+          );
         })
         .map((item) => ({
           ...item,
@@ -183,17 +189,30 @@ export default function StatisticsContent() {
       const monthlyData = statisticDatas.reduce((acc, item) => {
         const itemDate = new Date(item.valueDate);
         const monthKey = `${itemDate.getFullYear()}-${itemDate.getMonth() + 1}`; // Год-месяц как ключ
+        if (
+          !isNaN(itemDate) &&
+          new Date(new Date().setMonth(new Date().getMonth() - 14)) < itemDate
+        ) {
+          if (item?.isCorrelation === true) {
+            acc[monthKey] = {
+              id: item.id,
+              valueSum: item.value,
+              year: itemDate.getFullYear(),
+              month: itemDate.getMonth() + 1,
+              isCorrelation: true,
+            };
+          }
 
-        if (!acc[monthKey]) {
-          acc[monthKey] = {
-            valueSum: 0,
-            year: itemDate.getFullYear(),
-            month: itemDate.getMonth() + 1,
-          };
+          if (!acc[monthKey] && !acc[monthKey]?.isCorrelation === true) {
+            acc[monthKey] = {
+              valueSum: 0,
+              year: itemDate.getFullYear(),
+              month: itemDate.getMonth() + 1,
+              isCorrelation: false,
+            };
+            acc[monthKey].valueSum += item.value;
+          }
         }
-
-        // Добавляем значение к текущей сумме за месяц
-        acc[monthKey].valueSum += item.value; // Предполагается, что `value` числовой
         return acc;
       }, {});
 
@@ -208,8 +227,10 @@ export default function StatisticsContent() {
           const date = lastDayOfMonth.getDate(); // Дата
 
           return {
+            id: month?.id,
             valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
             value: month.valueSum, // Сумма за месяц
+            isCorrelation: month.isCorrelation,
           };
         })
         .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
@@ -221,28 +242,40 @@ export default function StatisticsContent() {
       // Группируем данные по месяцам и суммируем `valueDate` за каждый месяц
       const yearData = statisticDatas.reduce((acc, item) => {
         const itemDate = new Date(item.valueDate);
-        const yearKey = `${itemDate.getFullYear()}`; // Год-месяц как ключ
+        const yearKey = `${itemDate.getFullYear()}`;
+        // Проверяем, что дата корректна и меньше чем на 13 лет от текущего года
+        if (
+          !isNaN(itemDate) &&
+          new Date().getFullYear() - 13 < itemDate.getFullYear()
+        ) {
+          if (item?.isCorrelation === true) {
+            acc[yearKey] = {
+              id: item.id,
+              valueSum: item.value,
+              year: itemDate.getFullYear(),
+              isCorrelation: true,
+            };
+          }
 
-        if (!acc[yearKey]) {
-          acc[yearKey] = {
-            valueSum: 0,
-            year: itemDate.getFullYear(),
-          };
+          if (!acc[yearKey] && !acc[yearKey]?.isCorrelation === true) {
+            acc[yearKey] = {
+              valueSum: 0,
+              year: itemDate.getFullYear(),
+              isCorrelation: false,
+            };
+            acc[yearKey].valueSum += item.value;
+          }
         }
-
-        // Добавляем значение к текущей сумме за месяц
-        acc[yearKey].valueSum += item.value; // Предполагается, что `value` числовой
         return acc;
       }, {});
 
-      // Формируем новый массив, включающий `valueDate` и `date` (последний день месяца)
       const updatedYearPoints = Object.values(yearData)
-        .map((year) => {
-          return {
-            valueDate: `${year.year}`,
-            value: year.valueSum, // Сумма за месяц
-          };
-        })
+        .map((year) => ({
+          id: year?.id,
+          valueDate: `${year.year}-01-01`,
+          value: year.valueSum, // Сумма за год
+          isCorrelation: year.isCorrelation,
+        }))
         .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
 
       setReceivedPoints(updatedYearPoints);
@@ -273,10 +306,18 @@ export default function StatisticsContent() {
         currentSum = statisticDatas
           .filter((item) => {
             const itemDate = new Date(item.valueDate);
-            if (currentDate <= itemDate && itemDate < nextDate) {
+            if (
+              currentDate <= itemDate &&
+              itemDate < nextDate &&
+              item.isCorrelation !== true
+            ) {
               setArrayPoints((prevState) => [...prevState, item]);
             }
-            return currentDate <= itemDate && itemDate < nextDate;
+            return (
+              currentDate <= itemDate &&
+              itemDate < nextDate &&
+              item.isCorrelation !== true
+            );
           })
           .reduce((sum, item) => sum + item.value, 0);
 
@@ -337,7 +378,18 @@ export default function StatisticsContent() {
         currentSum = statisticDatas
           .filter((item) => {
             const itemDate = new Date(item.valueDate);
-            return currentDate <= itemDate && itemDate < nextDate;
+            if (
+              currentDate <= itemDate &&
+              itemDate < nextDate &&
+              item.isCorrelation !== true
+            ) {
+              setArrayPoints((prevState) => [...prevState, item]);
+            }
+            return (
+              currentDate <= itemDate &&
+              itemDate < nextDate &&
+              item.isCorrelation !== true
+            );
           })
           .reduce((sum, item) => sum + item.value, 0);
 
@@ -346,6 +398,19 @@ export default function StatisticsContent() {
 
         // Проверяем, что valueDate не позже сегодняшней даты
         if (valueDate <= today) {
+          setArrayPoints((prevState) =>
+            prevState.map((item) => {
+              if (item.myID) {
+                return { ...item };
+              } else {
+                return {
+                  ...item,
+                  myID: valueDate.toISOString().split("T")[0],
+                };
+              }
+            })
+          );
+
           result.push({
             value: currentSum,
             valueDate: valueDate.toISOString().split("T")[0],
@@ -354,8 +419,6 @@ export default function StatisticsContent() {
 
         currentDate = nextDate; // Переходим к следующей неделе
       }
-
-      console.log(result);
 
       setReceivedPoints(
         result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
@@ -387,7 +450,18 @@ export default function StatisticsContent() {
         currentSum = statisticDatas
           .filter((item) => {
             const itemDate = new Date(item.valueDate);
-            return currentDate <= itemDate && itemDate < nextDate;
+            if (
+              currentDate <= itemDate &&
+              itemDate < nextDate &&
+              item.isCorrelation !== true
+            ) {
+              setArrayPoints((prevState) => [...prevState, item]);
+            }
+            return (
+              currentDate <= itemDate &&
+              itemDate < nextDate &&
+              item.isCorrelation !== true
+            );
           })
           .reduce((sum, item) => sum + item.value, 0);
 
@@ -396,6 +470,19 @@ export default function StatisticsContent() {
 
         // Проверяем, что valueDate не позже сегодняшней даты
         if (valueDate <= today) {
+          setArrayPoints((prevState) =>
+            prevState.map((item) => {
+              if (item.myID) {
+                return { ...item };
+              } else {
+                return {
+                  ...item,
+                  myID: valueDate.toISOString().split("T")[0],
+                };
+              }
+            })
+          );
+
           result.push({
             value: currentSum,
             valueDate: valueDate.toISOString().split("T")[0],
@@ -405,7 +492,6 @@ export default function StatisticsContent() {
         currentDate = nextDate; // Переходим к следующей неделе
       }
 
-      console.log(result);
       setReceivedPoints(
         result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
       );
@@ -542,87 +628,131 @@ export default function StatisticsContent() {
 
     const end = new Date(id);
     let start = new Date(id);
-    start.setDate(end.getDate() - 7);
-    console.log(`EndDate = ${end}`);
-    console.log(`StartDate = ${start}`);
+    if (typeGraphic === "Ежемесячный" || typeGraphic === "Ежегодовой") {
+      const elementIsCorrelation = receivedPoints.filter(
+        (item) =>
+          new Date(item.valueDate).toDateString() === end.toDateString() &&
+          item.isCorrelation === true
+      );
+      if (elementIsCorrelation.length > 0) {
+        setShowPoints(elementIsCorrelation);
+      } else {
+        setShowPoints((prevState) => [
+          ...prevState,
+          { valueDate: end, value: "", isCorrelation: false },
+        ]);
+      }
+    } else {
+      start.setDate(end.getDate() - 7); //Вот тут происходит вычисление количества дат в модальном окне
+      const array = arrayPoints
+        .filter((item) => item.myID === id)
+        .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
 
-    const array = arrayPoints
-      .filter((item) => item.myID === id)
-      .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
+      const arrayNew = [];
 
-    const arrayNew = [];
+      if (array.length < 7) {
+        // Проходим по всем датам от start до end
+        while (start < end) {
+          // Ищем элемент, соответствующий текущей дате start
+          const foundItem = array.find(
+            (item) =>
+              new Date(item.valueDate).toDateString() === start.toDateString()
+          );
 
-    if (array.length < 7) {
-      // Проходим по всем датам от start до end
-      while (start < end) {
-        // Ищем элемент, соответствующий текущей дате start
-        const foundItem = array.find(
-          (item) =>
-            new Date(item.valueDate).toDateString() === start.toDateString()
-        );
+          if (foundItem) {
+            // Если нашли, добавляем его в arrayNew
+            arrayNew.push(foundItem);
+          } else {
+            // Если не нашли, добавляем объект с нулевым значением
+            arrayNew.push({
+              valueDate: start.toISOString(), // Для сохранения даты в правильном формате
+              value: "",
+            });
+          }
 
-        if (foundItem) {
-          // Если нашли, добавляем его в arrayNew
-          arrayNew.push(foundItem);
-        } else {
-          // Если не нашли, добавляем объект с нулевым значением
-          arrayNew.push({
-            valueDate: start.toISOString(), // Для сохранения даты в правильном формате
-            value: 0,
-          });
+          // Переходим к следующему дню
+          start.setDate(start.getDate() + 1);
         }
-
-        // Переходим к следующему дню
-        start.setDate(start.getDate() + 1);
-        console.log(`NextDate = ${start}`);
+        setShowPoints(arrayNew);
+      } else {
+        setShowPoints(array);
       }
     }
-
-    setShowPoints(arrayNew);
-
-    console.log(`id = ${id}`);
-    console.log("arrayPoints:");
-    console.log(arrayPoints);
-    console.log("arrayNew:");
-    console.log(arrayNew);
   };
 
-  const updateModalPoint = (value, element, index) => {
+  const updateModalPoint = (value, index) => {
     const updatedShowPoints = [...showPoints];
-    updatedShowPoints[index]["value"] = Number(value);
-    setShowPoints(updatedShowPoints);
+    const update = updatedShowPoints.map((item) => ({...item}));
+    if (typeGraphic === "Ежемесячный" || typeGraphic === "Ежегодовой") {
+      update[index]["value"] = Number(value);
+      update[index]["isCorrelation"] = true;
+      setShowPoints(update);
+    } else {
+      update[index]["value"] = Number(value);
+      setShowPoints(update);
+    }
   };
 
   const saveModalPoints = async (array) => {
     const Data = {};
-    const endArray = array.filter((item) => item.value != 0);
-    const create = endArray.filter((item) => !item.id);
-    const received = endArray
-      .filter((item) => item.id)
-      .map((item) => ({
-        _id: item.id,
-        value: item.value,
-        valueDate: item.valueDate,
-      }));
+    if (typeGraphic === "Ежемесячный" || typeGraphic === "Ежегодовой") {
+      if (array[0]["id"]) {
+        const arrayReceived = array.map((item) => ({
+          _id: item.id,
+          value: item.value,
+          valueDate: item.valueDate,
+        }));
+        Data.statisticDataUpdateDtos = arrayReceived;
+      } else {
+        const formatDate = array.map((item) => {
+          return {
+            ...item,
+            valueDate: new Date(item.valueDate),
+          };
+        });
+        Data.statisticDataCreateDtos = formatDate;
+      }
+    } else {
+      const endArray = array.filter((item) => item.value != "");
+      const create = endArray.filter((item) => !item.id);
+      const received = endArray
+        .filter((item) => item.id)
+        .map((item) => ({
+          _id: item.id,
+          value: item.value,
+          valueDate: item.valueDate,
+        }));
 
-    if (create.length > 0) {
-      const formatDate = create.map((item) => {
-        return {
-          ...item,
-          valueDate: new Date(item.valueDate),
-        };
-      });
-      Data.statisticDataCreateDtos = formatDate;
-    }
-    if (received.length > 0) {
-      Data.statisticDataUpdateDtos = received;
+      if (create.length > 0) {
+        const formatDate = create.map((item) => {
+          return {
+            ...item,
+            valueDate: new Date(item.valueDate),
+          };
+        });
+        Data.statisticDataCreateDtos = formatDate;
+      }
+      if (received.length > 0) {
+        Data.statisticDataUpdateDtos = received;
+      }
     }
     await updateStatistics({
       userId,
       statisticId,
       _id: statisticId,
       ...Data,
-    });
+    })
+      .unwrap()
+      .then(() => {
+        setManualSuccessReset(false);
+        setManualErrorReset(false);
+        setOpenModal(false);
+        setActiveIndex(null);
+      })
+      .catch((error) => {
+        setManualErrorReset(false);
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
   };
 
   return (
@@ -1015,7 +1145,6 @@ export default function StatisticsContent() {
                                     }}
                                   />
                                 </div>
-
                                 <img
                                   src={exit}
                                   alt="exit"
@@ -1060,18 +1189,16 @@ export default function StatisticsContent() {
                                         >
                                           <input
                                             type="text"
-                                            value={item.value}
+                                            inputMode="numeric"
+                                            placeholder="—"
+                                            value={item.value || ""}
                                             onChange={(e) => {
                                               const newValue =
                                                 e.target.value.replace(
                                                   /[^0-9]/g,
                                                   ""
                                                 );
-                                              updateModalPoint(
-                                                newValue,
-                                                item,
-                                                index
-                                              );
+                                              updateModalPoint(newValue, index);
                                             }}
                                           />
                                         </div>

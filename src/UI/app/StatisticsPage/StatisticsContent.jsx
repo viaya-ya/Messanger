@@ -17,7 +17,7 @@ import {
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
-import { format, parse } from 'date-fns'; 
+import exit from "../../image/exitModal.svg";
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -46,6 +46,16 @@ export default function StatisticsContent() {
   const [day, setDay] = useState("");
   const [typeGraphic, setTypeGraphic] = useState("");
   const [disabledPoints, setDisabledPoints] = useState(false);
+
+  const [arrayPoints, setArrayPoints] = useState([]);
+  const [showPoints, setShowPoints] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+
+  // const [allPointsDatabase, setPointsDatabase] = useState([]);
+  // const [createPointsModal, setCreatePointsModal] = useState([]);
+  // const [receivedPointsModal, setReceivedPointsModal] = useState([]);
+
+  const [activeIndex, setActiveIndex] = useState(null);
 
   const {
     statistics = [],
@@ -112,8 +122,9 @@ export default function StatisticsContent() {
   }, [typeGraphic]);
 
   useEffect(() => {
-    // reset(currentStatistic.name);
-
+    if (statisticDatas.length > 0) {
+      // reset(currentStatistic.name);
+    }
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
       const dayNow = new Date();
       const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
@@ -163,10 +174,8 @@ export default function StatisticsContent() {
         }))
         .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
 
-      if (JSON.stringify(oldReceivedPoints) !== JSON.stringify(updatedPoints)) {
-        setOldReceivedPoints(updatedPoints);
-        setReceivedPoints(updatedPoints1);
-      }
+      setOldReceivedPoints(updatedPoints);
+      setReceivedPoints(updatedPoints1);
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежемесячный") {
@@ -264,6 +273,9 @@ export default function StatisticsContent() {
         currentSum = statisticDatas
           .filter((item) => {
             const itemDate = new Date(item.valueDate);
+            if (currentDate <= itemDate && itemDate < nextDate) {
+              setArrayPoints((prevState) => [...prevState, item]);
+            }
             return currentDate <= itemDate && itemDate < nextDate;
           })
           .reduce((sum, item) => sum + item.value, 0);
@@ -273,6 +285,19 @@ export default function StatisticsContent() {
 
         // Проверяем, что valueDate не позже сегодняшней даты
         if (valueDate <= today) {
+          setArrayPoints((prevState) =>
+            prevState.map((item) => {
+              if (item.myID) {
+                return { ...item };
+              } else {
+                return {
+                  ...item,
+                  myID: valueDate.toISOString().split("T")[0],
+                };
+              }
+            })
+          );
+
           result.push({
             value: currentSum,
             valueDate: valueDate.toISOString().split("T")[0],
@@ -281,8 +306,6 @@ export default function StatisticsContent() {
 
         currentDate = nextDate; // Переходим к следующей неделе
       }
-
-      console.log(result);
 
       setReceivedPoints(
         result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
@@ -393,7 +416,7 @@ export default function StatisticsContent() {
     isFetchingGetStatisticId,
     typeGraphic,
     day,
-    type
+    type,
   ]);
 
   function compareArrays(oldArray, newArray) {
@@ -506,6 +529,100 @@ export default function StatisticsContent() {
     setPostId("null");
     setDescription("");
     setCreatePoints([]);
+  };
+
+  const exitModal = () => {
+    setShowPoints([]);
+    setActiveIndex(null);
+    setOpenModal(false);
+  };
+
+  const showCurrentPoint = (id) => {
+    setOpenModal(true);
+
+    const end = new Date(id);
+    let start = new Date(id);
+    start.setDate(end.getDate() - 7);
+    console.log(`EndDate = ${end}`);
+    console.log(`StartDate = ${start}`);
+
+    const array = arrayPoints
+      .filter((item) => item.myID === id)
+      .sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
+
+    const arrayNew = [];
+
+    if (array.length < 7) {
+      // Проходим по всем датам от start до end
+      while (start < end) {
+        // Ищем элемент, соответствующий текущей дате start
+        const foundItem = array.find(
+          (item) =>
+            new Date(item.valueDate).toDateString() === start.toDateString()
+        );
+
+        if (foundItem) {
+          // Если нашли, добавляем его в arrayNew
+          arrayNew.push(foundItem);
+        } else {
+          // Если не нашли, добавляем объект с нулевым значением
+          arrayNew.push({
+            valueDate: start.toISOString(), // Для сохранения даты в правильном формате
+            value: 0,
+          });
+        }
+
+        // Переходим к следующему дню
+        start.setDate(start.getDate() + 1);
+        console.log(`NextDate = ${start}`);
+      }
+    }
+
+    setShowPoints(arrayNew);
+
+    console.log(`id = ${id}`);
+    console.log("arrayPoints:");
+    console.log(arrayPoints);
+    console.log("arrayNew:");
+    console.log(arrayNew);
+  };
+
+  const updateModalPoint = (value, element, index) => {
+    const updatedShowPoints = [...showPoints];
+    updatedShowPoints[index]["value"] = Number(value);
+    setShowPoints(updatedShowPoints);
+  };
+
+  const saveModalPoints = async (array) => {
+    const Data = {};
+    const endArray = array.filter((item) => item.value != 0);
+    const create = endArray.filter((item) => !item.id);
+    const received = endArray
+      .filter((item) => item.id)
+      .map((item) => ({
+        _id: item.id,
+        value: item.value,
+        valueDate: item.valueDate,
+      }));
+
+    if (create.length > 0) {
+      const formatDate = create.map((item) => {
+        return {
+          ...item,
+          valueDate: new Date(item.valueDate),
+        };
+      });
+      Data.statisticDataCreateDtos = formatDate;
+    }
+    if (received.length > 0) {
+      Data.statisticDataUpdateDtos = received;
+    }
+    await updateStatistics({
+      userId,
+      statisticId,
+      _id: statisticId,
+      ...Data,
+    });
   };
 
   return (
@@ -651,26 +768,59 @@ export default function StatisticsContent() {
                             })}
 
                             {receivedPoints?.map((item, index) => {
-                              return (
-                                <div className={classes.item}>
-                                  {typeGraphic === "Ежедневный" ? (
-                                    <>
-                                      <input
-                                        type="date"
-                                        value={item.valueDate}
-                                        onChange={(e) => {
-                                          onChangePoints(
-                                            "received",
-                                            e.target.value,
-                                            "valueDate",
-                                            index
-                                          );
-                                        }}
-                                        className={`${classes.date}`}
-                                        disabled={disabledPoints}
-                                      />
-                                    </>
-                                  ) : (
+                              if (typeGraphic === "Ежедневный") {
+                                return (
+                                  <div className={classes.item}>
+                                    <input
+                                      type="date"
+                                      value={item.valueDate}
+                                      onChange={(e) => {
+                                        onChangePoints(
+                                          "received",
+                                          e.target.value,
+                                          "valueDate",
+                                          index
+                                        );
+                                      }}
+                                      className={`${classes.date}`}
+                                      disabled={disabledPoints}
+                                    />
+
+                                    <input
+                                      type="text"
+                                      value={item.value}
+                                      onChange={(e) => {
+                                        const newValue = e.target.value.replace(
+                                          /[^0-9]/g,
+                                          ""
+                                        );
+                                        onChangePoints(
+                                          "",
+                                          newValue,
+                                          "value",
+                                          index
+                                        );
+                                      }}
+                                      className={classes.number}
+                                      disabled={disabledPoints}
+                                    />
+                                  </div>
+                                );
+                              } else {
+                                return (
+                                  <div
+                                    className={`${classes.item}  ${
+                                      classes.itemHover
+                                    }  ${
+                                      activeIndex === index
+                                        ? classes.active
+                                        : ""
+                                    }`}
+                                    onClick={() => {
+                                      setActiveIndex(index);
+                                      showCurrentPoint(item.valueDate);
+                                    }}
+                                  >
                                     <span
                                       disabled={disabledPoints}
                                       className={`${classes.date} ${classes.textGrey}`}
@@ -683,27 +833,27 @@ export default function StatisticsContent() {
                                         year: "2-digit",
                                       })}
                                     </span>
-                                  )}
-                                   <input
-                                    type="text"
-                                    value={item.value}
-                                    onChange={(e) => {
-                                      const newValue = e.target.value.replace(
-                                        /[^0-9]/g,
-                                        ""
-                                      );
-                                      onChangePoints(
-                                        "",
-                                        newValue,
-                                        "value",
-                                        index
-                                      );
-                                    }}
-                                    className={classes.number}
-                                    disabled={disabledPoints}
-                                  />
-                                </div>
-                              );
+                                    <input
+                                      type="text"
+                                      value={item.value}
+                                      onChange={(e) => {
+                                        const newValue = e.target.value.replace(
+                                          /[^0-9]/g,
+                                          ""
+                                        );
+                                        onChangePoints(
+                                          "",
+                                          newValue,
+                                          "value",
+                                          index
+                                        );
+                                      }}
+                                      className={classes.number}
+                                      disabled={disabledPoints}
+                                    />
+                                  </div>
+                                );
+                              }
                             })}
                           </div>
 
@@ -850,6 +1000,89 @@ export default function StatisticsContent() {
                               : Error?.data?.message
                           }
                         ></HandlerMutation>
+
+                        {openModal && (
+                          <>
+                            <div className={classes.modal}>
+                              <table className={classes.modalTable}>
+                                <div className={classes.iconSaveModal}>
+                                  <img
+                                    src={Blacksavetmp}
+                                    alt="Blacksavetmp"
+                                    className={classes.image}
+                                    onClick={() => {
+                                      saveModalPoints(showPoints);
+                                    }}
+                                  />
+                                </div>
+
+                                <img
+                                  src={exit}
+                                  alt="exit"
+                                  onClick={exitModal}
+                                  className={classes.exitImage}
+                                />
+
+                                <thead>
+                                  <tr>
+                                    <th>Дата</th>
+                                    <th>Значение</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {showPoints?.map((item) => (
+                                        <div
+                                          key={item.id}
+                                          className={classes.row}
+                                        >
+                                          <span
+                                            className={`${classes.date} ${classes.textGrey}`}
+                                          >
+                                            {new Date(
+                                              item.valueDate
+                                            ).toLocaleDateString("ru-RU", {
+                                              day: "2-digit",
+                                              month: "2-digit",
+                                              year: "2-digit",
+                                            })}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </td>
+
+                                    <td>
+                                      {showPoints?.map((item, index) => (
+                                        <div
+                                          key={item.id}
+                                          className={classes.row}
+                                        >
+                                          <input
+                                            type="text"
+                                            value={item.value}
+                                            onChange={(e) => {
+                                              const newValue =
+                                                e.target.value.replace(
+                                                  /[^0-9]/g,
+                                                  ""
+                                                );
+                                              updateModalPoint(
+                                                newValue,
+                                                item,
+                                                index
+                                              );
+                                            }}
+                                          />
+                                        </div>
+                                      ))}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        )}
                       </>
                     ) : (
                       <>

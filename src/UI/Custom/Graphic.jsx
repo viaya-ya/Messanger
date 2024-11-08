@@ -6,7 +6,7 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
   const svgRef = useRef();
   const [nameStatistics, setNameStatistics] = useState(name);
 
-  const [width, setWidth] = useState(900);
+  const [width, setWidth] = useState(880);
   const [height, setHeight] = useState(600);
 
   useEffect(() => {
@@ -19,19 +19,48 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
 
   // Обновляем ширину и высоту в зависимости от типа графика
   useEffect(() => {
-    if (typeGraphic === "26" || typeGraphic === "52") {
-      setWidth(900);
-      setHeight(600);
-    } else {
-      if (!typeGraphic) {
-        setWidth(900);
-        setHeight(600);
+    const updateDimensions = () => {
+      let newWidth, newHeight;
+
+      if (typeGraphic === "26" || !typeGraphic) {
+        if (window.innerWidth > 1400) {
+          newWidth = 900;
+          newHeight = 600;
+        } else if (window.innerWidth > 800) {
+          newWidth = 700;
+          newHeight = 500;
+        } 
       } else {
-        setWidth(600);
-        setHeight(700);
+        if(typeGraphic === "52"){
+          if (window.innerWidth > 1400) {
+            newWidth = 1200;
+            newHeight = 600;
+          } else if (window.innerWidth > 800) {
+            newWidth = 880;
+            newHeight = 500;
+          } 
+        }else{
+          if (window.innerWidth > 1400) {
+            newWidth = 500;
+            newHeight = 600;
+          } else if (window.innerWidth > 800) {
+            newWidth = 400;
+            newHeight = 500;
+          } 
+        }        
       }
-    }
+      setWidth(newWidth);
+      setHeight(newHeight);
+    };
+
+    // Устанавливаем начальные значения и добавляем слушатель события resize
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+
+    // Удаляем слушатель при размонтировании компонента
+    return () => window.removeEventListener("resize", updateDimensions);
   }, [typeGraphic]);
+
 
   useEffect(() => {
     data.sort((a, b) => new Date(a.valueDate) - new Date(b.valueDate));
@@ -188,49 +217,52 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
       .attr("fill", (d, i) => getColor(d.value, i)) // Apply the reversed color logic here
       .on("mouseover", (event, d) => {
         d3.select(event.currentTarget).attr("r", 7).attr("fill", "orange");
-
+      
         const tooltipX = x(
           d.valueDate === "" || d.valueDate === null
             ? "дата"
             : formatDate(parseDate(d.valueDate))
         );
         const tooltipY = y(d.value) - 15;
-
+      
         // Формируем текст для тултипа
         const dateText = `Дата: ${d.valueDate === "" || d.valueDate === null ? "дата" : formatDate(parseDate(d.valueDate))}`;
         const valueText = `Значение: ${d.value}`;
         const textWidth = Math.max(dateText.length, valueText.length) * 6; // Оценочная ширина в пикселях
-
+      
         // Ширина тултипа
         const tooltipWidth = Math.max(120, textWidth + 20);
         const tooltipHeight = 50;
-
+      
         // Проверка на выход за границы
         const isTopOutOfBound = tooltipY - tooltipHeight < margin.top;
         const isRightOutOfBound = tooltipX + tooltipWidth / 2 > width - margin.right;
         const isLeftOutOfBound = tooltipX - tooltipWidth / 2 < margin.left;
-
+      
         let adjustedX = tooltipX;
         if (isRightOutOfBound) adjustedX = width - margin.right - tooltipWidth / 2;
         else if (isLeftOutOfBound) adjustedX = margin.left + tooltipWidth / 2;
-
+      
         const adjustedY = isTopOutOfBound ? tooltipY + tooltipHeight : tooltipY;
-
+      
+        // Получаем цвет точки
+        const pointColor = getColor(d.value, data.indexOf(d));
+      
         const tooltipGroup = svg
           .append("g")
           .attr("id", "tooltip")
           .attr("transform", `translate(${adjustedX}, ${adjustedY})`);
-
+      
         tooltipGroup
           .append("rect")
           .attr("x", -tooltipWidth / 2)
           .attr("y", isTopOutOfBound ? 0 : -tooltipHeight)
           .attr("width", tooltipWidth)
           .attr("height", tooltipHeight)
-          .attr("fill", "rgba(0, 0, 0, 0.7)")
+          .attr("fill", pointColor) // Используем цвет точки для фона тултипа
           .attr("rx", 4)
           .attr("ry", 4);
-
+      
         tooltipGroup
           .append("text")
           .attr("text-anchor", "middle")
@@ -239,7 +271,7 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
           .style("fill", "white")
           .style("font-family", "Montserrat, sans-serif")
           .text(dateText);
-
+      
         tooltipGroup
           .append("text")
           .attr("text-anchor", "middle")
@@ -248,7 +280,7 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
           .style("fill", "white")
           .style("font-family", "Montserrat, sans-serif")
           .text(valueText);
-      })
+      })      
       .on("mouseout", (event) => {
         const d = d3.select(event.currentTarget).datum();
         const index = data.indexOf(d);

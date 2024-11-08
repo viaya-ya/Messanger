@@ -52,7 +52,7 @@ export default function StatisticsNew() {
   ] = usePostStatisticsMutation();
 
   const addPoint = () => {
-    setPoints((prevState) => [ ...prevState, { valueDate: "", value: 0 }]);
+    setPoints((prevState) => [...prevState, { valueDate: "", value: 0 }]);
   };
 
   const deletePoint = () => {

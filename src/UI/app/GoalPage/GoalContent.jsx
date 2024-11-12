@@ -21,6 +21,7 @@ import {
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function GoalContent() {
   const navigate = useNavigate();
@@ -523,7 +524,9 @@ export default function GoalContent() {
                         ></HandlerMutation>
                       </>
                     ) : (
-                      <> Выберите цель </>
+                      <>
+                       <WaveLetters letters={"Выберите цель"}></WaveLetters>
+                      </>
                     )}
                   </>
                 )}

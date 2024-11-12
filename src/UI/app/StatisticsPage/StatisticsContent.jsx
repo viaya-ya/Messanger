@@ -21,6 +21,7 @@ import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
 import exit from "../../image/exitModal.svg";
 import { useGetOrganizationsQuery } from "../../../BLL/organizationApi.js";
+import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -1829,7 +1830,7 @@ export default function StatisticsContent() {
                       </>
                     ) : (
                       <>
-                        Выберите статистику
+                        <WaveLetters letters={"Выберите статистику"}></WaveLetters>
                         <div className={classes.block1}></div>
                         <div className={classes.block2}></div>
                         <div className={classes.block3}>

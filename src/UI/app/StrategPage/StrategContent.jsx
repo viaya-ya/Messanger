@@ -23,7 +23,8 @@ import {
   useUpdateStrategMutation,
   useGetStrategNewQuery,
 } from "../../../BLL/strategApi.js";
-import styles from '../../Custom/CommonStyles.module.css';
+import styles from "../../Custom/CommonStyles.module.css";
+import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function StrategContent() {
   const navigate = useNavigate();
@@ -256,7 +257,7 @@ export default function StrategContent() {
               </div>
             )}
           </div>
-          
+
           {number ? (
             <>
               <div className={classes.item}>
@@ -311,7 +312,7 @@ export default function StrategContent() {
 
           <div className={classes.two}>
             <div className={classes.blockSelect}>
-              <img src={Select} alt="Select"/>
+              <img src={Select} alt="Select" />
               <ul className={classes.option}>
                 <li>
                   {" "}
@@ -400,7 +401,11 @@ export default function StrategContent() {
                         ></HandlerMutation>
                       </>
                     ) : (
-                      <> Выберите стратегию </>
+                      <>
+                        <WaveLetters
+                          letters={"Выберите стратегию"}
+                        ></WaveLetters>
+                      </>
                     )}
                   </>
                 )}

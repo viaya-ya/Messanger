@@ -30,6 +30,7 @@ import MyEditor from "../../Custom/MyEditor";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
+import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -270,7 +271,7 @@ export default function ProjectContent() {
       projectId: selectedProjectId,
       _id: selectedProjectId,
       ...Data,
-      projectToOrganizations: organizationsUpdate
+      projectToOrganizations: organizationsUpdate,
     })
       .unwrap()
       .then(() => {
@@ -716,7 +717,7 @@ export default function ProjectContent() {
                           />
                         ) : (
                           <>
-                          {console.log(products)}
+                            {console.log(products)}
                             <table className={classes.table}>
                               <caption>
                                 <div className={classes.nameRow}>
@@ -1548,14 +1549,18 @@ export default function ProjectContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Обновлена"}
                           textError={
-                            Error?.data?.errors?.[0]?.errors?.[0] 
-                              ? Error.data.errors[0].errors[0] 
+                            Error?.data?.errors?.[0]?.errors?.[0]
+                              ? Error.data.errors[0].errors[0]
                               : Error?.data?.message
                           }
                         ></HandlerMutation>
                       </>
                     ) : (
-                      <> Выберите пост или проект </>
+                      <>
+                        <WaveLetters
+                          letters={"Выберите пост или проект"}
+                        ></WaveLetters>
+                      </>
                     )}
                   </>
                 )}

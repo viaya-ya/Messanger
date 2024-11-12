@@ -14,6 +14,7 @@ import {
 } from "../../../BLL/postApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function PostContent() {
   const navigate = useNavigate();
@@ -242,10 +243,7 @@ export default function PostContent() {
 
               <div className={classes.item}>
                 <div className={classes.itemName}>
-                  <span>
-                    {" "}
-                    Название подразделения{" "}
-                  </span>
+                  <span> Название подразделения </span>
                 </div>
                 <div className={classes.div}>
                   <input
@@ -274,9 +272,7 @@ export default function PostContent() {
 
               <div className={classes.item}>
                 <div className={classes.itemName}>
-                  <span>
-                    Руководитель поста 
-                  </span>
+                  <span>Руководитель поста</span>
                 </div>
                 <div className={classes.div}>
                   <select
@@ -431,14 +427,16 @@ export default function PostContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Пост обновлен"}
                           textError={
-                            Error?.data?.errors?.[0]?.errors?.[0] 
-                              ? Error.data.errors[0].errors[0] 
+                            Error?.data?.errors?.[0]?.errors?.[0]
+                              ? Error.data.errors[0].errors[0]
                               : Error?.data?.message
                           }
                         ></HandlerMutation>
                       </>
                     ) : (
-                      <> Выберите пост </>
+                      <>
+                        <WaveLetters letters={"Выберите пост"}></WaveLetters>
+                      </>
                     )}
                   </>
                 )}

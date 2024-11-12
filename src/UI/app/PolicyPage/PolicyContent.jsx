@@ -35,6 +35,7 @@ import {
   useUpdatePolicyDirectoriesMutation,
 } from "../../../BLL/policyDirectoriesApi.js";
 import styles from "../../Custom/CommonStyles.module.css";
+import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
@@ -815,7 +816,8 @@ export default function PolicyContent() {
                       </>
                     ) : (
                       <>
-                        Выберите политику
+                    <WaveLetters letters={"Выберите политику"}></WaveLetters>
+                        
                         <HandlerMutation
                           Loading={isLoadingPostPolicyDirectoriesMutation}
                           Error={

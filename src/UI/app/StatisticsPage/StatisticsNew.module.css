@@ -192,8 +192,8 @@ input[type="search"]::-webkit-input-placeholder {
         column-gap: 5px;
 
         & .element{
-            width:22%;
-            max-width:22%;
+            width:30%;
+            max-width:30%;
             height: 25px;
             border-bottom:solid 1px #B4B4B4;
         }

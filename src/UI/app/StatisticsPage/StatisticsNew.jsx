@@ -251,7 +251,7 @@ export default function StatisticsNew() {
                       })}
                     </select>
 
-                    <select
+                    {/* <select
                       name=""
                       id=""
                       value={day}
@@ -268,7 +268,7 @@ export default function StatisticsNew() {
                       <option value={5}>Пт</option>
                       <option value={6}>Сб</option>
                       <option value={0}>Вс</option>
-                    </select>
+                    </select> */}
                   </div>
                   <div className={classes.row2}>
                     <textarea

@@ -61,6 +61,7 @@ export default function StatisticsContent() {
     isLoadingStatistic,
     isFetchingStatistic,
     isErrorStatistic,
+    refetch,
   } = useGetStatisticsQuery(userId, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
       statistics: data || [],
@@ -123,8 +124,11 @@ export default function StatisticsContent() {
   }, [typeGraphic]);
 
   useEffect(() => {
+    reset(currentStatistic.name);
+  }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
+
+  useEffect(() => {
     if (statisticDatas.length > 0) {
-      // reset(currentStatistic.name);
       setReceivedPoints([]);
       setArrayPoints([]);
       setShowPoints([]);
@@ -636,6 +640,9 @@ export default function StatisticsContent() {
         setManualSuccessReset(false);
         setManualErrorReset(false);
         reset();
+        if(Data.name){
+          refetch();
+        }
       })
       .catch((error) => {
         setManualErrorReset(false);
@@ -763,7 +770,7 @@ export default function StatisticsContent() {
           _id: item.id,
           value: item.value,
           valueDate: item.valueDate,
-          isCorrelation: item.isCorrelation
+          isCorrelation: item.isCorrelation,
         }));
         Data.statisticDataUpdateDtos = arrayReceived;
       } else {
@@ -771,7 +778,7 @@ export default function StatisticsContent() {
           return {
             ...item,
             valueDate: new Date(item.valueDate),
-            isCorrelation: item.isCorrelation
+            isCorrelation: item.isCorrelation,
           };
         });
         Data.statisticDataCreateDtos = formatDate;
@@ -785,7 +792,7 @@ export default function StatisticsContent() {
           _id: item.id,
           value: item.value,
           valueDate: item.valueDate,
-          isCorrelation: item.isCorrelation
+          isCorrelation: item.isCorrelation,
         }));
 
       if (create.length > 0) {
@@ -793,7 +800,7 @@ export default function StatisticsContent() {
           return {
             ...item,
             valueDate: new Date(item.valueDate),
-            isCorrelation: item.isCorrelation
+            isCorrelation: item.isCorrelation,
           };
         });
         Data.statisticDataCreateDtos = formatDate;

@@ -82,6 +82,7 @@ export default function StatisticsNew() {
       return {
         ...item,
         valueDate: new Date(item.valueDate),
+        isCorrelation: false,
       };
     });
     const Data = [];

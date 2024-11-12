@@ -212,8 +212,8 @@ input[type="search"]::-webkit-input-placeholder {
         column-gap: 5px;
 
         & .element {
-            width: 18%;
-            max-width: 18%;
+            width: 24%;
+            max-width: 24%;
             height: 25px;
             border-bottom: solid 1px #B4B4B4;
         }
@@ -412,10 +412,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: 1px solid #005475;
 }
 
+.tableHeader{
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: center;
+    & span{
+        font-family: 'Montserrat';
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+}
+
 .iconSaveModal {
     position: relative;
     display: flex;
     flex-direction: row-reverse;
+    align-self: flex-end;
     margin: 10px;
 }
 
@@ -442,4 +456,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 .active{
     border: solid 5px #005475 !important;
+}
+
+.one{
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+}
+.statisticsArrowLeft{
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 25px;
+    background-color: #005475;
+    transition: background-color 0.3s ease-in-out;
+}
+.statisticsArrowLeft:hover{
+    background-color: #26a5d8;
 }

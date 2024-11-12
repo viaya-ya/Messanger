@@ -43,6 +43,7 @@ export const statisticsApi = createApi({
         return {
           currentStatistic: response || {}, 
           statisticDatas: response.statisticDatas || [], 
+          reportDay: response.post.organization.reportDay || ""
         };
       },
       providesTags: (result, error,  {statisticId}) => result ? [{type: "Statistics1", id: statisticId }]: []

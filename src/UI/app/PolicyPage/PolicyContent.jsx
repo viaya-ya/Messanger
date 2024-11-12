@@ -461,8 +461,12 @@ export default function PolicyContent() {
       });
   };
   console.log("---------------------------");
-  console.log(`isSuccessUpdatePolicyDirectoriesMutation = ${isSuccessUpdatePolicyDirectoriesMutation}`);
-  console.log(`manualUpdateErrorResetDirectory = ${manualUpdateErrorResetDirectory}`);
+  console.log(
+    `isSuccessUpdatePolicyDirectoriesMutation = ${isSuccessUpdatePolicyDirectoriesMutation}`
+  );
+  console.log(
+    `manualUpdateErrorResetDirectory = ${manualUpdateErrorResetDirectory}`
+  );
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>
@@ -497,7 +501,6 @@ export default function PolicyContent() {
         </div>
 
         <div className={styles.editText}>
-
           <div className={classes.sixth} ref={selectRef}>
             <img
               src={subbarSearch}
@@ -518,7 +521,11 @@ export default function PolicyContent() {
                   </div>
                   <ul className={classes.listULElement}>
                     {directives?.map((item) => (
-                      <li key={item.id} onClick={() => getPolicyId(item.id)}>
+                      <li
+                        key={item.id}
+                        onClick={() => getPolicyId(item.id)}
+                        className={classes.textMontserrat}
+                      >
                         {item.policyName}
                       </li>
                     ))}
@@ -537,7 +544,11 @@ export default function PolicyContent() {
                   </div>
                   <ul className={classes.listULElement}>
                     {instructions?.map((item) => (
-                      <li key={item.id} onClick={() => getPolicyId(item.id)}>
+                      <li
+                        key={item.id}
+                        onClick={() => getPolicyId(item.id)}
+                        className={classes.textMontserrat}
+                      >
                         {item.policyName}
                       </li>
                     ))}
@@ -566,6 +577,7 @@ export default function PolicyContent() {
                           <li
                             key={element.policy.id}
                             onClick={() => getPolicyId(element.policy.id)}
+                            className={classes.textMontserrat}
                           >
                             {element.policy.policyName}
                           </li>
@@ -593,6 +605,7 @@ export default function PolicyContent() {
                 }
                 onChange={(e) => setPolicyName(e.target.value)}
                 title="Название политики"
+                className={classes.textMontserrat14}
               ></input>
             </div>
           </div>
@@ -634,11 +647,11 @@ export default function PolicyContent() {
                 </div>
               </div>
 
-                <CustomSelect
-                  organizations={organizations}
-                  selectOrganizations={currentPolicy.policyToOrganizations}
-                  setPolicyToOrganizations={setPolicyToOrganizations}
-                ></CustomSelect>
+              <CustomSelect
+                organizations={organizations}
+                selectOrganizations={currentPolicy.policyToOrganizations}
+                setPolicyToOrganizations={setPolicyToOrganizations}
+              ></CustomSelect>
             </>
           ) : (
             <></>
@@ -679,7 +692,6 @@ export default function PolicyContent() {
               />
             </div>
           </div>
-          
         </div>
       </div>
 
@@ -822,7 +834,6 @@ export default function PolicyContent() {
                               : ErrorPolicyDirectories?.data?.message
                           }
                         ></HandlerMutation>
-                        
                         <HandlerMutation
                           Loading={isLoadingUpdatePolicyDirectoriesMutation}
                           Error={
@@ -841,7 +852,6 @@ export default function PolicyContent() {
                               : ErrorUpdateDirectories?.data?.message
                           }
                         ></HandlerMutation>
-
                         <HandlerMutation
                           Loading={isLoadingDeletePolicyDirectoriesMutation}
                           Error={
@@ -866,7 +876,7 @@ export default function PolicyContent() {
                     {openModal ? (
                       <>
                         <div className={classes.modal}>
-                          <table className={classes.modalTable}>
+                          <div className={classes.modalWindow}>
                             <div className={classes.modalTableRow}>
                               <div className={classes.item}>
                                 <div className={classes.itemName}>
@@ -884,6 +894,7 @@ export default function PolicyContent() {
                                     onChange={(e) =>
                                       setDirectoryName(e.target.value)
                                     }
+                                    className={classes.textMontserrat14}
                                   />
                                 </div>
                               </div>
@@ -901,57 +912,65 @@ export default function PolicyContent() {
                               </div>
                             </div>
 
-                            <img
-                              src={exitModal}
-                              alt="exitModal"
-                              onClick={exit}
-                              className={classes.exitImage}
-                            />
+                            <table className={classes.modalTable}>
+                              <img
+                                src={exitModal}
+                                alt="exitModal"
+                                onClick={exit}
+                                className={classes.exitImage}
+                              />
 
-                            <thead>
-                              <tr>
-                                <th>Директивы</th>
-                                <th>Инструкции</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>
-                                  {directives?.map((item) => (
-                                    <div key={item.id} className={classes.row}>
-                                      <input
-                                        type="checkbox"
-                                        checked={policyToPolicyDirectories.includes(
-                                          item.id
-                                        )}
-                                        onChange={() =>
-                                          handleCheckboxChange(item.id)
-                                        }
-                                      />
-                                      {item.policyName}
-                                    </div>
-                                  ))}
-                                </td>
+                              <thead>
+                                <tr>
+                                  <th>Директивы</th>
+                                  <th>Инструкции</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    {directives?.map((item) => (
+                                      <div
+                                        key={item.id}
+                                        className={classes.row}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={policyToPolicyDirectories.includes(
+                                            item.id
+                                          )}
+                                          onChange={() =>
+                                            handleCheckboxChange(item.id)
+                                          }
+                                        />
+                                        {item.policyName}
+                                      </div>
+                                    ))}
+                                  </td>
 
-                                <td>
-                                  {instructions?.map((item) => (
-                                    <div key={item.id} className={classes.row}>
-                                      <input
-                                        type="checkbox"
-                                        checked={policyToPolicyDirectories.includes(
-                                          item.id
-                                        )}
-                                        onChange={() =>
-                                          handleCheckboxChange(item.id)
-                                        }
-                                      />
-                                      {item.policyName}
-                                    </div>
-                                  ))}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                                  <td>
+                                    {instructions?.map((item) => (
+                                      <div
+                                        key={item.id}
+                                        className={classes.row}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={policyToPolicyDirectories.includes(
+                                            item.id
+                                          )}
+                                          onChange={() =>
+                                            handleCheckboxChange(item.id)
+                                          }
+                                        />
+                                        {item.policyName}
+                                      </div>
+                                    ))}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -960,7 +979,7 @@ export default function PolicyContent() {
                     {openModalUpdate ? (
                       <>
                         <div className={classes.modal}>
-                          <table className={classes.modalTable}>
+                          <div className={classes.modalWindow}>
                             <div className={classes.modalTableRow}>
                               <div className={classes.item}>
                                 <div className={classes.itemName}>
@@ -1007,60 +1026,69 @@ export default function PolicyContent() {
                                 </div>
                               </div>
                             </div>
+                            <table className={classes.modalTable}>
+                              <img
+                                src={exitModal}
+                                alt="exitModal"
+                                onClick={exitUpdate}
+                                className={classes.exitImage}
+                              />
 
-                            <img
-                              src={exitModal}
-                              alt="exitModal"
-                              onClick={exitUpdate}
-                              className={classes.exitImage}
-                            />
+                              <thead>
+                                <tr>
+                                  <th>Директивы</th>
+                                  <th>Инструкции</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    {currentDirectoryDirectives?.map((item) => (
+                                      <div
+                                        key={item.id}
+                                        className={classes.row}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={item.checked}
+                                          onChange={() =>
+                                            handleCheckboxChangeUpdate(
+                                              item.id,
+                                              "directives"
+                                            )
+                                          }
+                                        />
+                                        {item.policyName}
+                                      </div>
+                                    ))}
+                                  </td>
 
-                            <thead>
-                              <tr>
-                                <th>Директивы</th>
-                                <th>Инструкции</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>
-                                  {currentDirectoryDirectives?.map((item) => (
-                                    <div key={item.id} className={classes.row}>
-                                      <input
-                                        type="checkbox"
-                                        checked={item.checked}
-                                        onChange={() =>
-                                          handleCheckboxChangeUpdate(
-                                            item.id,
-                                            "directives"
-                                          )
-                                        }
-                                      />
-                                      {item.policyName}
-                                    </div>
-                                  ))}
-                                </td>
-
-                                <td>
-                                  {currentDirectoryInstructions?.map((item) => (
-                                    <div key={item.id} className={classes.row}>
-                                      <input
-                                        type="checkbox"
-                                        checked={item.checked}
-                                        onChange={() =>
-                                          handleCheckboxChangeUpdate(
-                                            item.id,
-                                            "instructions"
-                                          )
-                                        }
-                                      />
-                                      {item.policyName}
-                                    </div>
-                                  ))}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                                  <td>
+                                    {currentDirectoryInstructions?.map(
+                                      (item) => (
+                                        <div
+                                          key={item.id}
+                                          className={classes.row}
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={item.checked}
+                                            onChange={() =>
+                                              handleCheckboxChangeUpdate(
+                                                item.id,
+                                                "instructions"
+                                              )
+                                            }
+                                          />
+                                          {item.policyName}
+                                        </div>
+                                      )
+                                    )}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -1079,7 +1107,7 @@ export default function PolicyContent() {
                             <div className={classes.row1}>
                               <span className={classes.text}>
                                 Вы точно хотите удалить папку{" "}
-                                <span style={{ fontWeight: "700" }}>
+                                <span  style={{ fontWeight: "700" }}>
                                   {currentDirectoryName}
                                 </span>
                               </span>

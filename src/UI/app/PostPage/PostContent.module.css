@@ -105,7 +105,7 @@ input[type="search"]::-webkit-input-placeholder {
     row-gap: 10px;
 }
 
-.itemName span {
+/* .itemName span {
     font-style: italic;
     font-size: 12px;
     font-family: 'Montserrat';
@@ -117,6 +117,27 @@ input[type="search"]::-webkit-input-placeholder {
     font-family: 'Montserrat';
     & option{
         font-family: 'Montserrat';
+    }
+} */
+
+.item{
+    max-width: 175px;
+    overflow: hidden;
+}
+.itemName span {
+    font-style: italic;
+    font-size: 12px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+}
+
+.select {
+    position: relative;
+    font-family: 'Montserrat';
+    max-width: 175px;
+    & option{
+        font-family: 'Montserrat';
+        max-width: 175px;
     }
 }
 

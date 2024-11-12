@@ -134,7 +134,7 @@ export default function NewPolicy() {
           /> */}
         </div>
 
-        <div className={styles.editText}>
+        <div className={classes.editText}>
 
         <div className={classes.item}>
             <div className={classes.itemName}>
@@ -179,7 +179,8 @@ export default function NewPolicy() {
               isPolicyToOrganizations={isPolicyToOrganizations}
             ></CustomSelect>
           </div>
-          <div className={classes.sixth}>
+
+          {/* <div className={classes.sixth}>
             <img src={subbarSearch} alt="subbarSearch" />
             <div>
               <input
@@ -187,6 +188,21 @@ export default function NewPolicy() {
                 value={policyName}
                 onChange={(e) => setPolicyName(e.target.value)}
                 title="Название политики"
+              ></input>
+            </div>
+          </div> */}
+
+          <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>Название политики</span>
+            </div>
+            <div className={classes.div}>
+            <input
+                type="text"
+                value={policyName}
+                onChange={(e) => setPolicyName(e.target.value)}
+                title="Название политики"
+                className={classes.select}
               ></input>
             </div>
           </div>

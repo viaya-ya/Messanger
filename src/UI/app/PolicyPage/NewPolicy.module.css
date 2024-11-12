@@ -93,19 +93,21 @@ input[type="search"]::-webkit-input-placeholder {
 
 .editText {
     padding: 0.1% 2%;
-    height: 35%;
-    width: 100%;
+    height: 40px;
+    max-width: 100%;
     background-color: #ffff;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: start;
     align-items: center;
+    column-gap: 10px;
 }
 
 .imageButton {
     display: flex;
     flex-direction: row;
     column-gap: 10px;
+    margin-left: auto;
 }
 
 .one {

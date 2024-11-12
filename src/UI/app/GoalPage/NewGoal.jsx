@@ -164,6 +164,7 @@ export default function GoalContent() {
               onChange={(e) => {
                 setOrganization(e.target.value);
               }}
+              className={classes.select}
             >
               <option value=""> Выберите организацию</option>
               {organizations.map((item) => {

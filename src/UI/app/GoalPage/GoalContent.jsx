@@ -222,6 +222,7 @@ export default function GoalContent() {
               onChange={(e) => {
                 getGoalId(e.target.value);
               }}
+              className={classes.select}
             >
               <option value="" disabled>
                 Выберите цель

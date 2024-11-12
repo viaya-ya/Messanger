@@ -357,3 +357,6 @@ input[type="search"]::-webkit-search-cancel-button {
     background-image: url('../../image/iconСlose.svg');
     background-position: center;
 }
+.select{
+    font-family: 'Montserrat';
+}

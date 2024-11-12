@@ -134,13 +134,13 @@ export default function StatisticsContent() {
 
   useEffect(() => {
     if (statistics.length > 0) {
-      const array = statistics.filter((item) => item?.post?.organization?.id === organization);
+      const array = statistics.filter(
+        (item) => item?.post?.organization?.id === organization
+      );
       setStatisticsToOrganization(array);
       setStatisticId("");
     }
   }, [organization]);
-
-  // useEffect(() => {}, [isLoadingStatistic, isFetchingStatistic]);
 
   useEffect(() => {
     if (typeGraphic !== "Ежедневный") {
@@ -1358,13 +1358,48 @@ export default function StatisticsContent() {
             </div>
           </div>
           <div className={classes.five}>
-            {/* <select
-              name=""
-              id=""
-              value={day}
-              onChange={(e) => setDay(e.target.value)}
-              className={classes.element}
-            >
+
+            <div className={classes.item}>
+              <div className={classes.itemName}>
+                <span>Организация</span>
+              </div>
+              <div className={classes.div}>
+                <select
+                  value={organization}
+                  onChange={(e) => setOrganization(e.target.value)}
+                  className={classes.select}
+                >
+                  <option value="" disabled>
+                    Выберите
+                  </option>
+                  {organizations?.map((item) => (
+                    <option value={item.id}>{item.organizationName}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className={classes.item}>
+              <div className={classes.itemName}>
+                <span>Отчетный день</span>
+              </div>
+              <div className={classes.div}>
+                <select value={reportDay} className={classes.select} disabled>
+                  <option value="" disabled>
+                    Отчетный день
+                  </option>
+                  <option value={1}>Пн</option>
+                  <option value={2}>Вт</option>
+                  <option value={3}>Ср</option>
+                  <option value={4}>Чт</option>
+                  <option value={5}>Пт</option>
+                  <option value={6}>Сб</option>
+                  <option value={0}>Вс</option>
+                </select>
+              </div>
+            </div>
+
+            {/* <select value={reportDay} className={classes.element} disabled>
               <option value="" disabled>
                 Отчетный день
               </option>
@@ -1376,32 +1411,6 @@ export default function StatisticsContent() {
               <option value={6}>Сб</option>
               <option value={0}>Вс</option>
             </select> */}
-
-            <select
-              value={organization}
-              onChange={(e) => setOrganization(e.target.value)}
-              className={classes.element}
-            >
-              <option value="" disabled>
-                Выберите организацию
-              </option>
-              {organizations?.map((item) => (
-                <option value={item.id}>{item.organizationName}</option>
-              ))}
-            </select>
-
-            <select value={reportDay} className={classes.element} disabled>
-              <option value="" disabled>
-                Отчетный день
-              </option>
-              <option value={1}>Пн</option>
-              <option value={2}>Вт</option>
-              <option value={3}>Ср</option>
-              <option value={4}>Чт</option>
-              <option value={5}>Пт</option>
-              <option value={6}>Сб</option>
-              <option value={0}>Вс</option>
-            </select>
 
             <div className={classes.iconAdd}>
               <img
@@ -1426,7 +1435,11 @@ export default function StatisticsContent() {
       <div className={classes.main}>
         {isErrorStatistic && isErrorNewStatistic && isErrorOrganizations ? (
           <>
-            <HandlerQeury Error={isErrorStatistic || isErrorNewStatistic || isErrorOrganizations}></HandlerQeury>
+            <HandlerQeury
+              Error={
+                isErrorStatistic || isErrorNewStatistic || isErrorOrganizations
+              }
+            ></HandlerQeury>
           </>
         ) : (
           <>
@@ -1439,7 +1452,7 @@ export default function StatisticsContent() {
                   Fetching={isFetchingStatistic}
                 ></HandlerQeury>
 
-                 <HandlerQeury
+                <HandlerQeury
                   Loading={isLoadingOrganizations}
                   Fetching={isFetchingOrganizations}
                 ></HandlerQeury>

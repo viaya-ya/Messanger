@@ -20,6 +20,7 @@ import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
 import exit from "../../image/exitModal.svg";
+import { useGetOrganizationsQuery } from "../../../BLL/organizationApi.js";
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -55,6 +56,8 @@ export default function StatisticsContent() {
   const [activeIndex, setActiveIndex] = useState(null);
 
   const [count, setCount] = useState(0);
+  const [organization, setOrganization] = useState("");
+  const [statisticsToOrganization, setStatisticsToOrganization] = useState([]);
 
   const {
     statistics = [],
@@ -115,6 +118,30 @@ export default function StatisticsContent() {
     },
   ] = useUpdateStatisticsMutation();
 
+  const {
+    organizations = [],
+    isLoadingOrganizations,
+    isFetchingOrganizations,
+    isErrorOrganizations,
+  } = useGetOrganizationsQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+      organizations: data || [],
+      isLoadingOrganizations: isLoading,
+      isFetchingOrganizations: isFetching,
+      isErrorOrganizations: isError,
+    }),
+  });
+
+  useEffect(() => {
+    if (statistics.length > 0) {
+      const array = statistics.filter((item) => item?.post?.organization?.id === organization);
+      setStatisticsToOrganization(array);
+      setStatisticId("");
+    }
+  }, [organization]);
+
+  // useEffect(() => {}, [isLoadingStatistic, isFetchingStatistic]);
+
   useEffect(() => {
     if (typeGraphic !== "Ежедневный") {
       setDisabledPoints(true);
@@ -124,7 +151,9 @@ export default function StatisticsContent() {
   }, [typeGraphic]);
 
   useEffect(() => {
-    reset(currentStatistic.name);
+    if (statisticDatas.length > 0) {
+      reset(currentStatistic.name);
+    }
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
 
   useEffect(() => {
@@ -640,7 +669,7 @@ export default function StatisticsContent() {
         setManualSuccessReset(false);
         setManualErrorReset(false);
         reset();
-        if(Data.name){
+        if (Data.name) {
           refetch();
         }
       })
@@ -1348,6 +1377,19 @@ export default function StatisticsContent() {
               <option value={0}>Вс</option>
             </select> */}
 
+            <select
+              value={organization}
+              onChange={(e) => setOrganization(e.target.value)}
+              className={classes.element}
+            >
+              <option value="" disabled>
+                Выберите организацию
+              </option>
+              {organizations?.map((item) => (
+                <option value={item.id}>{item.organizationName}</option>
+              ))}
+            </select>
+
             <select value={reportDay} className={classes.element} disabled>
               <option value="" disabled>
                 Отчетный день
@@ -1382,9 +1424,9 @@ export default function StatisticsContent() {
       </div>
 
       <div className={classes.main}>
-        {isErrorStatistic && isErrorNewStatistic ? (
+        {isErrorStatistic && isErrorNewStatistic && isErrorOrganizations ? (
           <>
-            <HandlerQeury Error={isErrorStatistic}></HandlerQeury>
+            <HandlerQeury Error={isErrorStatistic || isErrorNewStatistic || isErrorOrganizations}></HandlerQeury>
           </>
         ) : (
           <>
@@ -1396,7 +1438,14 @@ export default function StatisticsContent() {
                   Loading={isLoadingStatistic}
                   Fetching={isFetchingStatistic}
                 ></HandlerQeury>
+
+                 <HandlerQeury
+                  Loading={isLoadingOrganizations}
+                  Fetching={isFetchingOrganizations}
+                ></HandlerQeury>
+
                 <HandlerQeury Loading={isLoadingNewStatistic}></HandlerQeury>
+
                 {isFetchingGetStatisticId || isLoadingGetStatisticId ? (
                   <HandlerQeury
                     Loading={isLoadingGetStatisticId}
@@ -1575,7 +1624,7 @@ export default function StatisticsContent() {
                               <option value="" disabled>
                                 Выберите статистику
                               </option>
-                              {statistics.map((item) => {
+                              {statisticsToOrganization?.map((item) => {
                                 return (
                                   <option value={item.id}>{item.name}</option>
                                 );
@@ -1786,7 +1835,7 @@ export default function StatisticsContent() {
                               <option value="" disabled>
                                 Выберите статистику
                               </option>
-                              {statistics.map((item) => {
+                              {statisticsToOrganization?.map((item) => {
                                 return (
                                   <option value={item.id}>{item.name}</option>
                                 );

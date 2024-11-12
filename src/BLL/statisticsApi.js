@@ -57,17 +57,6 @@ export const statisticsApi = createApi({
       }),
       invalidatesTags: (result, error,  {statisticId}) => result ? [{type: "Statistics1", id: statisticId }] : []
     }),
-
-    // updateStatistics: build.mutation({
-    //   query: ({ userId, statisticId, ...body }) => ({
-    //     url: `${userId}/statistics/${statisticId}/update`,
-    //     method: "PATCH",
-    //     body,
-    //   }),
-    //   invalidatesTags: (result, error, { statisticId }) => 
-    //     result ? [{ type: "Statistics", id: "LIST" }, { type: "Statistics1", id: statisticId }] : []
-    // }),
-    
   }),
 });
 

@@ -13,8 +13,16 @@ export const organizationApi = createApi({
       providesTags: (result) => result ? [{type: 'Organization', id: "LIST"}] : [],
     }),
 
-   
+    updateOrganizations: build.mutation({
+      query: ({userId, organizationId , ...body}) => ({
+        url: `${userId}/organizations/${organizationId}/update`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error) => result ? [{type: "Organization", id: "LIST" }] : []
+    }),
+    
   }),
 });
 
-export const {useGetOrganizationsQuery} = organizationApi;
+export const {useGetOrganizationsQuery, useUpdateOrganizationsMutation} = organizationApi;

@@ -123,7 +123,7 @@ export default function StatisticsNew() {
   const saveStatistics = async () => {
     const formatDate = points.map((item) => {
       return {
-        ...item,
+        value: item.value,
         valueDate: new Date(item.valueDate),
         isCorrelation: false,
       };

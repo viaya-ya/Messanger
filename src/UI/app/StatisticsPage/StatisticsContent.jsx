@@ -60,7 +60,7 @@ export default function StatisticsContent() {
   const [organization, setOrganization] = useState("");
   const [statisticsToOrganization, setStatisticsToOrganization] = useState([]);
   const [reportDay, setReportDay] = useState("");
-
+  const [postsToOrganization, setPostsToOrganization] = useState([]);
   const {
     statistics = [],
     isLoadingStatistic,
@@ -138,6 +138,12 @@ export default function StatisticsContent() {
         (item) => item?.post?.organization?.id === organization
       );
       const report = organizations.filter((item) => item?.id === organization);
+
+      const arrayPosts = posts.filter(
+        (item) => item?.organization?.id === organization
+      );
+      
+      setPostsToOrganization(arrayPosts);
       setStatisticsToOrganization(array);
       setStatisticId("");
       setReportDay(report[0]?.reportDay);
@@ -694,7 +700,6 @@ export default function StatisticsContent() {
 
   const onChangePoints = (nameArrray, value, type, index, id) => {
     if (nameArrray === "received") {
-      
       const updatedPoints = [...receivedPoints];
       if (type === "value") {
         updatedPoints[index][type] = Number(value);
@@ -702,9 +707,7 @@ export default function StatisticsContent() {
         updatedPoints[index][type] = value;
       }
       setReceivedPoints(updatedPoints);
-
     } else {
-
       setCreatePoints((prevState) => {
         const updatedPoints = prevState.map((item) => {
           if (item.id === id) {
@@ -714,7 +717,7 @@ export default function StatisticsContent() {
           }
           return item;
         });
-  
+
         updatedPoints.sort(
           (a, b) => Date.parse(b.valueDate) - Date.parse(a.valueDate)
         );
@@ -1385,7 +1388,7 @@ export default function StatisticsContent() {
                   className={classes.select}
                 >
                   <option value="" disabled>
-                  Выберите 
+                    Выберите
                   </option>
                   {organizations?.map((item) => (
                     <option value={item.id}>{item.organizationName}</option>
@@ -1597,7 +1600,8 @@ export default function StatisticsContent() {
                                 );
                               } else {
                                 return (
-                                  <div key={index}
+                                  <div
+                                    key={index}
                                     className={`${classes.item}  ${
                                       classes.itemHover
                                     }  ${
@@ -1700,7 +1704,7 @@ export default function StatisticsContent() {
                               <option value="null" disabled>
                                 Выберите пост
                               </option>
-                              {posts.map((item) => {
+                              {postsToOrganization?.map((item) => {
                                 return (
                                   <option value={item.id}>
                                     {item.postName}

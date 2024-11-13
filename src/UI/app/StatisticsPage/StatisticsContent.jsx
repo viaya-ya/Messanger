@@ -60,7 +60,19 @@ export default function StatisticsContent() {
   const [organization, setOrganization] = useState("");
   const [statisticsToOrganization, setStatisticsToOrganization] = useState([]);
   const [reportDay, setReportDay] = useState("");
+  const [reportDayComes, setReportDayComes] = useState("");
   const [postsToOrganization, setPostsToOrganization] = useState([]);
+
+  const [
+    disabledReportDayAndSelectStatistics,
+    setDisabledReportDayAndSelectStatistics,
+  ] = useState(true);
+
+  const [openModaReportDay, setOpenModalReportDay] = useState(false);
+
+  const [showReportDay, setShowReportDay] = useState();
+  const [showReportDayComes, setShowReportDayComes] = useState();
+
   const {
     statistics = [],
     isLoadingStatistic,
@@ -142,11 +154,12 @@ export default function StatisticsContent() {
       const arrayPosts = posts.filter(
         (item) => item?.organization?.id === organization
       );
-      
+      setDisabledReportDayAndSelectStatistics(false);
       setPostsToOrganization(arrayPosts);
       setStatisticsToOrganization(array);
       setStatisticId("");
       setReportDay(report[0]?.reportDay);
+      setReportDayComes(report[0]?.reportDay);
     }
   }, [organization]);
 
@@ -603,7 +616,7 @@ export default function StatisticsContent() {
     isLoadingGetStatisticId,
     isFetchingGetStatisticId,
     typeGraphic,
-    day,
+    reportDay,
     type,
   ]);
 
@@ -633,6 +646,68 @@ export default function StatisticsContent() {
 
     return changes;
   }
+
+  const dayWeek = (day, type) => {
+    if (type === "reportDay") {
+      switch (day) {
+        case "0":
+          setShowReportDay("Воскресенье");
+          break;
+        case "1":
+          setShowReportDay("Понедельник");
+          break;
+        case "2":
+          setShowReportDay("Вторник");
+          break;
+        case "3":
+          setShowReportDay("Среда");
+          break;
+        case "4":
+          setShowReportDay("Четверг");
+          break;
+        case "5":
+          setShowReportDay("Пятница");
+          break;
+        case "6":
+          setShowReportDay("Суббота");
+          break;
+      }
+    } else {
+      switch (day) {
+        case 0:
+          setShowReportDayComes("Воскресенье");
+          break;
+        case 1:
+          setShowReportDayComes("Понедельник");
+          break;
+        case 2:
+          setShowReportDayComes("Вторник");
+          break;
+        case 3:
+          setShowReportDayComes("Среда");
+          break;
+        case 4:
+          setShowReportDayComes("Четверг");
+          break;
+        case 5:
+          setShowReportDayComes("Пятница");
+          break;
+        case 6:
+          setShowReportDayComes("Суббота");
+          break;
+      }
+    }
+  };
+
+  const save = () => {
+    if (reportDay !== reportDayComes) {
+      setOpenModalReportDay(true);
+      dayWeek(reportDay, "reportDay");
+      dayWeek(reportDayComes, "");
+    } else {
+      saveUpdateStatistics();
+    }
+  };
 
   const saveUpdateStatistics = async () => {
     const Data = {};
@@ -1402,7 +1477,14 @@ export default function StatisticsContent() {
                 <span>Отчетный день</span>
               </div>
               <div className={classes.div}>
-                <select value={reportDay} className={classes.select} disabled>
+                <select
+                  value={reportDay}
+                  onChange={(e) => {
+                    setReportDay(e.target.value);
+                  }}
+                  className={classes.select}
+                  disabled={disabledReportDayAndSelectStatistics}
+                >
                   <option value="" disabled>
                     Отчетный день
                   </option>
@@ -1417,19 +1499,6 @@ export default function StatisticsContent() {
               </div>
             </div>
 
-            {/* <select value={reportDay} className={classes.element} disabled>
-              <option value="" disabled>
-                Отчетный день
-              </option>
-              <option value={1}>Пн</option>
-              <option value={2}>Вт</option>
-              <option value={3}>Ср</option>
-              <option value={4}>Чт</option>
-              <option value={5}>Пт</option>
-              <option value={6}>Сб</option>
-              <option value={0}>Вс</option>
-            </select> */}
-
             <div className={classes.iconAdd}>
               <img
                 src={iconAdd}
@@ -1443,7 +1512,8 @@ export default function StatisticsContent() {
                 src={Blacksavetmp}
                 alt="Blacksavetmp"
                 className={classes.image}
-                onClick={() => saveUpdateStatistics()}
+                // onClick={() => saveUpdateStatistics()}
+                onClick={() => save()}
               />
             </div>
           </div>
@@ -1855,6 +1925,60 @@ export default function StatisticsContent() {
                             </div>
                           </>
                         )}
+                        {openModaReportDay ? (
+                          <>
+                            <div className={classes.modalDelete}>
+                              <div className={classes.modalDeleteElement}>
+                                <img
+                                  src={exit}
+                                  alt="exit"
+                                  className={classes.exitImage}
+                                  onClick={() => setOpenModalReportDay(false)}
+                                />
+                                <div className={classes.modalRow1}>
+                                  <span className={classes.text}>
+                                    Вы поменяли отчетный день с <span> </span>
+                                    <span style={{ fontWeight: "700" }}>
+                                      {showReportDayComes}
+                                    </span>
+                                    <span> на </span>
+                                    <span style={{ fontWeight: "700" }}>
+                                      {showReportDay}
+                                    </span>
+                                    . Если нажмете на{" "}
+                                    <span
+                                      style={{
+                                        color: "red",
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Да
+                                    </span>
+                                    , то отчетный день поменяется у всей
+                                    организации.
+                                  </span>
+                                </div>
+
+                                <div className={classes.modalRow2}>
+                                  <button
+                                    className={`${classes.btnYes} ${classes.text}`}
+                                    onClick={() => {}}
+                                  >
+                                    Да
+                                  </button>
+                                  <button
+                                    className={`${classes.btnNo} ${classes.text}`}
+                                    onClick={() => {}}
+                                  >
+                                    Нет
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <></>
+                        )}
                       </>
                     ) : (
                       <>
@@ -1875,6 +1999,7 @@ export default function StatisticsContent() {
                                 }
                               }}
                               className={classes.element}
+                              disabled={disabledReportDayAndSelectStatistics}
                             >
                               <option value="" disabled>
                                 Выберите статистику

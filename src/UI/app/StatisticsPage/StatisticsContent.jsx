@@ -59,6 +59,7 @@ export default function StatisticsContent() {
   const [count, setCount] = useState(0);
   const [organization, setOrganization] = useState("");
   const [statisticsToOrganization, setStatisticsToOrganization] = useState([]);
+  const [reportDay, setReportDay] = useState("");
 
   const {
     statistics = [],
@@ -90,7 +91,6 @@ export default function StatisticsContent() {
   const {
     currentStatistic = {},
     statisticDatas = [],
-    reportDay = "",
     isLoadingGetStatisticId,
     isErrorGetStatisticId,
     isFetchingGetStatisticId,
@@ -100,7 +100,6 @@ export default function StatisticsContent() {
       selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
         currentStatistic: data?.currentStatistic || {},
         statisticDatas: data?.statisticDatas || [],
-        reportDay: data?.reportDay || "",
         isLoadingGetStatisticId: isLoading,
         isErrorGetStatisticId: isError,
         isFetchingGetStatisticId: isFetching,
@@ -138,8 +137,10 @@ export default function StatisticsContent() {
       const array = statistics.filter(
         (item) => item?.post?.organization?.id === organization
       );
+      const report = organizations.filter((item) => item?.id === organization);
       setStatisticsToOrganization(array);
       setStatisticId("");
+      setReportDay(report[0]?.reportDay);
     }
   }, [organization]);
 
@@ -645,7 +646,7 @@ export default function StatisticsContent() {
     if (createPoints.length > 0) {
       const formatDate = createPoints.map((item) => {
         return {
-          ...item,
+          value: item.value,
           valueDate: new Date(item.valueDate),
           isCorrelation: false,
         };
@@ -681,15 +682,19 @@ export default function StatisticsContent() {
   };
 
   const addPoint = () => {
-    setCreatePoints((prevState) => [...prevState, { valueDate: "", value: 0 }]);
+    setCreatePoints((prevState) => [
+      { valueDate: "", value: 0, id: new Date() },
+      ...prevState,
+    ]);
   };
 
   const deletePoint = () => {
     setCreatePoints((prevState) => prevState.slice(0, -1));
   };
 
-  const onChangePoints = (nameArrray, value, type, index) => {
+  const onChangePoints = (nameArrray, value, type, index, id) => {
     if (nameArrray === "received") {
+      
       const updatedPoints = [...receivedPoints];
       if (type === "value") {
         updatedPoints[index][type] = Number(value);
@@ -697,14 +702,24 @@ export default function StatisticsContent() {
         updatedPoints[index][type] = value;
       }
       setReceivedPoints(updatedPoints);
+
     } else {
-      const updatedPoints = [...createPoints];
-      if (type === "value") {
-        updatedPoints[index][type] = Number(value);
-      } else {
-        updatedPoints[index][type] = value;
-      }
-      setCreatePoints(updatedPoints);
+
+      setCreatePoints((prevState) => {
+        const updatedPoints = prevState.map((item) => {
+          if (item.id === id) {
+            return type === "value"
+              ? { ...item, value: Number(value) }
+              : { ...item, valueDate: value };
+          }
+          return item;
+        });
+  
+        updatedPoints.sort(
+          (a, b) => Date.parse(b.valueDate) - Date.parse(a.valueDate)
+        );
+        return updatedPoints;
+      });
     }
   };
 
@@ -1359,7 +1374,6 @@ export default function StatisticsContent() {
             </div>
           </div>
           <div className={classes.five}>
-
             <div className={classes.item}>
               <div className={classes.itemName}>
                 <span>Организация</span>
@@ -1371,7 +1385,7 @@ export default function StatisticsContent() {
                   className={classes.select}
                 >
                   <option value="" disabled>
-                    Выберите
+                  Выберите 
                   </option>
                   {organizations?.map((item) => (
                     <option value={item.id}>{item.organizationName}</option>
@@ -1490,52 +1504,60 @@ export default function StatisticsContent() {
                           </div>
 
                           <div className={classes.points}>
-                            {createPoints?.map((item, index) => {
-                              if (item.valueDate === "") {
-                                item.valueDate = new Date()
-                                  .toISOString()
-                                  .split("T")[0];
-                              }
-                              return (
-                                <div className={classes.item}>
-                                  <input
-                                    type="date"
-                                    value={item.valueDate}
-                                    onChange={(e) => {
-                                      onChangePoints(
-                                        "",
-                                        e.target.value,
-                                        "valueDate",
-                                        index
-                                      );
-                                    }}
-                                    className={classes.date}
-                                  />
-                                  <input
-                                    type="text"
-                                    value={item.value}
-                                    onChange={(e) => {
-                                      const newValue = e.target.value.replace(
-                                        /[^0-9]/g,
-                                        ""
-                                      );
-                                      onChangePoints(
-                                        "",
-                                        newValue,
-                                        "value",
-                                        index
-                                      );
-                                    }}
-                                    className={classes.number}
-                                  />
-                                </div>
-                              );
-                            })}
+                            {createPoints
+                              ?.sort(
+                                (a, b) =>
+                                  Date.parse(b.valueDate) -
+                                  Date.parse(a.valueDate)
+                              )
+                              ?.map((item, index) => {
+                                if (item.valueDate === "") {
+                                  item.valueDate = new Date()
+                                    .toISOString()
+                                    .split("T")[0];
+                                }
+                                return (
+                                  <div key={index} className={classes.item}>
+                                    <input
+                                      type="date"
+                                      value={item.valueDate}
+                                      onChange={(e) => {
+                                        onChangePoints(
+                                          "",
+                                          e.target.value,
+                                          "valueDate",
+                                          null,
+                                          item.id
+                                        );
+                                      }}
+                                      className={classes.date}
+                                    />
+                                    <input
+                                      type="text"
+                                      value={item.value}
+                                      onChange={(e) => {
+                                        const newValue = e.target.value.replace(
+                                          /[^0-9]/g,
+                                          ""
+                                        );
+                                        onChangePoints(
+                                          "",
+                                          newValue,
+                                          "value",
+                                          null,
+                                          item.id
+                                        );
+                                      }}
+                                      className={classes.number}
+                                    />
+                                  </div>
+                                );
+                              })}
 
                             {receivedPoints?.map((item, index) => {
                               if (typeGraphic === "Ежедневный") {
                                 return (
-                                  <div className={classes.item}>
+                                  <div key={index} className={classes.item}>
                                     <input
                                       type="date"
                                       value={item.valueDate}
@@ -1544,7 +1566,8 @@ export default function StatisticsContent() {
                                           "received",
                                           e.target.value,
                                           "valueDate",
-                                          index
+                                          index,
+                                          null
                                         );
                                       }}
                                       className={`${classes.date}`}
@@ -1560,10 +1583,11 @@ export default function StatisticsContent() {
                                           ""
                                         );
                                         onChangePoints(
-                                          "",
+                                          "received",
                                           newValue,
                                           "value",
-                                          index
+                                          index,
+                                          null
                                         );
                                       }}
                                       className={classes.number}
@@ -1573,7 +1597,7 @@ export default function StatisticsContent() {
                                 );
                               } else {
                                 return (
-                                  <div
+                                  <div key={index}
                                     className={`${classes.item}  ${
                                       classes.itemHover
                                     }  ${
@@ -1830,7 +1854,9 @@ export default function StatisticsContent() {
                       </>
                     ) : (
                       <>
-                        <WaveLetters letters={"Выберите статистику"}></WaveLetters>
+                        <WaveLetters
+                          letters={"Выберите статистику"}
+                        ></WaveLetters>
                         <div className={classes.block1}></div>
                         <div className={classes.block2}></div>
                         <div className={classes.block3}>

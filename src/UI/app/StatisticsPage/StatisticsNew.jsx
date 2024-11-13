@@ -11,6 +11,7 @@ import {
   useGetStatisticsNewQuery,
   usePostStatisticsMutation,
 } from "../../../BLL/statisticsApi";
+import { useGetOrganizationsQuery } from "../../../BLL/organizationApi.js";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
@@ -26,8 +27,14 @@ export default function StatisticsNew() {
   const [name, setName] = useState("Статистика");
   const [postId, setPostId] = useState("");
   const [description, setDescription] = useState("");
-  const [points, setPoints] = useState([{ valueDate: "", value: 0 }]);
-  const [day, setDay] = useState("");
+  const [points, setPoints] = useState([
+    { valueDate: "", value: 0, id: new Date() },
+  ]);
+
+  const [organization, setOrganization] = useState("");
+  const [postsToOrganization, setPostsToOrganization] = useState([]);
+  const [disabledPosts, setDisabledPosts] = useState(true);
+  // const [day, setDay] = useState("");
 
   const {
     posts = [],
@@ -41,6 +48,20 @@ export default function StatisticsNew() {
     }),
   });
 
+  const {
+    organizations = [],
+    isLoadingOrganizations,
+    isFetchingOrganizations,
+    isErrorOrganizations,
+  } = useGetOrganizationsQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+      organizations: data || [],
+      isLoadingOrganizations: isLoading,
+      isFetchingOrganizations: isFetching,
+      isErrorOrganizations: isError,
+    }),
+  });
+
   const [
     postStatistics,
     {
@@ -51,22 +72,44 @@ export default function StatisticsNew() {
     },
   ] = usePostStatisticsMutation();
 
+  useEffect(() => {
+    if (organization !== "") {
+      console.log("organization");
+      console.log(organization);
+      const array = posts.filter(
+        (item) => item?.organization?.id === organization
+      );
+      setPostsToOrganization(array);
+      setDisabledPosts(false);
+    }
+  }, [organization]);
   const addPoint = () => {
-    setPoints((prevState) => [...prevState, { valueDate: "", value: 0 }]);
+    setPoints((prevState) => [
+      { valueDate: "", value: 0, id: new Date() },
+      ...prevState,
+    ]);
   };
 
   const deletePoint = () => {
     setPoints((prevState) => prevState.slice(0, -1));
   };
 
-  const onChangePoints = (value, type, index) => {
-    const updatedPoints = [...points];
-    if (type === "value") {
-      updatedPoints[index][type] = Number(value);
-    } else {
-      updatedPoints[index][type] = value;
-    }
-    setPoints(updatedPoints);
+  const onChangePoints = (value, type, id) => {
+    setPoints((prevPoints) => {
+      const updatedPoints = prevPoints.map((item) => {
+        if (item.id === id) {
+          return type === "value"
+            ? { ...item, value: Number(value) }
+            : { ...item, valueDate: value };
+        }
+        return item;
+      });
+
+      updatedPoints.sort(
+        (a, b) => Date.parse(b.valueDate) - Date.parse(a.valueDate)
+      );
+      return updatedPoints;
+    });
   };
 
   const reset = () => {
@@ -175,32 +218,42 @@ export default function StatisticsNew() {
                   <div className={classes.addPoint} onClick={addPoint}>
                     <img src={statisticsArrowLeft} alt="statisticsArrowLeft" />
                   </div>
-                  
+
                   <div className={classes.points}>
-                    {points.map((_, index) => {
-                      return (
+                    {points
+                      .sort(
+                        (a, b) =>
+                          Date.parse(b.valueDate) - Date.parse(a.valueDate)
+                      )
+                      .map((item, index) => (
                         <div key={index} className={classes.item}>
                           <input
                             type="date"
+                            value={item.valueDate} // привязка к текущему состоянию
                             onChange={(e) => {
                               onChangePoints(
                                 e.target.value,
                                 "valueDate",
-                                index
+                                item.id
                               );
                             }}
                             className={classes.date}
                           />
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
+                            value={item.value} // привязка к текущему состоянию
                             onChange={(e) => {
-                              onChangePoints(e.target.value, "value", index);
+                              const newValue = e.target.value.replace(
+                                /[^0-9]/g,
+                                ""
+                              );
+                              onChangePoints(newValue, "value", item.id);
                             }}
                             className={classes.number}
                           />
                         </div>
-                      );
-                    })}
+                      ))}
                   </div>
 
                   <div className={classes.deletePoint} onClick={deletePoint}>
@@ -237,16 +290,30 @@ export default function StatisticsNew() {
                     </select>
 
                     <select
+                      value={organization}
+                      onChange={(e) => setOrganization(e.target.value)}
+                      className={classes.element}
+                    >
+                      <option value="" disabled>
+                        Выберите организацию
+                      </option>
+                      {organizations?.map((item) => (
+                        <option value={item.id}>{item.organizationName}</option>
+                      ))}
+                    </select>
+
+                    <select
                       value={postId} // Устанавливаем ID, по умолчанию пустая строка
                       onChange={(e) => {
                         setPostId(e.target.value);
                       }}
                       className={classes.element}
+                      disabled={disabledPosts}
                     >
                       <option value="" disabled>
                         Выберите пост
                       </option>
-                      {posts.map((item) => {
+                      {postsToOrganization.map((item) => {
                         return <option value={item.id}>{item.postName}</option>;
                       })}
                     </select>
@@ -298,3 +365,15 @@ export default function StatisticsNew() {
     </div>
   );
 }
+
+// const onChangePoints = (value, type, index) => {
+//   const updatedPoints = [...points];
+//   if (type === "value") {
+//     updatedPoints[index][type] = Number(value);
+//   } else {
+//     updatedPoints[index][type] = value;
+//   }
+//   updatedPoints.sort((a, b) => b.value - a.value);
+//   console.log(updatedPoints);
+//   setPoints(updatedPoints);
+// };

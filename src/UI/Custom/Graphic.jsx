@@ -166,9 +166,9 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
       .style("font-size", "12px");
 
     svg
-      .append("g")
-      .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y).ticks(5)); // Ось Y с интервалом
+    .append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(".2s"))); // Format Y axis
 
     data.forEach((d, i) => {
       if (i > 0) {

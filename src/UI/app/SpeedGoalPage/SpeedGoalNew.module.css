@@ -369,3 +369,7 @@ input[type="search"]::-webkit-input-placeholder {
     display: block;
     background-color: #005475;
 }
+
+.select {
+    font-family: "Montserrat";
+}

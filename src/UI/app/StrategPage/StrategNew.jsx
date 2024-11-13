@@ -125,6 +125,7 @@ export default function StrategNew() {
               onChange={(e) => {
                 setOrganizationId(e.target.value);
               }}
+              className={classes.select}
             >
               <option value=""> Выберите организацию</option>
               {organizations.map((item) => {

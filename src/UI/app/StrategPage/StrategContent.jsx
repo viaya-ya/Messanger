@@ -46,8 +46,9 @@ export default function StrategContent() {
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
   ///////// мазало насрало
-  const [organizationId, setOrganizationId] = useState(false);
+  const [organizationId, setOrganizationId] = useState("");
   const [updateOrganizationId, setUpdateOrganizationId] = useState("null");
+  const [disabledNumber, setDisabledNumber] = useState(true);
 
   const {
     getOrganizations = [],
@@ -94,7 +95,11 @@ export default function StrategContent() {
       skip: !number,
     }
   );
-
+useEffect(() => {
+  if(organizationId !== ""){
+    setDisabledNumber(false);
+  }
+}, [organizationId])
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
@@ -204,7 +209,7 @@ export default function StrategContent() {
         <div className={styles.editText}>
           <div className={classes.date}>
             <div>
-              <span>Стратегия №</span>
+              <span style ={{fontFamily:"Montserrat"}}>Стратегия №</span>
               <select
                 value={number}
                 onChange={(e) => {
@@ -221,6 +226,7 @@ export default function StrategContent() {
                   }
                 }}
                 className={classes.select}
+                disabled={disabledNumber}
               >
                 <option value=""> — </option>
                 {data?.strategies?.map((item) => {
@@ -240,6 +246,7 @@ export default function StrategContent() {
                     setOrganizationId(e.target.value);
                   }
                 }}
+                className={classes.select}
               >
                 <option value=""> Выберите организацию </option>
                 {getOrganizations?.map((item) => {

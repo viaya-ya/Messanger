@@ -313,6 +313,7 @@ export default function SpeedGoalNew() {
             <select
               value={nameStrateg || ""}
               onChange={(e) => setNameStrateg(e.target.value)}
+              className={classes.select}
             >
               <option value="" disabled>
                 Выберите стратегию

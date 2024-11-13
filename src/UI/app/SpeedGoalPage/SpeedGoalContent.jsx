@@ -372,6 +372,7 @@ export default function SpeedGoalContent() {
                 setNameStrateg(e.target.value);
                 getSpeedGoalId(e.target.value);
               }}
+              className={classes.select}
             >
               <option value="" disabled>
                 Выберите стратегию

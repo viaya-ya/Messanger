@@ -212,6 +212,7 @@ input[type="search"]::-webkit-input-placeholder {
         column-gap: 5px;
 
         & .element {
+            font-family: "Montserrat";
             width: 24%;
             max-width: 24%;
             height: 25px;
@@ -339,7 +340,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .modalTable {
     position: relative;
     left: 10%;
-    min-height:300px;
+    min-height: 300px;
     width: 410px;
     background-color: #fff;
     border-radius: 10px;
@@ -412,12 +413,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: 1px solid #005475;
 }
 
-.tableHeader{
+.tableHeader {
     display: flex;
     flex-direction: column-reverse;
     justify-content: center;
     align-items: center;
-    & span{
+
+    & span {
         font-family: 'Montserrat';
         font-size: 14px;
         font-weight: 600;
@@ -454,16 +456,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .itemHover {
     cursor: pointer;
 }
-.active{
+
+.active {
     border: solid 5px #005475 !important;
 }
 
-.one{
+.one {
     display: flex;
     flex-direction: row;
     column-gap: 5px;
 }
-.statisticsArrowLeft{
+
+.statisticsArrowLeft {
     cursor: pointer;
     display: flex;
     flex-direction: row;
@@ -474,14 +478,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: #005475;
     transition: background-color 0.3s ease-in-out;
 }
-.statisticsArrowLeft:hover{
+
+.statisticsArrowLeft:hover {
     background-color: #26a5d8;
 }
 
-.item{
+.item {
     max-width: 200px;
     overflow: hidden;
 }
+
 .itemName span {
     font-style: italic;
     font-size: 12px;
@@ -493,7 +499,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     position: relative;
     font-family: 'Montserrat';
     max-width: 200px;
-    & option{
+
+    & option {
         font-family: 'Montserrat';
         max-width: 200px;
     }

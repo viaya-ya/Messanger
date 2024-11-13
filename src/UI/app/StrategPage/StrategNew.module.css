@@ -247,7 +247,9 @@ background-color: rgb(240, 240, 240)
     align-items: center;
     row-gap: 1%;
 }
-
+.select{
+    font-family: "Montserrat";
+}
 /* .Teaxtaera {
     min-width: 50%;
     min-height: 10vw;

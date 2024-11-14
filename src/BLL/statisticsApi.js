@@ -27,7 +27,6 @@ export const statisticsApi = createApi({
         url: `${userId}/statistics/new`,
       }),
       transformResponse: (response) => {
-        console.log(response); // Отладка ответа
         return {
           posts: response || [],
         };
@@ -39,7 +38,6 @@ export const statisticsApi = createApi({
         url: `${userId}/statistics/${statisticId}`,
       }),
       transformResponse: (response) => {
-        console.log(response); // Отладка ответа
         return {
           currentStatistic: response || {}, 
           statisticDatas: response.statisticDatas || [], 

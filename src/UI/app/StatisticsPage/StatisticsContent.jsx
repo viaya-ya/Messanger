@@ -58,7 +58,7 @@ export default function StatisticsContent() {
   const [openModal, setOpenModal] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
   const [count, setCount] = useState(0);
-  
+
   const [organizationId, setOrganizationId] = useState("");
   const [statisticsToOrganization, setStatisticsToOrganization] = useState([]);
   const [reportDay, setReportDay] = useState("");
@@ -73,6 +73,12 @@ export default function StatisticsContent() {
   const [openModaReportDay, setOpenModalReportDay] = useState(false);
   const [showReportDay, setShowReportDay] = useState();
   const [showReportDayComes, setShowReportDayComes] = useState();
+
+  // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
+  const [manualSuccessResetOrganization, setManualSuccessResetOrganization] =
+    useState(true);
+  const [manualErrorResetOrganization, setManualErrorResetOrganization] =
+    useState(true);
 
   const {
     statistics = [],
@@ -156,6 +162,7 @@ export default function StatisticsContent() {
   });
 
   useEffect(() => {
+    console.log("isLoadingOrganizations");
     if (statistics.length > 0) {
       const array = statistics.filter(
         (item) => item?.post?.organization?.id === organizationId
@@ -170,11 +177,20 @@ export default function StatisticsContent() {
       setDisabledReportDayAndSelectStatistics(false);
       setPostsToOrganization(arrayPosts);
       setStatisticsToOrganization(array);
+
       setStatisticId("");
+
       setReportDay(report[0]?.reportDay);
       setReportDayComes(report[0]?.reportDay);
     }
   }, [organizationId]);
+
+  useEffect(() => {
+    console.log("isLoadingOrganizations");
+    const report = organizations.filter((item) => item?.id === organizationId);
+    setReportDay(report[0]?.reportDay);
+    setReportDayComes(report[0]?.reportDay);
+  }, [isLoadingOrganizations, isFetchingOrganizations]);
 
   // Все для начальной страницы
   useEffect(() => {
@@ -192,7 +208,6 @@ export default function StatisticsContent() {
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
 
   useEffect(() => {
-   
     if (statisticDatas.length > 0) {
       setReceivedPoints([]);
       setOldReceivedPoints([]);
@@ -201,8 +216,7 @@ export default function StatisticsContent() {
       setCount(0);
       setDay(reportDay);
     }
-  
-   
+
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
       const dayNow = new Date();
       const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
@@ -263,8 +277,7 @@ export default function StatisticsContent() {
       setOldReceivedPoints(updatedPoints);
       setReceivedPoints(updatedPoints1);
     }
- 
-    
+
     if (statisticDatas.length > 0 && typeGraphic === "Ежемесячный") {
       // Группируем данные по месяцам и суммируем `valueDate` за каждый месяц
       const monthlyData = statisticDatas.reduce((acc, item) => {
@@ -344,7 +357,6 @@ export default function StatisticsContent() {
       );
 
       setReceivedPoints(updatedMonthlyPoints);
-      console.log(receivedPoints);
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежегодовой") {
@@ -636,7 +648,6 @@ export default function StatisticsContent() {
     isFetchingGetStatisticId,
     typeGraphic,
     reportDay,
-    day,
     type,
   ]);
 
@@ -699,7 +710,7 @@ export default function StatisticsContent() {
         Data.statisticDataUpdateDtos.push(...array);
       }
     }
-    if(Object.keys(Data).length > 0){
+    if (Object.keys(Data).length > 0) {
       await updateStatistics({
         userId,
         statisticId,
@@ -710,13 +721,23 @@ export default function StatisticsContent() {
         .then(() => {
           setManualSuccessReset(false);
           setManualErrorReset(false);
+
+          setManualSuccessResetOrganization(true);
+          setManualErrorResetOrganization(true);
           reset();
+
           if (Data.name) {
             refetch();
           }
+
+          setOpenModalReportDay(false);
         })
         .catch((error) => {
           setManualErrorReset(false);
+
+          setManualSuccessResetOrganization(true);
+          setManualErrorResetOrganization(true);
+
           console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
         });
     }
@@ -1425,13 +1446,22 @@ export default function StatisticsContent() {
     }
   };
 
-  const btnYes = () => {
-    saveUpdateOrganization();
-    saveUpdateStatistics();
+  const btnYes = async () => {
+    try {
+      await saveUpdateOrganization(); // Сначала выполняем обновление организации
+
+      // Добавляем задержку в 1 секунду
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      await saveUpdateStatistics(); // Затем обновляем статистику через секунду
+    } catch (error) {
+      console.error("Ошибка при выполнении операций:", error);
+    }
   };
 
   const btnNo = () => {
     saveUpdateStatistics();
+    setReportDay(reportDayComes);
   };
 
   const saveUpdateOrganization = async () => {
@@ -1444,8 +1474,13 @@ export default function StatisticsContent() {
       .unwrap()
       .then(() => {
         setOpenModalReportDay(false);
+
+        setManualSuccessResetOrganization(false);
+        setManualErrorResetOrganization(false);
       })
       .catch((error) => {
+        setManualErrorResetOrganization(false);
+        setManualSuccessResetOrganization(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
@@ -1605,15 +1640,19 @@ export default function StatisticsContent() {
                     {currentStatistic.id ? (
                       <>
                         <div className={classes.block1}>
-                          <Graphic
-                            data={[...receivedPoints, ...createPoints]}
-                            name={
-                              name !== "null" ? name : currentStatistic?.name
-                            }
-                            setName={setName}
-                            typeGraphic={typeGraphic}
-                            type={type}
-                          ></Graphic>
+                          {statisticId !== "" ? (
+                            <Graphic
+                              data={[...receivedPoints, ...createPoints]}
+                              name={
+                                name !== "null" ? name : currentStatistic?.name
+                              }
+                              setName={setName}
+                              typeGraphic={typeGraphic}
+                              type={type}
+                            ></Graphic>
+                          ) : (
+                            <></>
+                          )}
                         </div>
 
                         <div className={classes.block2}>
@@ -1624,138 +1663,144 @@ export default function StatisticsContent() {
                             />
                           </div>
 
-                          <div className={classes.points}>
-                            {createPoints
-                              ?.sort(
-                                (a, b) =>
-                                  Date.parse(b.valueDate) -
-                                  Date.parse(a.valueDate)
-                              )
-                              ?.map((item, index) => {
-                                if (item.valueDate === "") {
-                                  item.valueDate = new Date()
-                                    .toISOString()
-                                    .split("T")[0];
+                          {statisticId !== "" ? (
+                            <div className={classes.points}>
+                              {createPoints
+                                ?.sort(
+                                  (a, b) =>
+                                    Date.parse(b.valueDate) -
+                                    Date.parse(a.valueDate)
+                                )
+                                ?.map((item, index) => {
+                                  if (item.valueDate === "") {
+                                    item.valueDate = new Date()
+                                      .toISOString()
+                                      .split("T")[0];
+                                  }
+                                  return (
+                                    <div key={index} className={classes.item}>
+                                      <input
+                                        type="date"
+                                        value={item.valueDate}
+                                        onChange={(e) => {
+                                          onChangePoints(
+                                            "",
+                                            e.target.value,
+                                            "valueDate",
+                                            null,
+                                            item.id
+                                          );
+                                        }}
+                                        className={classes.date}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={item.value}
+                                        onChange={(e) => {
+                                          const newValue =
+                                            e.target.value.replace(
+                                              /[^0-9]/g,
+                                              ""
+                                            );
+                                          onChangePoints(
+                                            "",
+                                            newValue,
+                                            "value",
+                                            null,
+                                            item.id
+                                          );
+                                        }}
+                                        className={classes.number}
+                                      />
+                                    </div>
+                                  );
+                                })}
+
+                              {receivedPoints?.map((item, index) => {
+                                if (typeGraphic === "Ежедневный") {
+                                  return (
+                                    <div key={index} className={classes.item}>
+                                      <input
+                                        type="date"
+                                        value={item.valueDate}
+                                        onChange={(e) => {
+                                          onChangePoints(
+                                            "received",
+                                            e.target.value,
+                                            "valueDate",
+                                            index,
+                                            null
+                                          );
+                                        }}
+                                        className={`${classes.date}`}
+                                        disabled={disabledPoints}
+                                      />
+
+                                      <input
+                                        type="text"
+                                        value={item.value}
+                                        onChange={(e) => {
+                                          const newValue =
+                                            e.target.value.replace(
+                                              /[^0-9]/g,
+                                              ""
+                                            );
+                                          onChangePoints(
+                                            "received",
+                                            newValue,
+                                            "value",
+                                            index,
+                                            null
+                                          );
+                                        }}
+                                        className={classes.number}
+                                        disabled={disabledPoints}
+                                      />
+                                    </div>
+                                  );
+                                } else {
+                                  return (
+                                    <div
+                                      key={index}
+                                      className={`${classes.item}  ${
+                                        classes.itemHover
+                                      }  ${
+                                        activeIndex === index
+                                          ? classes.active
+                                          : ""
+                                      }`}
+                                      onClick={() => {
+                                        setActiveIndex(index);
+                                        showCurrentPoint(item.valueDate);
+                                      }}
+                                    >
+                                      <span
+                                        disabled={disabledPoints}
+                                        className={`${classes.date} ${classes.textGrey}`}
+                                      >
+                                        {new Date(
+                                          item.valueDate
+                                        ).toLocaleDateString("ru-RU", {
+                                          day: "2-digit",
+                                          month: "2-digit",
+                                          year: "2-digit",
+                                        })}
+                                      </span>
+
+                                      <span
+                                        className={`${classes.number} ${classes.textGrey}`}
+                                        disabled={disabledPoints}
+                                      >
+                                        {item.value}
+                                      </span>
+                                    </div>
+                                  );
                                 }
-                                return (
-                                  <div key={index} className={classes.item}>
-                                    <input
-                                      type="date"
-                                      value={item.valueDate}
-                                      onChange={(e) => {
-                                        onChangePoints(
-                                          "",
-                                          e.target.value,
-                                          "valueDate",
-                                          null,
-                                          item.id
-                                        );
-                                      }}
-                                      className={classes.date}
-                                    />
-                                    <input
-                                      type="text"
-                                      value={item.value}
-                                      onChange={(e) => {
-                                        const newValue = e.target.value.replace(
-                                          /[^0-9]/g,
-                                          ""
-                                        );
-                                        onChangePoints(
-                                          "",
-                                          newValue,
-                                          "value",
-                                          null,
-                                          item.id
-                                        );
-                                      }}
-                                      className={classes.number}
-                                    />
-                                  </div>
-                                );
                               })}
-
-                            {receivedPoints?.map((item, index) => {
-                              if (typeGraphic === "Ежедневный") {
-                                return (
-                                  <div key={index} className={classes.item}>
-                                    <input
-                                      type="date"
-                                      value={item.valueDate}
-                                      onChange={(e) => {
-                                        onChangePoints(
-                                          "received",
-                                          e.target.value,
-                                          "valueDate",
-                                          index,
-                                          null
-                                        );
-                                      }}
-                                      className={`${classes.date}`}
-                                      disabled={disabledPoints}
-                                    />
-
-                                    <input
-                                      type="text"
-                                      value={item.value}
-                                      onChange={(e) => {
-                                        const newValue = e.target.value.replace(
-                                          /[^0-9]/g,
-                                          ""
-                                        );
-                                        onChangePoints(
-                                          "received",
-                                          newValue,
-                                          "value",
-                                          index,
-                                          null
-                                        );
-                                      }}
-                                      className={classes.number}
-                                      disabled={disabledPoints}
-                                    />
-                                  </div>
-                                );
-                              } else {
-                                return (
-                                  <div
-                                    key={index}
-                                    className={`${classes.item}  ${
-                                      classes.itemHover
-                                    }  ${
-                                      activeIndex === index
-                                        ? classes.active
-                                        : ""
-                                    }`}
-                                    onClick={() => {
-                                      setActiveIndex(index);
-                                      showCurrentPoint(item.valueDate);
-                                    }}
-                                  >
-                                    <span
-                                      disabled={disabledPoints}
-                                      className={`${classes.date} ${classes.textGrey}`}
-                                    >
-                                      {new Date(
-                                        item.valueDate
-                                      ).toLocaleDateString("ru-RU", {
-                                        day: "2-digit",
-                                        month: "2-digit",
-                                        year: "2-digit",
-                                      })}
-                                    </span>
-
-                                    <span
-                                      className={`${classes.number} ${classes.textGrey}`}
-                                      disabled={disabledPoints}
-                                    >
-                                      {item.value}
-                                    </span>
-                                  </div>
-                                );
-                              }
-                            })}
-                          </div>
+                            </div>
+                          ) : (
+                            <></>
+                          )}
 
                           <div
                             className={classes.deletePoint}
@@ -1791,78 +1836,93 @@ export default function StatisticsContent() {
                               })}
                             </select>
 
-                            <select
-                              value={
-                                type !== "null" ? type : currentStatistic.type
-                              } // Устанавливаем ID, по умолчанию пустая строка
-                              onChange={(e) => {
-                                setType(e.target.value);
-                              }}
-                              className={classes.element}
-                            >
-                              <option value="null" disabled>
-                                Выберите тип
-                              </option>
-
-                              <option value="Прямая">Прямая</option>
-                              <option value="Обратная">Обратная</option>
-                            </select>
-
-                            <select
-                              value={
-                                postId !== "null"
-                                  ? postId
-                                  : currentStatistic?.post?.id
-                              }
-                              onChange={(e) => {
-                                setPostId(e.target.value);
-                              }}
-                              className={classes.element}
-                            >
-                              <option value="null" disabled>
-                                Выберите пост
-                              </option>
-                              {postsToOrganization?.map((item) => {
-                                return (
-                                  <option value={item.id}>
-                                    {item.postName}
+                            {statisticId !== "" ? (
+                              <>
+                                <select
+                                  value={
+                                    type !== "null"
+                                      ? type
+                                      : currentStatistic.type
+                                  } // Устанавливаем ID, по умолчанию пустая строка
+                                  onChange={(e) => {
+                                    setType(e.target.value);
+                                  }}
+                                  className={classes.element}
+                                >
+                                  <option value="null" disabled>
+                                    Выберите тип
                                   </option>
-                                );
-                              })}
-                            </select>
 
-                            <select
-                              value={typeGraphic}
-                              onChange={(e) => setTypeGraphic(e.target.value)}
-                              className={classes.element}
-                            >
-                              <option value="" disabled>
-                                Выберите тип отображения графика
-                              </option>
-                              <option value="Ежедневный">
-                                {" "}
-                                Ежедневный (за один день)
-                              </option>
-                              <option value="Ежемесячный">
-                                Ежемесячный (сумма за календарный месяц)
-                              </option>
-                              <option value="Ежегодовой">
-                                Ежегодовой (сумма за календарный год)
-                              </option>
-                              <option value="13">13 недель</option>
-                              <option value="26">26 недель</option>
-                              <option value="52">52 недели</option>
-                            </select>
+                                  <option value="Прямая">Прямая</option>
+                                  <option value="Обратная">Обратная</option>
+                                </select>
+
+                                <select
+                                  value={
+                                    postId !== "null"
+                                      ? postId
+                                      : currentStatistic?.post?.id
+                                  }
+                                  onChange={(e) => {
+                                    setPostId(e.target.value);
+                                  }}
+                                  className={classes.element}
+                                >
+                                  <option value="null" disabled>
+                                    Выберите пост
+                                  </option>
+                                  {postsToOrganization?.map((item) => {
+                                    return (
+                                      <option value={item.id}>
+                                        {item.postName}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+
+                                <select
+                                  value={typeGraphic}
+                                  onChange={(e) =>
+                                    setTypeGraphic(e.target.value)
+                                  }
+                                  className={classes.element}
+                                >
+                                  <option value="" disabled>
+                                    Выберите тип отображения графика
+                                  </option>
+                                  <option value="Ежедневный">
+                                    {" "}
+                                    Ежедневный (за один день)
+                                  </option>
+                                  <option value="Ежемесячный">
+                                    Ежемесячный (сумма за календарный месяц)
+                                  </option>
+                                  <option value="Ежегодовой">
+                                    Ежегодовой (сумма за календарный год)
+                                  </option>
+                                  <option value="13">13 недель</option>
+                                  <option value="26">26 недель</option>
+                                  <option value="52">52 недели</option>
+                                </select>
+                              </>
+                            ) : (
+                              <></>
+                            )}
                           </div>
-                          <div className={classes.row2}>
-                            <textarea
-                              placeholder="Описание статистики: что и как считать"
-                              value={
-                                description || currentStatistic.description
-                              }
-                              onChange={(e) => setDescription(e.target.value)}
-                            ></textarea>
-                          </div>
+
+                          {statisticId !== "" ? (
+                            <div className={classes.row2}>
+                              <textarea
+                                placeholder="Описание статистики: что и как считать"
+                                value={
+                                  description || currentStatistic.description
+                                }
+                                onChange={(e) => setDescription(e.target.value)}
+                              ></textarea>
+                            </div>
+                          ) : (
+                            <></>
+                          )}
                         </div>
 
                         <HandlerMutation
@@ -1879,6 +1939,24 @@ export default function StatisticsContent() {
                             Error?.data?.errors?.[0]?.errors?.[0]
                               ? Error.data.errors[0].errors[0]
                               : Error?.data?.message
+                          }
+                        ></HandlerMutation>
+
+                        <HandlerMutation
+                          Loading={isLoadingUpdateOrganizationMutation}
+                          Error={
+                            isErrorUpdateOrganizationMutation &&
+                            !manualErrorResetOrganization
+                          }
+                          Success={
+                            isSuccessUpdateOrganizationMutation &&
+                            !manualSuccessResetOrganization
+                          }
+                          textSuccess={"Организация обновлена"}
+                          textError={
+                            ErrorOrganization?.data?.errors?.[0]?.errors?.[0]
+                              ? ErrorOrganization.data.errors[0].errors[0]
+                              : ErrorOrganization?.data?.message
                           }
                         ></HandlerMutation>
 

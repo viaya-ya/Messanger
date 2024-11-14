@@ -20,7 +20,10 @@ import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
 import exit from "../../image/exitModal.svg";
-import { useGetOrganizationsQuery } from "../../../BLL/organizationApi.js";
+import {
+  useGetOrganizationsQuery,
+  useUpdateOrganizationsMutation,
+} from "../../../BLL/organizationApi.js";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function StatisticsContent() {
@@ -46,7 +49,6 @@ export default function StatisticsContent() {
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
-  ///
   const [day, setDay] = useState("");
   const [typeGraphic, setTypeGraphic] = useState("Ежедневный");
   const [disabledPoints, setDisabledPoints] = useState(false);
@@ -55,9 +57,9 @@ export default function StatisticsContent() {
   const [showPoints, setShowPoints] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
-
   const [count, setCount] = useState(0);
-  const [organization, setOrganization] = useState("");
+  
+  const [organizationId, setOrganizationId] = useState("");
   const [statisticsToOrganization, setStatisticsToOrganization] = useState([]);
   const [reportDay, setReportDay] = useState("");
   const [reportDayComes, setReportDayComes] = useState("");
@@ -69,7 +71,6 @@ export default function StatisticsContent() {
   ] = useState(true);
 
   const [openModaReportDay, setOpenModalReportDay] = useState(false);
-
   const [showReportDay, setShowReportDay] = useState();
   const [showReportDayComes, setShowReportDayComes] = useState();
 
@@ -130,6 +131,16 @@ export default function StatisticsContent() {
     },
   ] = useUpdateStatisticsMutation();
 
+  const [
+    updateOrganization,
+    {
+      isLoading: isLoadingUpdateOrganizationMutation,
+      isSuccess: isSuccessUpdateOrganizationMutation,
+      isError: isErrorUpdateOrganizationMutation,
+      error: ErrorOrganization,
+    },
+  ] = useUpdateOrganizationsMutation();
+
   const {
     organizations = [],
     isLoadingOrganizations,
@@ -147,12 +158,14 @@ export default function StatisticsContent() {
   useEffect(() => {
     if (statistics.length > 0) {
       const array = statistics.filter(
-        (item) => item?.post?.organization?.id === organization
+        (item) => item?.post?.organization?.id === organizationId
       );
-      const report = organizations.filter((item) => item?.id === organization);
+      const report = organizations.filter(
+        (item) => item?.id === organizationId
+      );
 
       const arrayPosts = posts.filter(
-        (item) => item?.organization?.id === organization
+        (item) => item?.organization?.id === organizationId
       );
       setDisabledReportDayAndSelectStatistics(false);
       setPostsToOrganization(arrayPosts);
@@ -161,8 +174,9 @@ export default function StatisticsContent() {
       setReportDay(report[0]?.reportDay);
       setReportDayComes(report[0]?.reportDay);
     }
-  }, [organization]);
+  }, [organizationId]);
 
+  // Все для начальной страницы
   useEffect(() => {
     if (typeGraphic !== "Ежедневный") {
       setDisabledPoints(true);
@@ -178,13 +192,17 @@ export default function StatisticsContent() {
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
 
   useEffect(() => {
+   
     if (statisticDatas.length > 0) {
       setReceivedPoints([]);
+      setOldReceivedPoints([]);
       setArrayPoints([]);
       setShowPoints([]);
       setCount(0);
       setDay(reportDay);
     }
+  
+   
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
       const dayNow = new Date();
       const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
@@ -245,7 +263,8 @@ export default function StatisticsContent() {
       setOldReceivedPoints(updatedPoints);
       setReceivedPoints(updatedPoints1);
     }
-
+ 
+    
     if (statisticDatas.length > 0 && typeGraphic === "Ежемесячный") {
       // Группируем данные по месяцам и суммируем `valueDate` за каждый месяц
       const monthlyData = statisticDatas.reduce((acc, item) => {
@@ -617,6 +636,7 @@ export default function StatisticsContent() {
     isFetchingGetStatisticId,
     typeGraphic,
     reportDay,
+    day,
     type,
   ]);
 
@@ -646,68 +666,6 @@ export default function StatisticsContent() {
 
     return changes;
   }
-
-  const dayWeek = (day, type) => {
-    if (type === "reportDay") {
-      switch (day) {
-        case "0":
-          setShowReportDay("Воскресенье");
-          break;
-        case "1":
-          setShowReportDay("Понедельник");
-          break;
-        case "2":
-          setShowReportDay("Вторник");
-          break;
-        case "3":
-          setShowReportDay("Среда");
-          break;
-        case "4":
-          setShowReportDay("Четверг");
-          break;
-        case "5":
-          setShowReportDay("Пятница");
-          break;
-        case "6":
-          setShowReportDay("Суббота");
-          break;
-      }
-    } else {
-      switch (day) {
-        case 0:
-          setShowReportDayComes("Воскресенье");
-          break;
-        case 1:
-          setShowReportDayComes("Понедельник");
-          break;
-        case 2:
-          setShowReportDayComes("Вторник");
-          break;
-        case 3:
-          setShowReportDayComes("Среда");
-          break;
-        case 4:
-          setShowReportDayComes("Четверг");
-          break;
-        case 5:
-          setShowReportDayComes("Пятница");
-          break;
-        case 6:
-          setShowReportDayComes("Суббота");
-          break;
-      }
-    }
-  };
-
-  const save = () => {
-    if (reportDay !== reportDayComes) {
-      setOpenModalReportDay(true);
-      dayWeek(reportDay, "reportDay");
-      dayWeek(reportDayComes, "");
-    } else {
-      saveUpdateStatistics();
-    }
-  };
 
   const saveUpdateStatistics = async () => {
     const Data = {};
@@ -809,6 +767,15 @@ export default function StatisticsContent() {
     setCreatePoints([]);
   };
 
+  const handleArrowLeftClick = () => {
+    setCount((prevCount) => prevCount + 1);
+  };
+
+  const handleArrowRightClick = () => {
+    setCount((prevCount) => prevCount - 1);
+  };
+
+  // Все для модального окна при нажатии на блок координат точек для статистики
   const exitModal = () => {
     setShowPoints([]);
     setActiveIndex(null);
@@ -951,14 +918,6 @@ export default function StatisticsContent() {
       });
   };
 
-  const handleArrowLeftClick = () => {
-    setCount((prevCount) => prevCount + 1);
-  };
-
-  const handleArrowRightClick = () => {
-    setCount((prevCount) => prevCount - 1);
-  };
-
   useEffect(() => {
     updateStatisticsData();
   }, [count]);
@@ -986,7 +945,7 @@ export default function StatisticsContent() {
 
       // Ограничиваем начальную дату максимум 7 днями назад от текущего дня
       const maxStartDate = new Date(dayNow);
-      maxStartDate.setDate(dayNow.getDate() - 6);
+      maxStartDate.setDate(dayNow.getDate() - 7);
 
       if (startDate < maxStartDate) {
         startDate.setTime(maxStartDate.getTime());
@@ -1401,6 +1360,95 @@ export default function StatisticsContent() {
     }
   };
 
+  // Все для модального окна при смене отчетного дня
+  const dayWeek = (day, type) => {
+    if (type === "reportDay") {
+      switch (day) {
+        case 0:
+          setShowReportDay("Воскресенье");
+          break;
+        case 1:
+          setShowReportDay("Понедельник");
+          break;
+        case 2:
+          setShowReportDay("Вторник");
+          break;
+        case 3:
+          setShowReportDay("Среда");
+          break;
+        case 4:
+          setShowReportDay("Четверг");
+          break;
+        case 5:
+          setShowReportDay("Пятница");
+          break;
+        case 6:
+          setShowReportDay("Суббота");
+          break;
+      }
+    } else {
+      switch (day) {
+        case 0:
+          setShowReportDayComes("Воскресенье");
+          break;
+        case 1:
+          setShowReportDayComes("Понедельник");
+          break;
+        case 2:
+          setShowReportDayComes("Вторник");
+          break;
+        case 3:
+          setShowReportDayComes("Среда");
+          break;
+        case 4:
+          setShowReportDayComes("Четверг");
+          break;
+        case 5:
+          setShowReportDayComes("Пятница");
+          break;
+        case 6:
+          setShowReportDayComes("Суббота");
+          break;
+      }
+    }
+  };
+
+  const save = () => {
+    if (reportDay !== reportDayComes) {
+      setOpenModalReportDay(true);
+      dayWeek(reportDay, "reportDay");
+      dayWeek(reportDayComes, "");
+    } else {
+      saveUpdateStatistics();
+    }
+  };
+
+  const btnYes = () => {
+    saveUpdateOrganization();
+    saveUpdateStatistics();
+  };
+
+  const btnNo = () => {
+    saveUpdateStatistics();
+  };
+
+  const saveUpdateOrganization = async () => {
+    await updateOrganization({
+      userId,
+      organizationId,
+      _id: organizationId,
+      reportDay: reportDay,
+    })
+      .unwrap()
+      .then(() => {
+        // setManualSuccessReset(false);
+        // setManualErrorReset(false);
+      })
+      .catch((error) => {
+        // setManualErrorReset(false);
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
+  };
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>
@@ -1458,8 +1506,8 @@ export default function StatisticsContent() {
               </div>
               <div className={classes.div}>
                 <select
-                  value={organization}
-                  onChange={(e) => setOrganization(e.target.value)}
+                  value={organizationId}
+                  onChange={(e) => setOrganizationId(e.target.value)}
                   className={classes.select}
                 >
                   <option value="" disabled>
@@ -1480,7 +1528,7 @@ export default function StatisticsContent() {
                 <select
                   value={reportDay}
                   onChange={(e) => {
-                    setReportDay(e.target.value);
+                    setReportDay(Number(e.target.value));
                   }}
                   className={classes.select}
                   disabled={disabledReportDayAndSelectStatistics}
@@ -1962,13 +2010,13 @@ export default function StatisticsContent() {
                                 <div className={classes.modalRow2}>
                                   <button
                                     className={`${classes.btnYes} ${classes.text}`}
-                                    onClick={() => {}}
+                                    onClick={btnYes}
                                   >
                                     Да
                                   </button>
                                   <button
                                     className={`${classes.btnNo} ${classes.text}`}
-                                    onClick={() => {}}
+                                    onClick={btnNo}
                                   >
                                     Нет
                                   </button>

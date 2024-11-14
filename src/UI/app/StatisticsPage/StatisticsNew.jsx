@@ -83,6 +83,7 @@ export default function StatisticsNew() {
       setDisabledPosts(false);
     }
   }, [organization]);
+  
   const addPoint = () => {
     setPoints((prevState) => [
       { valueDate: "", value: 0, id: new Date() },
@@ -118,6 +119,7 @@ export default function StatisticsNew() {
     setPostId("");
     setDescription("");
     setPoints([]);
+    setOrganization("");
   };
 
   const saveStatistics = async () => {

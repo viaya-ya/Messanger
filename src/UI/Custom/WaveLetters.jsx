@@ -2,7 +2,6 @@ import React from "react";
 import classes from "./WaveLetters.module.css";
 export default function WaveLetters({ letters }) {
   const arrayLetters = letters.split("");
-  console.log(arrayLetters);
   return (
     <div className={classes.wave}>
       {arrayLetters?.map((item, index) => (

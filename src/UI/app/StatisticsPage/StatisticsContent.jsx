@@ -699,25 +699,27 @@ export default function StatisticsContent() {
         Data.statisticDataUpdateDtos.push(...array);
       }
     }
-    await updateStatistics({
-      userId,
-      statisticId,
-      _id: statisticId,
-      ...Data,
-    })
-      .unwrap()
-      .then(() => {
-        setManualSuccessReset(false);
-        setManualErrorReset(false);
-        reset();
-        if (Data.name) {
-          refetch();
-        }
+    if(Object.keys(Data).length > 0){
+      await updateStatistics({
+        userId,
+        statisticId,
+        _id: statisticId,
+        ...Data,
       })
-      .catch((error) => {
-        setManualErrorReset(false);
-        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
-      });
+        .unwrap()
+        .then(() => {
+          setManualSuccessReset(false);
+          setManualErrorReset(false);
+          reset();
+          if (Data.name) {
+            refetch();
+          }
+        })
+        .catch((error) => {
+          setManualErrorReset(false);
+          console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+        });
+    }
   };
 
   const addPoint = () => {
@@ -1441,11 +1443,9 @@ export default function StatisticsContent() {
     })
       .unwrap()
       .then(() => {
-        // setManualSuccessReset(false);
-        // setManualErrorReset(false);
+        setOpenModalReportDay(false);
       })
       .catch((error) => {
-        // setManualErrorReset(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };

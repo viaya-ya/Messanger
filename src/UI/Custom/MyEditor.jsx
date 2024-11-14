@@ -9,6 +9,7 @@ export default function MyEditor({
   setEditorState,
   userId,
   policyId,
+  policyContent,
 }) {
   const [postImage] = usePostImageMutation();
 
@@ -33,28 +34,36 @@ export default function MyEditor({
 
   return (
     <div>
-      <Editor
-        editorState={editorState}
-        onEditorStateChange={setEditorState}
-        wrapperClassName="demo-wrapper"
-        editorClassName="demo-editor"
-        toolbarClassName="demo-toolbar"
-        toolbar={{
-          inline: { inDropdown: true },
-          list: { inDropdown: true },
-          textAlign: { inDropdown: true },
-          link: { inDropdown: true },
-          history: { inDropdown: true },
-          image: {
-            uploadCallback: uploadImageCallback, // Обработчик загрузки
-            alt: { present: true, mandatory: false },
-            previewImage: true,
-          },
-        }}
-      />
+      {policyContent ? (
+        <Editor
+          editorState={editorState}
+          onEditorStateChange={setEditorState}
+          wrapperClassName="demo-wrapper"
+          editorClassName="demo-editor"
+          toolbarClassName="demo-toolbar"
+          toolbar={{
+            inline: { inDropdown: true },
+            list: { inDropdown: true },
+            textAlign: { inDropdown: true },
+            link: { inDropdown: true },
+            history: { inDropdown: true },
+            image: {
+              uploadCallback: uploadImageCallback, // Обработчик загрузки
+              alt: { present: true, mandatory: false },
+              previewImage: true,
+            },
+          }}
+        />
+      ) : (
+        <Editor
+          editorState={editorState}
+          onEditorStateChange={setEditorState}
+          wrapperClassName="demo-wrapper"
+          editorClassName="demo-editor"
+          toolbarHidden={true}
+        />
+      )}
     </div>
   );
 }
 
-{
-}

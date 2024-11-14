@@ -162,7 +162,6 @@ export default function StatisticsContent() {
   });
 
   useEffect(() => {
-    console.log("isLoadingOrganizations");
     if (statistics.length > 0) {
       const array = statistics.filter(
         (item) => item?.post?.organization?.id === organizationId

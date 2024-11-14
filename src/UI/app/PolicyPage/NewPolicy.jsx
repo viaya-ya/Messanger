@@ -249,6 +249,7 @@ export default function NewPolicy() {
                 <MyEditor
                   editorState={editorState}
                   setEditorState={setEditorState}
+                  policyContent = {true}
                 />
                 <HandlerMutation
                   Loading={isLoadingPostPoliciesMutation}

@@ -99,6 +99,7 @@ export default function GoalContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+  
   const deleteEditor = (index) => {
     setEditorState((prevEditors) => {
       const updated = [...prevEditors];

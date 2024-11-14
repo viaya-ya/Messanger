@@ -738,6 +738,7 @@ export default function PolicyContent() {
                           setEditorState={setEditorState}
                           userId={userId}
                           policyId={selectedPolicyId}
+                          policyContent = {true}
                         />
 
                         <HandlerMutation

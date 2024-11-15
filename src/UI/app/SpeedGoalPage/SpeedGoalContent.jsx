@@ -12,6 +12,7 @@ import {
   useGetSpeedGoalIdQuery,
   useGetSpeedGoalUpdateQuery,
   useUpdateSpeedGoalMutation,
+  useGetSpeedGoalsQuery,
 } from "../../../BLL/speedGoalApi.js";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
@@ -42,11 +43,23 @@ export default function SpeedGoalContent() {
   const [htmlSituation, setHtmlSituation] = useState([]);
   const [htmlRootCause, setHtmlRootCause] = useState([]);
 
+  // const {
+  //   data = [],
+  //   isLoadingGetUpdateSpeedGoal,
+  //   isErrorGetUpdateSpeedGoal,
+  // } = useGetSpeedGoalUpdateQuery(userId, {
+  //   selectFromResult: ({ data, isLoading, isError }) => ({
+  //     data: data || [],
+  //     isLoadingGetUpdateSpeedGoal: isLoading,
+  //     isErrorGetUpdateSpeedGoal: isError,
+  //   }),
+  // });
+
   const {
     data = [],
     isLoadingGetUpdateSpeedGoal,
     isErrorGetUpdateSpeedGoal,
-  } = useGetSpeedGoalUpdateQuery(userId, {
+  } = useGetSpeedGoalsQuery(userId, {
     selectFromResult: ({ data, isLoading, isError }) => ({
       data: data || [],
       isLoadingGetUpdateSpeedGoal: isLoading,
@@ -377,9 +390,9 @@ export default function SpeedGoalContent() {
               <option value="" disabled>
                 Выберите стратегию
               </option>
-              {data?.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.strategyNumber}
+              {data?.map((item, index) => (
+                <option key={index} value={item?.strategy?.id}>
+                  Стратегия №{item?.strategy?.strategyNumber}
                 </option>
               ))}
             </select>

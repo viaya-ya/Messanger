@@ -24,8 +24,21 @@ export default function MyEditor({
         policyId,
         formData,
       }).unwrap();
-      console.log("Успешно загружено:", response);
-      return response; // Можно вернуть ответ, если это нужно
+
+      // Проверка формата ответа
+      const filePath = (response.filePath || response.data?.filePath)?.replace(/\\/g,"/");
+
+      if (!filePath) {
+        throw new Error("filePath не найден в ответе сервера");
+      }
+
+      console.log("Успешно загружено:", filePath);
+
+      return {
+        data: {
+          link: `http://localhost:5000/${filePath}`,
+        },
+      };
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);
       return Promise.reject(error);
@@ -66,4 +79,3 @@ export default function MyEditor({
     </div>
   );
 }
-

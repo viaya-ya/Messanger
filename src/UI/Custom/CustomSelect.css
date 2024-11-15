@@ -1,6 +1,6 @@
 .custom-select {
     position: relative;
-    width: 137px;
+    min-width: 135px;
   }
   
   .select-header {

@@ -321,7 +321,7 @@ export default function SpeedGoalNew() {
               {data?.map((item) => {
                 return (
                   <option key={item.id} value={item.id}>
-                    {item.strategyNumber}
+                     Стратегия № {item.strategyNumber}
                   </option>
                 );
               })}

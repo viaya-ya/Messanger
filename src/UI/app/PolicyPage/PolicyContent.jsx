@@ -21,7 +21,7 @@ import {
 } from "../../../BLL/policyApi";
 import MyEditor from "../../Custom/MyEditor";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
-import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
+import draftToHtml from "draftjs-to-html"; 
 import { convertToRaw } from "draft-js";
 import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
@@ -188,18 +188,6 @@ export default function PolicyContent() {
     },
   ] = useDeletePolicyDirectoriesMutation();
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
-        setIsOpenSearch(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   useEffect(() => {
     const rawContent = draftToHtml(
@@ -208,7 +196,7 @@ export default function PolicyContent() {
     setHtmlContent(rawContent);
     console.log(rawContent);
   }, [editorState]);
-
+  
   useEffect(() => {
     if (currentPolicy.content) {
       const { contentBlocks, entityMap } = convertFromHTML(
@@ -223,10 +211,24 @@ export default function PolicyContent() {
     }
   }, [currentPolicy.content]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpenSearch(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  
   const reset = () => {
     setType(null);
     setState(null);
   };
+
   const saveUpdatePolicy = async () => {
     const Data = {};
 
@@ -461,13 +463,7 @@ export default function PolicyContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
-  console.log("---------------------------");
-  console.log(
-    `isSuccessUpdatePolicyDirectoriesMutation = ${isSuccessUpdatePolicyDirectoriesMutation}`
-  );
-  console.log(
-    `manualUpdateErrorResetDirectory = ${manualUpdateErrorResetDirectory}`
-  );
+
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>

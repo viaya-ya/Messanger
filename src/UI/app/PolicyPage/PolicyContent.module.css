@@ -707,6 +707,7 @@ textarea::placeholder {
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.6);
     border-radius: 10px;
     padding: 10px;
+    top:-10%;
 }
 
 
@@ -722,10 +723,10 @@ textarea::placeholder {
     height: 25px;
     width: 40px;
     border-radius: 10px;
-    background-color: green;
+    background-color: #005475;
     transition: background-color 0.3s ;
     &:hover{
-        background-color: rgb(7, 107, 7);
+        background-color: #02445e;
     }
 }
 
@@ -733,10 +734,11 @@ textarea::placeholder {
     height: 25px;
     width: 40px;
     border-radius: 10px;
-    background-color: red;
+    background-color: #ffff;
+    border: 1px solid #005475;
     transition: background-color 0.3s ;
     &:hover{
-        background-color: rgb(185, 6, 6);
+        background-color: #eff3f5;
     }
 }
 
@@ -746,6 +748,21 @@ textarea::placeholder {
     color: rgb(58, 58, 58);
     font-size: 14px;
 }
+
+.textBtnYes{
+    font-weight: 400;
+    font-family: 'Montserrat';
+    color: #ffff;
+    font-size: 14px;
+}
+
+.textBtnNo{
+    font-weight: 400;
+    font-family: 'Montserrat';
+    color: #005475;
+    font-size: 14px;
+}
+
 .textMontserrat{
     font-family: 'Montserrat';
     font-size: 12px;
@@ -754,7 +771,7 @@ textarea::placeholder {
     font-family: 'Montserrat';
 }
 
-/* input[type="checkbox"] {
+input[type="checkbox"] {
     appearance: none;
     width: 17px;
     height: 17px;
@@ -777,4 +794,4 @@ textarea::placeholder {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  } */
+  }

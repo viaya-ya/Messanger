@@ -184,7 +184,7 @@ export default function GoalContent() {
               />
             </div>
 
-            <div className={classNames(classes.blockIconPrint)}>
+            {/* <div className={classNames(classes.blockIconPrint)}>
               <img src={print} alt="print" className={classes.image} />
             </div>
 
@@ -332,7 +332,7 @@ export default function GoalContent() {
                   Сохранить как заметку для целей
                 </li>
               </ul>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

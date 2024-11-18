@@ -20,7 +20,9 @@ import {
   useGetStrategNewQuery,
   usePostStrategMutation,
 } from "../../../BLL/strategApi.js";
-import styles from '../../Custom/CommonStyles.module.css';
+import styles from "../../Custom/CommonStyles.module.css";
+import { useDispatch } from "react-redux";
+import { setSelectedOrganizationId, setSelectedStrategyId } from "../../../BLL/strategSlice.js";
 
 export default function StrategNew() {
   const navigate = useNavigate();
@@ -30,13 +32,13 @@ export default function StrategNew() {
     navigate(`/${userId}/strateg`);
   };
 
-  // const [state, setState] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [organizationId, setOrganizationId] = useState("");
-  const [isStrategToOrganizations, setIsStrategToOrganizations] = useState(false);
+  const [propsStrategyId, setPropsStrategyId] = useState();
 
-    
+  const dispatch = useDispatch();
+
   const {
     organizations = [],
     isLoadingNewStrateg,
@@ -48,6 +50,13 @@ export default function StrategNew() {
       isErrorNewStrateg: isError,
     }),
   });
+
+  useEffect(() => {
+    if(propsStrategyId){
+      navigate(`/${userId}/strateg`);
+    }
+  },[propsStrategyId])
+
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
@@ -55,13 +64,14 @@ export default function StrategNew() {
     setHtmlContent(rawContent);
     console.log(rawContent);
   }, [editorState]);
+
   const [
     postStarteg,
     {
       isLoading: isLoadingPostStrateg,
       isError: isErrorPostStrateg,
       isSuccess: isSuccessPostStrateg,
-      error: ErrorPostStrateg
+      error: ErrorPostStrateg,
     },
   ] = usePostStrategMutation();
 
@@ -120,21 +130,36 @@ export default function StrategNew() {
 
         <div className={styles.editText}>
           <div className={classes.date}>
-          <select
+            <select
               value={organizationId}
               onChange={(e) => {
-                setOrganizationId(e.target.value);
+                const selectedOrgId = e.target.value; 
+                const selectedOrg = organizations.find(
+                  (item) => item.id === selectedOrgId
+                ); 
+                const strategId = selectedOrg.strategies?.[0]?.id;
+
+                setOrganizationId(selectedOrgId); 
+                if (selectedOrg?.strategies?.length > 0) {
+                  dispatch(setSelectedOrganizationId(selectedOrgId));                
+                  dispatch(setSelectedStrategyId(strategId));
+                  setPropsStrategyId(strategId);               
+                }
               }}
               className={classes.select}
             >
-              <option value=""> Выберите организацию</option>
-              {organizations.map((item) => {
-                return <option value={item.id}>{item.organizationName}</option>;
-              })}
+              <option value="" disabled>
+                Выберите организацию
+              </option>
+              {organizations.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.organizationName}
+                </option>
+              ))}
             </select>
           </div>
 
-          <div className={classes.two}>
+          {/* <div className={classes.two}>
             <div className={classes.blockSelect}>
               <img src={Select} alt="Select" className={classes.select} />
               <ul className={classes.option}>
@@ -154,7 +179,7 @@ export default function StrategNew() {
                 </li>
               </ul>
             </div>
-          </div>
+          </div> */}
 
           <div className={classes.actionButton}>
             <div className={classes.iconSave}>
@@ -170,7 +195,7 @@ export default function StrategNew() {
       </div>
 
       <div className={classes.main}>
-      {isErrorNewStrateg ? (
+        {isErrorNewStrateg ? (
           <HandlerQeury Error={isErrorNewStrateg}></HandlerQeury>
         ) : (
           <>
@@ -178,15 +203,18 @@ export default function StrategNew() {
               <HandlerQeury Loading={isLoadingNewStrateg}></HandlerQeury>
             ) : (
               <>
-              <MyEditor editorState={editorState} setEditorState={setEditorState} />
+                <MyEditor
+                  editorState={editorState}
+                  setEditorState={setEditorState}
+                />
                 <HandlerMutation
                   Loading={isLoadingPostStrateg}
                   Error={isErrorPostStrateg}
                   Success={isSuccessPostStrateg}
-                  textSuccess={"Пост успешно создан."}
+                  textSuccess={"Стратегия успешно создана."}
                   textError={
-                    ErrorPostStrateg?.data?.errors?.[0]?.errors?.[0] 
-                      ? ErrorPostStrateg.data.errors[0].errors[0] 
+                    ErrorPostStrateg?.data?.errors?.[0]?.errors?.[0]
+                      ? ErrorPostStrateg.data.errors[0].errors[0]
                       : ErrorPostStrateg?.data?.message
                   }
                 ></HandlerMutation>
@@ -194,7 +222,6 @@ export default function StrategNew() {
             )}
           </>
         )}
-        
       </div>
     </div>
   );

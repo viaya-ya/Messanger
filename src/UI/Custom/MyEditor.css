@@ -1,15 +1,16 @@
 .demo-wrapper {
   min-width: 750px;
-  border: 1px solid #ccc;
-  padding: 10px;
+  margin-bottom: 40px;
 }
 
 .demo-editor {
   background-color: #f0f8ff;
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px 0px rgba(0, 37, 117, 0.25);
   padding: 10px;
   min-width: 750px;
   min-height: 300px;
-  color: #000;
+  color: #000;  
 }
 
 .demo-toolbar {

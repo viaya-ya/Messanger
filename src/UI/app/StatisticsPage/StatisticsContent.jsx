@@ -1545,7 +1545,7 @@ export default function StatisticsContent() {
                   className={classes.select}
                 >
                   <option value="" disabled>
-                    Выберите
+                    Выберите организацию
                   </option>
                   {organizations?.map((item) => (
                     <option value={item.id}>{item.organizationName}</option>
@@ -2070,29 +2070,21 @@ export default function StatisticsContent() {
                                     <span style={{ fontWeight: "700" }}>
                                       {showReportDay}
                                     </span>
-                                    . Если нажмете на{" "}
-                                    <span
-                                      style={{
-                                        color: "red",
-                                        fontWeight: "700",
-                                      }}
-                                    >
-                                      Да
-                                    </span>
-                                    , то отчетный день поменяется у всей
+                                    . Если подтвердите действие, 
+                                    то отчетный день поменяется у всей
                                     организации.
                                   </span>
                                 </div>
 
                                 <div className={classes.modalRow2}>
                                   <button
-                                    className={`${classes.btnYes} ${classes.text}`}
+                                    className={`${classes.btnYes} ${classes.textBtnYes}`}
                                     onClick={btnYes}
                                   >
                                     Да
                                   </button>
                                   <button
-                                    className={`${classes.btnNo} ${classes.text}`}
+                                    className={`${classes.btnNo} ${classes.textBtnNo}`}
                                     onClick={btnNo}
                                   >
                                     Нет

@@ -571,10 +571,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     height: 25px;
     width: 40px;
     border-radius: 10px;
-    background-color: green;
+    background-color: #005475;
     transition: background-color 0.3s ;
     &:hover{
-        background-color: rgb(7, 107, 7);
+        background-color: #02445e;
     }
 }
 
@@ -582,13 +582,27 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     height: 25px;
     width: 40px;
     border-radius: 10px;
-    background-color: red;
+    background-color: #ffff;
+    border: 1px solid #005475;
     transition: background-color 0.3s ;
     &:hover{
-        background-color: rgb(185, 6, 6);
+        background-color: #eff3f5;
     }
 }
 
+.textBtnYes{
+    font-weight: 400;
+    font-family: 'Montserrat';
+    color: #ffff;
+    font-size: 14px;
+}
+
+.textBtnNo{
+    font-weight: 400;
+    font-family: 'Montserrat';
+    color: #005475;
+    font-size: 14px;
+}
 .text{
     font-weight: 400;
     font-family: 'Montserrat';

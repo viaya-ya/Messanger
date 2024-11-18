@@ -370,15 +370,7 @@ export default function SpeedGoalContent() {
           ))}
         </div>
         <div className={classes.editText}>
-          <div className={classes.iconAdd}>
-            <img
-              src={iconAdd}
-              alt="iconAdd"
-              className={classes.image}
-              onClick={() => newSpeedGoal()}
-            />
-          </div>
-          <div className={classes.date}>
+        <div className={classes.date}>
             <select
               value={nameStrateg || ""}
               onChange={(e) => {
@@ -397,7 +389,15 @@ export default function SpeedGoalContent() {
               ))}
             </select>
           </div>
-
+          
+          <div className={classes.iconAdd}>
+            <img
+              src={iconAdd}
+              alt="iconAdd"
+              className={classes.image}
+              onClick={() => newSpeedGoal()}
+            />
+          </div>
           <div className={classes.iconSave}>
             <img
               src={Blacksavetmp}
@@ -406,7 +406,7 @@ export default function SpeedGoalContent() {
               onClick={() => saveUpdateSpeedGoal()}
             />
           </div>
-          <div className={classes.blockSelect}>
+          {/* <div className={classes.blockSelect}>
             <img src={Select} alt="Select" className={classes.select} />
             <ul className={classes.option}>
               <li>Опубликовать</li>
@@ -414,7 +414,7 @@ export default function SpeedGoalContent() {
               <li>Отправить сотруднику</li>
               <li>Сохранить как файл</li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
 

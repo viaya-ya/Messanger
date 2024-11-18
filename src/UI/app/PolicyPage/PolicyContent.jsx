@@ -340,6 +340,13 @@ export default function PolicyContent() {
           policyName: item.policyName,
           checked: foundItem ? true : false,
         };
+      })?.sort((a, b) => {
+        // Сначала сортируем по checked: true должны быть выше
+        if (a.checked === b.checked) {
+          // Если оба элемента имеют одинаковое значение checked, сортируем по policyName (алфавитно)
+          return a.policyName.localeCompare(b.policyName);
+        }
+        return b.checked - a.checked; // true (1) должно быть выше false (0)
       });
       const update1 = currentDirectoryDirectives?.map((item) => {
         const foundItem = filterArray1?.find(
@@ -350,6 +357,13 @@ export default function PolicyContent() {
           policyName: item.policyName,
           checked: foundItem ? true : false,
         };
+      })?.sort((a, b) => {
+        // Сначала сортируем по checked: true должны быть выше
+        if (a.checked === b.checked) {
+          // Если оба элемента имеют одинаковое значение checked, сортируем по policyName (алфавитно)
+          return a.policyName.localeCompare(b.policyName);
+        }
+        return b.checked - a.checked; // true (1) должно быть выше false (0)
       });
       setCurrentDirectoryInstructions(update);
       setCurrentDirectoryDirectives(update1);
@@ -437,6 +451,7 @@ export default function PolicyContent() {
       .then(() => {
         setManualUpdateSuccessResetDirectory(false);
         setManualUpdateErrorResetDirectory(false);
+        exitUpdate();
       })
       .catch((error) => {
         setManualUpdateSuccessResetDirectory(false);
@@ -1105,7 +1120,7 @@ export default function PolicyContent() {
                             />
                             <div className={classes.row1}>
                               <span className={classes.text}>
-                                Вы точно хотите удалить папку{" "}
+                                Вы точно хотите удалить папку {" "}
                                 <span  style={{ fontWeight: "700" }}>
                                   {currentDirectoryName}
                                 </span>
@@ -1114,7 +1129,7 @@ export default function PolicyContent() {
 
                             <div className={classes.row2}>
                               <button
-                                className={`${classes.btnYes} ${classes.text}`}
+                                className={`${classes.btnYes} ${classes.textBtnYes}`}
                                 onClick={() => {
                                   setManualDeleteSuccessResetDirectory(true);
                                   setManualDeleteErrorResetDirectory(true);
@@ -1124,7 +1139,7 @@ export default function PolicyContent() {
                                 Да
                               </button>
                               <button
-                                className={`${classes.btnNo} ${classes.text}`}
+                                className={`${classes.btnNo} ${classes.textBtnNo}`}
                                 onClick={() => {
                                   setOpenModalDelete(false);
                                 }}

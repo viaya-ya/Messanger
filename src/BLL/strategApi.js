@@ -46,7 +46,7 @@ export const strategApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result,  error,  {strategyId}) => result ? [{type: "Strateg1", id: strategyId}]: []
+      invalidatesTags: (result,  error,  {strategyId}) => result ? [{type: "Strateg1", id: strategyId},{ type: "Strateg", id: "LIST" }]: []
     }),
   }),
 });

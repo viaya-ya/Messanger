@@ -8,6 +8,7 @@ import { strategApi } from './strategApi';
 import { statisticsApi } from './statisticsApi';
 import { policyDirectoriesApi } from './policyDirectoriesApi';
 import { organizationApi } from './organizationApi';
+import strategReducer from "./strategSlice";
 
 export const store = configureStore({
     reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
         [statisticsApi.reducerPath]: statisticsApi.reducer,
         [policyDirectoriesApi.reducerPath]: policyDirectoriesApi.reducer,
         [organizationApi.reducerPath]: organizationApi.reducer,
+        strateg: strategReducer,
     },
     middleware: (getDefaultMiddlware) => getDefaultMiddlware()
                                                                 .concat(policyApi.middleware)

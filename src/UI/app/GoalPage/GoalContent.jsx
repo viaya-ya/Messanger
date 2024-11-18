@@ -226,7 +226,7 @@ export default function GoalContent() {
               className={classes.select}
             >
               <option value="" disabled>
-                Выберите цель
+                Выберите организацию
               </option>
               {data?.map((item, index) => {
                 return (
@@ -256,7 +256,7 @@ export default function GoalContent() {
               />
             </div>
 
-            <div className={classes.iconPrint}>
+            {/* <div className={classes.iconPrint}>
               <img src={print} alt="print" className={classes.image} />
             </div>
 
@@ -404,7 +404,7 @@ export default function GoalContent() {
                   Сохранить как заметку для целей
                 </li>
               </ul>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -290,3 +290,13 @@ textarea::placeholder {
     padding-top: 3%;
     padding-left: 3%;
 }
+
+.active{
+    color: #005475;
+}
+.completed{
+    color: grey;
+}
+.draft{
+    color: black;
+}

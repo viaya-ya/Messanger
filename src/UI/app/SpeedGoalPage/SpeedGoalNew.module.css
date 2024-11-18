@@ -197,8 +197,7 @@ input[type="search"]::-webkit-input-placeholder {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    margin-right: 1%;
-    margin-left: 2%;
+    margin-right: auto;
 }
 
 .image:hover {

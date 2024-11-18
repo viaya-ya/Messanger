@@ -25,6 +25,8 @@ import {
 } from "../../../BLL/strategApi.js";
 import styles from "../../Custom/CommonStyles.module.css";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
+import { useSelector } from "react-redux";
+import ModalWindow from "../../Custom/ModalWindow.jsx";
 
 export default function StrategContent() {
   const navigate = useNavigate();
@@ -45,10 +47,28 @@ export default function StrategContent() {
   const [selectedDate, setSelectedDate] = useState("");
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
-  ///////// мазало насрало
+
   const [organizationId, setOrganizationId] = useState("");
   const [updateOrganizationId, setUpdateOrganizationId] = useState("null");
   const [disabledNumber, setDisabledNumber] = useState(true);
+
+  // Доступ к локальному Redux стейту
+  const selectedOrganizationId = useSelector(
+    (state) => state.strateg.selectedOrganizationId
+  );
+  const selectedStrategyId = useSelector(
+    (state) => state.strateg.selectedStrategyId
+  );
+
+  const [openModal, setOpenModal] = useState(false);
+  const [activeStrategDB, setActiveStrategDB] = useState();
+
+  useEffect(() => {
+    if(selectedOrganizationId && selectedStrategyId){
+      setOrganizationId(selectedOrganizationId);
+      setNumber(selectedStrategyId);
+    }
+  },[]);
 
   const {
     getOrganizations = [],
@@ -95,11 +115,20 @@ export default function StrategContent() {
       skip: !number,
     }
   );
-useEffect(() => {
-  if(organizationId !== ""){
-    setDisabledNumber(false);
-  }
-}, [organizationId])
+
+  useEffect(() => {
+    if (organizationId !== "") {
+      setDisabledNumber(false);
+      const activeStrateg = data?.strategies?.find((item) => item.state === "Активный") 
+      setActiveStrategDB(activeStrateg?.id);
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
+      const activeStrateg = data?.strategies?.find((item) => item.state === "Активный") 
+      setActiveStrategDB(activeStrateg?.id);
+  }, [isLoadingStrateg]);
+
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
@@ -119,7 +148,7 @@ useEffect(() => {
       const oldEditorState = EditorState.createWithContent(contentState);
       setEditorState(oldEditorState);
     }
-  }, [currentStrategy.content]);
+  }, [currentStrategy.content, isLoadingGetStrategId, isFetchingGetStrategId]);
 
   const [
     updateStrateg,
@@ -136,11 +165,66 @@ useEffect(() => {
     setManualErrorReset(false);
     setEditorState(EditorState.createEmpty());
     setHtmlContent();
-    setNumber("");
+    // setNumber("");
     setState("");
     setSelectedDate("");
     setUpdateOrganizationId("null");
   };
+
+  const save = () => {
+
+    console.log("save");
+    console.log(state);
+    console.log(currentStrategy.state);
+    console.log(activeStrategDB);
+    if(state === "Активный" && currentStrategy.state === "Черновик" && activeStrategDB){
+      setOpenModal(true);
+    }else{
+      saveUpdateStrateg();
+    }
+  }
+  const btnYes = async () => {
+
+    await updateStrateg({
+      userId,
+      strategyId: activeStrategDB,
+      _id: activeStrategDB,
+      state: "Завершено",
+    })
+      .unwrap()
+      .then(() => {
+        saveUpdateStrateg();
+      })
+      .catch((error) => {
+        // При ошибке также сбрасываем флаги
+        setManualErrorReset(false);
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
+
+  }
+
+  const btnNo = async () => {
+    const Data = [];
+    if (htmlContent !== currentStrategy.content) {
+      Data.content = htmlContent;
+    }
+    if(Data.content){
+      await updateStrateg({
+        userId,
+        strategyId: number,
+        _id: number,
+      ...Data
+      })
+        .unwrap()
+        .then(() => {
+        })
+        .catch((error) => {
+          // При ошибке также сбрасываем флаги
+          setManualErrorReset(false);
+          console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+        });
+    }
+  }
 
   const saveUpdateStrateg = async () => {
     const Data = [];
@@ -209,7 +293,29 @@ useEffect(() => {
         <div className={styles.editText}>
           <div className={classes.date}>
             <div>
-              <span style ={{fontFamily:"Montserrat"}}>Стратегия №</span>
+              <select
+                value={organizationId}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    reset();
+                    setOrganizationId(e.target.value);
+                  }
+                }}
+                className={classes.select}
+              >
+                <option value="" disabled>
+                  {" "}
+                  Выберите организацию{" "}
+                </option>
+                {getOrganizations?.map((item) => {
+                  return (
+                    <option value={item.id}> {item.organizationName}</option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <div>
               <select
                 value={number}
                 onChange={(e) => {
@@ -225,33 +331,17 @@ useEffect(() => {
                     setSelectedDate(selectedItem.dateActive);
                   }
                 }}
-                className={classes.select}
+                className={`${classes.select} ${currentStrategy.state  === "Активный" ? classes.active :  currentStrategy.state === "Завершено" ? classes.completed :  classes.draft}`}
                 disabled={disabledNumber}
               >
-                <option value=""> — </option>
+                <option value="" disabled>
+                  Выберите стратегию
+                </option>
                 {data?.strategies?.map((item) => {
                   return (
-                    <option value={item?.id}> {item?.strategyNumber}</option>
-                  );
-                })}
-              </select>
-            </div>
-
-            <div>
-              <select
-                value={organizationId}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    reset();
-                    setOrganizationId(e.target.value);
-                  }
-                }}
-                className={classes.select}
-              >
-                <option value=""> Выберите организацию </option>
-                {getOrganizations?.map((item) => {
-                  return (
-                    <option value={item.id}> {item.organizationName}</option>
+                    <option value={item?.id}  className={`${item.state === "Активный" ? classes.active :  item.state === "Завершено" ? classes.completed : classes.draft}`}>
+                      Стратегия № {item?.strategyNumber}
+                    </option>
                   );
                 })}
               </select>
@@ -281,16 +371,36 @@ useEffect(() => {
                     onChange={(e) => {
                       setState(e.target.value);
                     }}
+                    disabled={currentStrategy.state === "Завершено" && true}
                   >
-                    <option value=""> Выберите состояние</option>
-                    <option value="Активный">Активный</option>
-                    <option value="Черновик">Черновик</option>
-                    <option value="Завершено">Завершено</option>
+                    <option value="" disabled>
+                      {" "}
+                      Выберите состояние
+                    </option>
+                    {currentStrategy.state === "Черновик" && (
+                      <>
+                        <option value="Активный">Активный</option>
+                        <option value="Черновик">Черновик</option>
+                      </>
+                    )}
+
+                    {currentStrategy.state === "Активный" && (
+                      <>
+                        <option value="Активный">Активный</option>
+                        <option value="Завершено">Завершено</option>
+                      </>
+                    )}
+
+                    {currentStrategy.state === "Завершено" && (
+                      <>
+                        <option value="Завершено">Завершено</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>
 
-              <div className={classes.item}>
+              {/* <div className={classes.item}>
                 <div className={classes.itemName}>
                   <span>Помененять организацию</span>
                 </div>
@@ -311,13 +421,13 @@ useEffect(() => {
                     })}
                   </select>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : (
             <></>
           )}
 
-          <div className={classes.two}>
+          {/* <div className={classes.two}>
             <div className={classes.blockSelect}>
               <img src={Select} alt="Select" />
               <ul className={classes.option}>
@@ -337,7 +447,7 @@ useEffect(() => {
                 </li>
               </ul>
             </div>
-          </div>
+          </div> */}
 
           <div className={classes.actionButton}>
             <div className={classes.iconAdd}>
@@ -353,7 +463,7 @@ useEffect(() => {
                 src={Blacksavetmp}
                 alt="Blacksavetmp"
                 className={classes.image}
-                onClick={() => saveUpdateStrateg()}
+                onClick={() => save()}
               />
             </div>
           </div>
@@ -420,6 +530,14 @@ useEffect(() => {
             )}
           </>
         )}
+        {
+          openModal ? (<ModalWindow 
+                        text = {"У Вас уже есть Активная стратегия, при нажатии на Да, Она будет завершена."} 
+                        close = {setOpenModal} 
+                        btnYes= {btnYes} 
+                        btnNo = {btnNo}
+            ></ModalWindow>) : (<></>)
+        }
       </div>
     </div>
   );

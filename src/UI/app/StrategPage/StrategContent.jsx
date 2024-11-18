@@ -64,11 +64,11 @@ export default function StrategContent() {
   const [activeStrategDB, setActiveStrategDB] = useState();
 
   useEffect(() => {
-    if(selectedOrganizationId && selectedStrategyId){
+    if (selectedOrganizationId && selectedStrategyId) {
       setOrganizationId(selectedOrganizationId);
       setNumber(selectedStrategyId);
     }
-  },[]);
+  }, []);
 
   const {
     getOrganizations = [],
@@ -119,14 +119,18 @@ export default function StrategContent() {
   useEffect(() => {
     if (organizationId !== "") {
       setDisabledNumber(false);
-      const activeStrateg = data?.strategies?.find((item) => item.state === "Активный") 
+      const activeStrateg = data?.strategies?.find(
+        (item) => item.state === "Активный"
+      );
       setActiveStrategDB(activeStrateg?.id);
     }
   }, [organizationId]);
 
   useEffect(() => {
-      const activeStrateg = data?.strategies?.find((item) => item.state === "Активный") 
-      setActiveStrategDB(activeStrateg?.id);
+    const activeStrateg = data?.strategies?.find(
+      (item) => item.state === "Активный"
+    );
+    setActiveStrategDB(activeStrateg?.id);
   }, [isLoadingStrateg]);
 
   useEffect(() => {
@@ -172,19 +176,21 @@ export default function StrategContent() {
   };
 
   const save = () => {
-
     console.log("save");
     console.log(state);
     console.log(currentStrategy.state);
     console.log(activeStrategDB);
-    if(state === "Активный" && currentStrategy.state === "Черновик" && activeStrategDB){
+    if (
+      state === "Активный" &&
+      currentStrategy.state === "Черновик" &&
+      activeStrategDB
+    ) {
       setOpenModal(true);
-    }else{
+    } else {
       saveUpdateStrateg();
     }
-  }
+  };
   const btnYes = async () => {
-
     await updateStrateg({
       userId,
       strategyId: activeStrategDB,
@@ -200,31 +206,29 @@ export default function StrategContent() {
         setManualErrorReset(false);
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
-
-  }
+  };
 
   const btnNo = async () => {
     const Data = [];
     if (htmlContent !== currentStrategy.content) {
       Data.content = htmlContent;
     }
-    if(Data.content){
+    if (Data.content) {
       await updateStrateg({
         userId,
         strategyId: number,
         _id: number,
-      ...Data
+        ...Data,
       })
         .unwrap()
-        .then(() => {
-        })
+        .then(() => {})
         .catch((error) => {
           // При ошибке также сбрасываем флаги
           setManualErrorReset(false);
           console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
         });
     }
-  }
+  };
 
   const saveUpdateStrateg = async () => {
     const Data = [];
@@ -331,19 +335,39 @@ export default function StrategContent() {
                     setSelectedDate(selectedItem.dateActive);
                   }
                 }}
-                className={`${classes.select} ${currentStrategy.state  === "Активный" ? classes.active :  currentStrategy.state === "Завершено" ? classes.completed :  classes.draft}`}
+                className={`${classes.select} ${
+                  currentStrategy.state === "Активный"
+                    ? classes.active
+                    : currentStrategy.state === "Завершено"
+                    ? classes.completed
+                    : classes.draft
+                }`}
                 disabled={disabledNumber}
               >
                 <option value="" disabled>
                   Выберите стратегию
                 </option>
-                {data?.strategies?.map((item) => {
-                  return (
-                    <option value={item?.id}  className={`${item.state === "Активный" ? classes.active :  item.state === "Завершено" ? classes.completed : classes.draft}`}>
+                {data?.strategies
+                  ?.slice() 
+                  ?.sort((a, b) => {
+                    const order = { "Активный": 1, "Черновик": 2, "Завершено": 3 }; 
+                    return (order[a.state] || 4) - (order[b.state] || 4); 
+                  })
+                  ?.map((item) => (
+                    <option
+                      key={item?.id}
+                      value={item?.id}
+                      className={`${
+                        item.state === "Активный"
+                          ? classes.active
+                          : item.state === "Завершено"
+                          ? classes.completed
+                          : classes.draft
+                      }`}
+                    >
                       Стратегия № {item?.strategyNumber}
                     </option>
-                  );
-                })}
+                  ))}
               </select>
             </div>
 
@@ -530,14 +554,18 @@ export default function StrategContent() {
             )}
           </>
         )}
-        {
-          openModal ? (<ModalWindow 
-                        text = {"У Вас уже есть Активная стратегия, при нажатии на Да, Она будет завершена."} 
-                        close = {setOpenModal} 
-                        btnYes= {btnYes} 
-                        btnNo = {btnNo}
-            ></ModalWindow>) : (<></>)
-        }
+        {openModal ? (
+          <ModalWindow
+            text={
+              "У Вас уже есть Активная стратегия, при нажатии на Да, Она будет завершена."
+            }
+            close={setOpenModal}
+            btnYes={btnYes}
+            btnNo={btnNo}
+          ></ModalWindow>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );

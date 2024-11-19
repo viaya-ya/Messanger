@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classes from "./PostContent.module.css";
 import icon from "../../image/iconHeader.svg";
 import iconBack from "../../image/iconBack.svg";
@@ -6,6 +6,7 @@ import greyPolicy from "../../image/greyPolicy.svg";
 import blackStatistic from "../../image/blackStatistic.svg";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import iconAdd from "../../image/iconAdd.svg";
+import subbarSearch from "../../image/subbarSearch.svg";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetPostIdQuery,
@@ -39,6 +40,8 @@ export default function PostContent() {
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
+  const [isOpenSearch, setIsOpenSearch] = useState(false);
+  const selectRef = useRef(null); // Для отслеживания кликов вне компонента
   const {
     data = [],
     isLoadingGetPosts,
@@ -86,6 +89,19 @@ export default function PostContent() {
       error: ErrorUpdatePostMutation,
     },
   ] = useUpdatePostsMutation();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpenSearch(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const reset = () => {
     setPostName(null);
@@ -155,8 +171,11 @@ export default function PostContent() {
       console.log("Нет изменений для обновления");
     }
   };
-  console.log(ErrorUpdatePostMutation);
-  console.log(ErrorUpdatePostMutation?.data?.errors[0]?.errors);
+  const selectPost = (id) => {
+    setManualSuccessReset(true);
+    setManualErrorReset(true);
+    setSelectedPostId(id);
+  };
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -191,56 +210,52 @@ export default function PostContent() {
         </div>
 
         <div className={classes.editText}>
+       
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Пост</span>
+              <span>
+                Название поста <span style={{ color: "red" }}>*</span>
+              </span>
             </div>
             <div className={classes.div}>
-              <select
-                className={classes.select}
-                value={selectedPostId || ""}
+              <input
+                type="text"
+                value={
+                  postNameChanges ? postName : postName || currentPost.postName
+                }
                 onChange={(e) => {
-                  setManualSuccessReset(true);
-                  setManualErrorReset(true);
-                  setSelectedPostId(e.target.value);
-                  console.log(e.target.value);
+                  setPostName(e.target.value);
+                  setPostNameChanges(true);
                 }}
-              >
-                <option value="" disabled>
-                  Выберите пост
-                </option>
-                {data?.map((item) => {
-                  return <option value={item.id}>{item.postName}</option>;
-                })}
-              </select>
+              />
+              <div className={classes.sixth} ref={selectRef}>
+                <img
+                  src={subbarSearch}
+                  alt="subbarSearch"
+                  onClick={() => setIsOpenSearch(true)}
+                />
+                {isOpenSearch && (
+           
+                  <ul className={classes.policySearch}>
+                    {data?.map((item) => {
+                      return (
+                        <li
+                        className={classes.policySearchItem}
+                          onClick={() => selectPost(item.id)}
+                          key={item.id}
+                        >
+                          {item.postName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
 
           {currentPost.id ? (
             <>
-              <div className={classes.item}>
-                <div className={classes.itemName}>
-                  <span>
-                    {" "}
-                    Название поста <span style={{ color: "red" }}>*</span>
-                  </span>
-                </div>
-                <div className={classes.div}>
-                  <input
-                    type="text"
-                    value={
-                      postNameChanges
-                        ? postName
-                        : postName || currentPost.postName
-                    }
-                    onChange={(e) => {
-                      setPostName(e.target.value);
-                      setPostNameChanges(true);
-                    }}
-                  />
-                </div>
-              </div>
-
               <div className={classes.item}>
                 <div className={classes.itemName}>
                   <span> Название подразделения </span>

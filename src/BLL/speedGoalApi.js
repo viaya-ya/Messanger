@@ -5,13 +5,58 @@ export const speedGoalApi = createApi({
   tagTypes: ["SpeedGoal"],
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
   endpoints: (build) => ({
+    // getSpeedGoals: build.query({
+    //   query: (userId = "") => ({
+    //     url: `${userId}/objectives`,
+    //   }),
+    //   providesTags: (result, error, userId) =>
+    //     result ? [{ type: "SpeedGoal", id: userId }] : [],
+    //   transformResponse: (response) => {
+    //     return {
+    //       data: response.sort((a,b) => a.strategy?.strategyNumber - b.strategy?.strategyNumber  ) || {},
+    //     };
+    //   },
+    // }),
 
     getSpeedGoals: build.query({
       query: (userId = "") => ({
         url: `${userId}/objectives`,
       }),
-      providesTags: (result, error, userId) =>
-        result ? [{ type: "SpeedGoal", id: userId }] : [],
+      transformResponse: (response) => {
+        const sortedStrategies = response
+          ?.flatMap((objective) => objective.strategy)
+          .sort((a, b) => {
+            const stateA = a.state || "";
+            const stateB = b.state || "";
+
+            if (stateA === "Активный" && stateB !== "Активный") return -1;
+            if (stateB === "Активный" && stateA !== "Активный") return 1;
+
+            if (stateA === "Черновик" && stateB !== "Черновик") return -1;
+            if (stateB === "Черновик" && stateA !== "Черновик") return 1;
+
+            return 0;
+          });
+
+        const activeAndDraftStrategies = sortedStrategies.filter(
+          (strategy) =>
+            strategy.state === "Активный" || strategy.state === "Черновик"
+        ).sort((a, b) => {
+          if (a.state === "Черновик" && b.state !== "Черновик") return 1;
+          if (b.state === "Черновик" && a.state !== "Черновик") return -1;
+          return a.strategyNumber - b.strategyNumber;
+        });
+
+        const otherStrategies = sortedStrategies.filter(
+          (strategy) =>
+            strategy.state !== "Активный" && strategy.state !== "Черновик"
+        ).sort((a,b) => a.strategyNumber - b.strategyNumber);
+
+        return {
+          activeAndDraftStrategies: activeAndDraftStrategies,
+          archiveStrategies: otherStrategies,
+        };
+      },
     }),
 
     getSpeedGoalNew: build.query({

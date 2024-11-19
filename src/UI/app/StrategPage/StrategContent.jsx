@@ -117,14 +117,6 @@ export default function StrategContent() {
     }
   }, [organizationId]);
 
-
-  // useEffect(() => {
-  //   const activeStrateg = data?.strategies?.find(
-  //     (item) => item.state === "Активный"
-  //   );
-  //   setActiveStrategDB(activeStrateg?.id);
-  // }, [isLoadingStrateg, isFetchingStrateg]);
-
   useEffect(() => {
     if (selectedOrganizationId && selectedStrategyId) {
       setOrganizationId(selectedOrganizationId);

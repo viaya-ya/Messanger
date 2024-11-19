@@ -43,25 +43,16 @@ export default function SpeedGoalContent() {
   const [htmlSituation, setHtmlSituation] = useState([]);
   const [htmlRootCause, setHtmlRootCause] = useState([]);
 
-  // const {
-  //   data = [],
-  //   isLoadingGetUpdateSpeedGoal,
-  //   isErrorGetUpdateSpeedGoal,
-  // } = useGetSpeedGoalUpdateQuery(userId, {
-  //   selectFromResult: ({ data, isLoading, isError }) => ({
-  //     data: data || [],
-  //     isLoadingGetUpdateSpeedGoal: isLoading,
-  //     isErrorGetUpdateSpeedGoal: isError,
-  //   }),
-  // });
 
   const {
-    data = [],
+    activeAndDraftStrategies = [],
+    archiveStrategies = [],
     isLoadingGetUpdateSpeedGoal,
     isErrorGetUpdateSpeedGoal,
   } = useGetSpeedGoalsQuery(userId, {
     selectFromResult: ({ data, isLoading, isError }) => ({
-      data: data || [],
+      activeAndDraftStrategies: data?.activeAndDraftStrategies || [],
+      archiveStrategies: data?.archiveStrategies || [],
       isLoadingGetUpdateSpeedGoal: isLoading,
       isErrorGetUpdateSpeedGoal: isError,
     }),
@@ -133,6 +124,8 @@ export default function SpeedGoalContent() {
         return EditorState.createEmpty();
       });
       setContentEditors(contentStates);
+    } else if (currentSpeedGoal.content === null) {
+      setContentEditors([]);
     }
 
     // Initialize editors for 'situation' if it's an array
@@ -147,6 +140,8 @@ export default function SpeedGoalContent() {
         return EditorState.createEmpty();
       });
       setSituationEditors(situationStates);
+    } else if (currentSpeedGoal.situation === null) {
+      setSituationEditors([]);
     }
 
     // Initialize editors for 'rootCause' if it's an array
@@ -161,6 +156,8 @@ export default function SpeedGoalContent() {
         return EditorState.createEmpty();
       });
       setRootCauseEditors(rootCauseStates);
+    } else if (currentSpeedGoal.rootCause === null) {
+      setRootCauseEditors([]);
     }
   }, [currentSpeedGoal]);
 
@@ -370,26 +367,43 @@ export default function SpeedGoalContent() {
           ))}
         </div>
         <div className={classes.editText}>
-        <div className={classes.date}>
+          <div className={classes.date}>
             <select
               value={nameStrateg || ""}
               onChange={(e) => {
                 setNameStrateg(e.target.value);
                 getSpeedGoalId(e.target.value);
               }}
-              className={classes.select}
+              className={`${classes.select} ${
+               currentSpeedGoal?.strategy?.state === "Активный"
+                     ? classes.activeSelect
+                     : currentSpeedGoal?.strategy?.state === "Завершено"
+                     ? classes.completed
+                     : classes.draft
+                 }`}
             >
               <option value="" disabled>
                 Выберите стратегию
               </option>
-              {data?.map((item, index) => (
-                <option key={index} value={item?.strategy?.id}>
-                  Стратегия №{item?.strategy?.strategyNumber}
+              {activeAndDraftStrategies?.map((item, index) => (
+                <option
+                  key={index}
+                  value={item?.id}
+                  className={`${
+                    item.state === "Активный" ? classes.activeSelect : classes.draft
+                  }`}
+                >
+                  Стратегия №{item?.strategyNumber}
+                </option>
+              ))}
+              {archiveStrategies?.map((item, index) => (
+                <option key={index} value={item?.id}  className={`${classes.completed} `}>
+                  Стратегия №{item?.strategyNumber}
                 </option>
               ))}
             </select>
           </div>
-          
+
           {/* <div className={classes.iconAdd}>
             <img
               src={iconAdd}

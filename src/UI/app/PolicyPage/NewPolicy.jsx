@@ -18,10 +18,9 @@ import MyEditor from "../../Custom/MyEditor";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
-import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
-import styles from '../../Custom/CommonStyles.module.css';
+import styles from "../../Custom/CommonStyles.module.css";
 
 export default function NewPolicy() {
   const navigate = useNavigate();
@@ -35,8 +34,9 @@ export default function NewPolicy() {
   const [policyName, setPolicyName] = useState("Политика");
   const [type, setType] = useState("null");
   const [state, setState] = useState("null");
-  const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
-  const [isPolicyToOrganizations, setIsPolicyToOrganizations] = useState(false);
+  const [organizationId, setOrganizationId] = useState("");
+  // const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
+  // const [isPolicyToOrganizations, setIsPolicyToOrganizations] = useState(false);
 
   const {
     organizations = [],
@@ -72,16 +72,17 @@ export default function NewPolicy() {
     setPolicyName("Политика");
     setType("null");
     setState("null");
-    setIsPolicyToOrganizations(true);
+    setOrganizationId("");
+    // setIsPolicyToOrganizations(true);
     setEditorState(EditorState.createEmpty());
   };
   const savePolicy = async () => {
-    const Data = {}
+    const Data = {};
 
-    if(state !== "null"){
+    if (state !== "null") {
       Data.state = state;
     }
-    if(type !== "null"){
+    if (type !== "null") {
       Data.type = type;
     }
 
@@ -90,7 +91,8 @@ export default function NewPolicy() {
       policyName: policyName,
       content: htmlContent,
       ...Data,
-      policyToOrganizations: policyToOrganizations,
+      organizationId: organizationId,
+      // policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
       .then(() => {
@@ -135,22 +137,38 @@ export default function NewPolicy() {
         </div>
 
         <div className={classes.editText}>
+          <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>
+                Название политики <span style={{ color: "red" }}>*</span>
+              </span>
+            </div>
+            <div className={classes.div}>
+              <input
+                type="text"
+                value={policyName}
+                onChange={(e) => setPolicyName(e.target.value)}
+                title="Название политики"
+                className={classes.select}
+              ></input>
+            </div>
+          </div>
 
-        <div className={classes.item}>
+          <div className={classes.item}>
             <div className={classes.itemName}>
               <span>Тип</span>
             </div>
             <div className={classes.div}>
-            <select
+              <select
                 className={classes.select}
-              name="type"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            >
-              <option value="null"> — </option>
-              <option value="Директива">Директива</option>
-              <option value="Инструкция">Инструкция</option>
-            </select>
+                name="type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <option value="null"> — </option>
+                <option value="Директива">Директива</option>
+                <option value="Инструкция">Инструкция</option>
+              </select>
             </div>
           </div>
 
@@ -159,25 +177,52 @@ export default function NewPolicy() {
               <span>Состояние</span>
             </div>
             <div className={classes.div}>
-            <select
-            className={classes.select}
-              name="state"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            >
-               <option value="null"> — </option>
-              <option value="Черновик">Черновик</option>
-              <option value="Активный">Активный</option>
-            </select>
+              <select
+                className={classes.select}
+                name="state"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              >
+                <option value="null"> — </option>
+                <option value="Черновик">Черновик</option>
+                <option value="Активный">Активный</option>
+              </select>
             </div>
           </div>
 
-          <div className={classes.five}>
+          {/* <div className={classes.five}>
             <CustomSelect
               organizations={organizations}
               setPolicyToOrganizations={setPolicyToOrganizations}
               isPolicyToOrganizations={isPolicyToOrganizations}
             ></CustomSelect>
+          </div> */}
+
+          <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>
+                Организация <span style={{ color: "red" }}>*</span>
+              </span>
+            </div>
+            <div className={classes.div}>
+              <select
+                name="mySelect"
+                className={classes.select}
+                value={organizationId}
+                onChange={(e) => {
+                  setOrganizationId(e.target.value);
+                }}
+              >
+                <option value="" disabled>
+                  Выберите организацию
+                </option>
+                {organizations?.map((item) => {
+                  return (
+                    <option value={item.id}>{item.organizationName}</option>
+                  );
+                })}
+              </select>
+            </div>
           </div>
 
           {/* <div className={classes.sixth}>
@@ -192,23 +237,8 @@ export default function NewPolicy() {
             </div>
           </div> */}
 
-          <div className={classes.item}>
-            <div className={classes.itemName}>
-              <span>Название политики</span>
-            </div>
-            <div className={classes.div}>
-            <input
-                type="text"
-                value={policyName}
-                onChange={(e) => setPolicyName(e.target.value)}
-                title="Название политики"
-                className={classes.select}
-              ></input>
-            </div>
-          </div>
-
           <div className={classes.imageButton}>
-            <div className={classes.blockSelect}>
+            {/* <div className={classes.blockSelect}>
               <img src={Select} alt="Select" className={classes.select} />
               <ul className={classes.option}>
                 <li>
@@ -223,7 +253,7 @@ export default function NewPolicy() {
                   <img src={greySavetmp} alt="greySavetmp" /> Сохранить и издать{" "}
                 </li>
               </ul>
-            </div>
+            </div> */}
             <div className={classes.blockIconSavetmp}>
               <img
                 src={Blacksavetmp}
@@ -249,6 +279,7 @@ export default function NewPolicy() {
                 <MyEditor
                   editorState={editorState}
                   setEditorState={setEditorState}
+                  policyContent={true}
                 />
                 <HandlerMutation
                   Loading={isLoadingPostPoliciesMutation}
@@ -256,8 +287,8 @@ export default function NewPolicy() {
                   Success={isSuccessPostPoliciesMutation}
                   textSuccess={"Политика успешно создана."}
                   textError={
-                    Error?.data?.errors?.[0]?.errors?.[0] 
-                      ? Error.data.errors[0].errors[0] 
+                    Error?.data?.errors?.[0]?.errors?.[0]
+                      ? Error.data.errors[0].errors[0]
                       : Error?.data?.message
                   }
                 ></HandlerMutation>

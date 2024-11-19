@@ -21,9 +21,9 @@ import {
 } from "../../../BLL/policyApi";
 import MyEditor from "../../Custom/MyEditor";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
-import draftToHtml from "draftjs-to-html"; 
+import draftToHtml from "draftjs-to-html";
 import { convertToRaw } from "draft-js";
-import CustomSelect from "../../Custom/CustomSelect.jsx";
+// import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import addCircleBlue from "../../image/addCircleBlue.svg";
@@ -53,7 +53,8 @@ export default function PolicyContent() {
   const [policyName, setPolicyName] = useState(null);
   const [type, setType] = useState(null);
   const [state, setState] = useState(null);
-  const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
+  // const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
+  const [organizationId, setOrganizationId] = useState("");
   const selectRef = useRef(null); // Для отслеживания кликов вне компонента
   // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
@@ -188,7 +189,6 @@ export default function PolicyContent() {
     },
   ] = useDeletePolicyDirectoriesMutation();
 
-
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
@@ -196,7 +196,7 @@ export default function PolicyContent() {
     setHtmlContent(rawContent);
     console.log(rawContent);
   }, [editorState]);
-  
+
   useEffect(() => {
     if (currentPolicy.content) {
       const { contentBlocks, entityMap } = convertFromHTML(
@@ -223,7 +223,7 @@ export default function PolicyContent() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   const reset = () => {
     setType(null);
     setState(null);
@@ -244,12 +244,18 @@ export default function PolicyContent() {
     if (htmlContent !== null && currentPolicy.content !== htmlContent) {
       Data.content = htmlContent;
     }
+    if (
+      organizationId !== "" &&
+      currentPolicy?.organization?.id !== organizationId
+    ) {
+      Data.organizationId = organizationId;
+    }
     await updatePolicy({
       userId,
       policyId: selectedPolicyId,
       _id: userId,
       ...Data,
-      policyToOrganizations: policyToOrganizations,
+      // policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
       .then(() => {
@@ -331,40 +337,44 @@ export default function PolicyContent() {
           policyName: item.policyName,
           checked: true,
         }));
-      const update = currentDirectoryInstructions?.map((item) => {
-        const foundItem = filterArray?.find(
-          (element) => item.id === element.id
-        );
-        return {
-          id: item.id,
-          policyName: item.policyName,
-          checked: foundItem ? true : false,
-        };
-      })?.sort((a, b) => {
-        // Сначала сортируем по checked: true должны быть выше
-        if (a.checked === b.checked) {
-          // Если оба элемента имеют одинаковое значение checked, сортируем по policyName (алфавитно)
-          return a.policyName.localeCompare(b.policyName);
-        }
-        return b.checked - a.checked; // true (1) должно быть выше false (0)
-      });
-      const update1 = currentDirectoryDirectives?.map((item) => {
-        const foundItem = filterArray1?.find(
-          (element) => item.id === element.id
-        );
-        return {
-          id: item.id,
-          policyName: item.policyName,
-          checked: foundItem ? true : false,
-        };
-      })?.sort((a, b) => {
-        // Сначала сортируем по checked: true должны быть выше
-        if (a.checked === b.checked) {
-          // Если оба элемента имеют одинаковое значение checked, сортируем по policyName (алфавитно)
-          return a.policyName.localeCompare(b.policyName);
-        }
-        return b.checked - a.checked; // true (1) должно быть выше false (0)
-      });
+      const update = currentDirectoryInstructions
+        ?.map((item) => {
+          const foundItem = filterArray?.find(
+            (element) => item.id === element.id
+          );
+          return {
+            id: item.id,
+            policyName: item.policyName,
+            checked: foundItem ? true : false,
+          };
+        })
+        ?.sort((a, b) => {
+          // Сначала сортируем по checked: true должны быть выше
+          if (a.checked === b.checked) {
+            // Если оба элемента имеют одинаковое значение checked, сортируем по policyName (алфавитно)
+            return a.policyName.localeCompare(b.policyName);
+          }
+          return b.checked - a.checked; // true (1) должно быть выше false (0)
+        });
+      const update1 = currentDirectoryDirectives
+        ?.map((item) => {
+          const foundItem = filterArray1?.find(
+            (element) => item.id === element.id
+          );
+          return {
+            id: item.id,
+            policyName: item.policyName,
+            checked: foundItem ? true : false,
+          };
+        })
+        ?.sort((a, b) => {
+          // Сначала сортируем по checked: true должны быть выше
+          if (a.checked === b.checked) {
+            // Если оба элемента имеют одинаковое значение checked, сортируем по policyName (алфавитно)
+            return a.policyName.localeCompare(b.policyName);
+          }
+          return b.checked - a.checked; // true (1) должно быть выше false (0)
+        });
       setCurrentDirectoryInstructions(update);
       setCurrentDirectoryDirectives(update1);
       setCurrentDirectoryName(directoryName);
@@ -512,102 +522,14 @@ export default function PolicyContent() {
           />
         </div>
 
-        <div className={styles.editText}>
-          <div className={classes.sixth} ref={selectRef}>
-            <img
-              src={subbarSearch}
-              alt="subbarSearch"
-              onClick={() => setIsOpenSearch(true)}
-            />
-            {isOpenSearch && (
-              <ul className={classes.policySearch}>
-                <li className={classes.policySearchItem}>
-                  <div className={classes.listUL}>
-                    <img src={folder} alt="folder" />
-                    <div className={classes.listText}>Директивы</div>
-                    <img
-                      src={iconSublist}
-                      alt="iconSublist"
-                      style={{ marginLeft: "auto" }}
-                    />
-                  </div>
-                  <ul className={classes.listULElement}>
-                    {directives?.map((item) => (
-                      <li
-                        key={item.id}
-                        onClick={() => getPolicyId(item.id)}
-                        className={classes.textMontserrat}
-                      >
-                        {item.policyName}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-
-                <li className={classes.policySearchItem}>
-                  <div className={classes.listUL}>
-                    <img src={folder} alt="folder" />
-                    <div className={classes.listText}>Инструкции</div>
-                    <img
-                      src={iconSublist}
-                      alt="iconSublist"
-                      style={{ marginLeft: "auto" }}
-                    />
-                  </div>
-                  <ul className={classes.listULElement}>
-                    {instructions?.map((item) => (
-                      <li
-                        key={item.id}
-                        onClick={() => getPolicyId(item.id)}
-                        className={classes.textMontserrat}
-                      >
-                        {item.policyName}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-
-                {folders?.map((item) => {
-                  return (
-                    <li className={classes.policySearchItem}>
-                      <div
-                        className={classes.listUL}
-                        onClick={() => openUpdate(item)}
-                      >
-                        <img src={folder} alt="folder" />
-                        <div className={classes.listText}>
-                          {item.directoryName}
-                        </div>
-                        <img
-                          src={iconSublist}
-                          alt="iconSublist"
-                          style={{ marginLeft: "auto" }}
-                        />
-                      </div>
-                      <ul className={classes.listULElement}>
-                        {item.policyToPolicyDirectories?.map((element) => (
-                          <li
-                            key={element.policy.id}
-                            onClick={() => getPolicyId(element.policy.id)}
-                            className={classes.textMontserrat}
-                          >
-                            {element.policy.policyName}
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  );
-                })}
-
-                <li className={classes.policySearchItem}>
-                  <div className={classes.listUL} onClick={open}>
-                    <img src={addCircleBlue} alt="addCircleBlue" />
-                    <div className={classes.listText}>Создать папку</div>
-                  </div>
-                </li>
-              </ul>
-            )}
-            <div>
+        <div className={classes.editText}>
+          <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>
+                Название политики <span style={{ color: "red" }}>*</span>
+              </span>
+            </div>
+            <div className={classes.div}>
               <input
                 type="text"
                 value={
@@ -619,6 +541,101 @@ export default function PolicyContent() {
                 title="Название политики"
                 className={classes.textMontserrat14}
               ></input>
+              <div className={classes.sixth} ref={selectRef}>
+                <img
+                  src={subbarSearch}
+                  alt="subbarSearch"
+                  onClick={() => setIsOpenSearch(true)}
+                />
+                {isOpenSearch && (
+                  <ul className={classes.policySearch}>
+                    <li className={classes.policySearchItem}>
+                      <div className={classes.listUL}>
+                        <img src={folder} alt="folder" />
+                        <div className={classes.listText}>Директивы</div>
+                        <img
+                          src={iconSublist}
+                          alt="iconSublist"
+                          style={{ marginLeft: "auto" }}
+                        />
+                      </div>
+                      <ul className={classes.listULElement}>
+                        {directives?.map((item) => (
+                          <li
+                            key={item.id}
+                            onClick={() => getPolicyId(item.id)}
+                            className={classes.textMontserrat}
+                          >
+                            {item.policyName}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+
+                    <li className={classes.policySearchItem}>
+                      <div className={classes.listUL}>
+                        <img src={folder} alt="folder" />
+                        <div className={classes.listText}>Инструкции</div>
+                        <img
+                          src={iconSublist}
+                          alt="iconSublist"
+                          style={{ marginLeft: "auto" }}
+                        />
+                      </div>
+                      <ul className={classes.listULElement}>
+                        {instructions?.map((item) => (
+                          <li
+                            key={item.id}
+                            onClick={() => getPolicyId(item.id)}
+                            className={classes.textMontserrat}
+                          >
+                            {item.policyName}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+
+                    {folders?.map((item) => {
+                      return (
+                        <li className={classes.policySearchItem}>
+                          <div
+                            className={classes.listUL}
+                            onClick={() => openUpdate(item)}
+                          >
+                            <img src={folder} alt="folder" />
+                            <div className={classes.listText}>
+                              {item.directoryName}
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElement}>
+                            {item.policyToPolicyDirectories?.map((element) => (
+                              <li
+                                key={element.policy.id}
+                                onClick={() => getPolicyId(element.policy.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {element.policy.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+                      );
+                    })}
+
+                    <li className={classes.policySearchItem}>
+                      <div className={classes.listUL} onClick={open}>
+                        <img src={addCircleBlue} alt="addCircleBlue" />
+                        <div className={classes.listText}>Создать папку</div>
+                      </div>
+                    </li>
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
 
@@ -659,11 +676,38 @@ export default function PolicyContent() {
                 </div>
               </div>
 
-              <CustomSelect
+              <div className={classes.item}>
+                <div className={classes.itemName}>
+                  <span>
+                    Организация <span style={{ color: "red" }}>*</span>
+                  </span>
+                </div>
+                <div className={classes.div}>
+                  <select
+                    name="mySelect"
+                    className={classes.select}
+                    value={organizationId || currentPolicy?.organization?.id}
+                    onChange={(e) => {
+                      setOrganizationId(e.target.value);
+                    }}
+                  >
+                    <option value="" disabled>
+                      Выберите организацию
+                    </option>
+                    {organizations?.map((item) => {
+                      return (
+                        <option value={item.id}>{item.organizationName}</option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </div>
+
+              {/* <CustomSelect
                 organizations={organizations}
                 selectOrganizations={currentPolicy.policyToOrganizations}
                 setPolicyToOrganizations={setPolicyToOrganizations}
-              ></CustomSelect>
+              ></CustomSelect> */}
             </>
           ) : (
             <></>
@@ -678,7 +722,7 @@ export default function PolicyContent() {
                 onClick={() => pathNewPolicy()}
               />
             </div>
-            <div className={classes.blockSelect}>
+            {/* <div className={classes.blockSelect}>
               <img src={Select} alt="Select" className={classes.select} />
               <ul className={classes.option}>
                 <li>
@@ -693,7 +737,7 @@ export default function PolicyContent() {
                   <img src={greySavetmp} alt="greySavetmp" /> Сохранить и издать{" "}
                 </li>
               </ul>
-            </div>
+            </div> */}
             <div className={classes.blockIconSavetmp}>
               <img
                 src={Blacksavetmp}
@@ -749,7 +793,7 @@ export default function PolicyContent() {
                           setEditorState={setEditorState}
                           userId={userId}
                           policyId={selectedPolicyId}
-                          policyContent = {true}
+                          policyContent={true}
                         />
 
                         <HandlerMutation
@@ -828,8 +872,10 @@ export default function PolicyContent() {
                       </>
                     ) : (
                       <>
-                    <WaveLetters letters={"Выберите политику"}></WaveLetters>
-                        
+                        <WaveLetters
+                          letters={"Выберите политику"}
+                        ></WaveLetters>
+
                         <HandlerMutation
                           Loading={isLoadingPostPolicyDirectoriesMutation}
                           Error={
@@ -1120,8 +1166,8 @@ export default function PolicyContent() {
                             />
                             <div className={classes.row1}>
                               <span className={classes.text}>
-                                Вы точно хотите удалить папку {" "}
-                                <span  style={{ fontWeight: "700" }}>
+                                Вы точно хотите удалить папку{" "}
+                                <span style={{ fontWeight: "700" }}>
                                   {currentDirectoryName}
                                 </span>
                               </span>

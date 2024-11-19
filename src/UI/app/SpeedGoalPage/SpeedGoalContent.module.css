@@ -423,3 +423,13 @@ textarea::placeholder {
 .select {
     font-family: "Montserrat";
 }
+
+.activeSelect{
+    color: #005475;
+}
+.completed{
+    color: grey;
+}
+.draft{
+    color: black;
+}

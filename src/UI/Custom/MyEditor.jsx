@@ -10,6 +10,7 @@ export default function MyEditor({
   userId,
   policyId,
   policyContent,
+  readOnly
 }) {
   const [postImage] = usePostImageMutation();
 
@@ -74,6 +75,7 @@ export default function MyEditor({
           wrapperClassName="demo-wrapper"
           editorClassName="demo-editor"
           toolbarHidden={true}
+          readOnly={readOnly}
         />
       )}
     </div>

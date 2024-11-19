@@ -26,7 +26,11 @@ export const strategApi = createApi({
       query: (userId = "") => ({
         url: `${userId}/strategies/new`,
       }),
-      transformResponse: (response) => ({ organizations: response || [] }),
+      transformResponse: (response) => ({ organizations: response.sort((a, b) => {
+        return a.organizationName.localeCompare(b.organizationName);
+      })
+       || [] }),
+      providesTags: (result) => result ? [{ type: "Strateg", id: "LIST" }] : [],
     }),
 
     getStrategId: build.query({

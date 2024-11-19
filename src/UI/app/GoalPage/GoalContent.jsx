@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import classes from "./GoalContent.module.css";
-import styles from '../../Custom/CommonStyles.module.css';
+import styles from "../../Custom/CommonStyles.module.css";
 import icon from "../../image/iconHeader.svg";
 import Select from "../../image/Select.svg";
 import iconBack from "../../image/iconBack.svg";
@@ -16,6 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetGoalIdQuery,
   useGetGoalQuery,
+  usePostGoalMutation,
   useUpdateGoalMutation,
 } from "../../../BLL/goalApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
@@ -29,9 +30,9 @@ export default function GoalContent() {
   const back = () => {
     navigate(`/${userId}/start`);
   };
-  const newGoal = () => {
-    navigate("new");
-  };
+  // const newGoal = () => {
+  //   navigate("new");
+  // };
 
   const [editorState, setEditorState] = useState([]);
   const [htmlContent, setHtmlContent] = useState([]);
@@ -40,14 +41,23 @@ export default function GoalContent() {
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
+  const [
+    organizationIdForRequestingCreateGoal,
+    setOrganizationIdForRequestingCreateGoal,
+  ] = useState(null);
+
   const {
-    data = [],
+    organizationsWithGoal = [],
+    organizationsWithoutGoal = [],
+    goals = [],
     isErrorGetGoal,
     isLoadingGetGoal,
     isFetchingGetGoal,
   } = useGetGoalQuery(userId, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-      data: data?.respone || [],
+      organizationsWithGoal: data?.organizationsWithGoal || [],
+      organizationsWithoutGoal: data?.organizationsWithoutGoal || [],
+      goals: data?.goals || [],
       isErrorGetGoal: isError,
       isLoadingGetGoal: isLoading,
       isFetchingGetGoal: isFetching,
@@ -128,6 +138,24 @@ export default function GoalContent() {
     };
   }, []);
 
+  useEffect(() => {
+    if(!selectedGoalId && organizationsWithGoal.length>0){
+        setSelectedGoalId(organizationsWithGoal[0]?.goal?.id)
+    }
+}, [organizationsWithGoal])
+
+  useEffect(() => {
+    if (organizationIdForRequestingCreateGoal !== null) {
+        const currentOrganization = organizationsWithGoal.find(item => item.id === organizationIdForRequestingCreateGoal)
+        if (currentOrganization) {
+            setOrganizationIdForRequestingCreateGoal(null)
+            selectGoal(currentOrganization?.goal?.id)
+        }
+        else console.error('Для выбранной организации не найдена цель')
+    }
+}, [organizationsWithGoal])
+
+
   const addEditor = () => {
     setEditorState((prevEditors) => [
       ...prevEditors,
@@ -145,21 +173,21 @@ export default function GoalContent() {
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
-  
+
     if (!destination) {
       return;
     }
-  
+
     // Создаем новый массив состояний
     const updatedState = editorState.map((state) => {
       // Создаем новый экземпляр редактора для каждого состояния
       return EditorState.createWithContent(state.getCurrentContent());
     });
-  
+
     // Перемещаем редактор
     const [movedItem] = updatedState.splice(source.index, 1);
     updatedState.splice(destination.index, 0, movedItem);
-  
+
     setEditorState(updatedState);
   };
 
@@ -182,6 +210,45 @@ export default function GoalContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+
+  const [
+    postGoal,
+    {
+      isLoading: isLoadingPostGoalMutation,
+      isSuccess: isSuccessPostGoalMutation,
+      isError: isErrorPostGoalMutation,
+      error: ErrorPostGoal,
+    },
+  ] = usePostGoalMutation();
+
+  const saveGoal = async (organization) => {
+    await postGoal({
+      userId,
+      content: [],
+      organizationId: organization,
+    })
+      .unwrap()
+      .then(() => {
+        // reset();
+      })
+      .catch((error) => {
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
+  };
+
+  const selectGoal = (target) => {
+    console.warn("selectGoal:  ", target);
+    if (goals.some((goal) => goal.id === target)) {
+      setSelectedGoalId(target);
+      setManualSuccessReset(true);
+      setManualErrorReset(true);
+    } else {
+      console.log("nonono");
+      setOrganizationIdForRequestingCreateGoal(target);
+      saveGoal(target);
+    }
+  };
+  console.log(organizationsWithGoal, organizationsWithoutGoal, goals)
 
   return (
     <div className={classes.dialog}>
@@ -218,8 +285,8 @@ export default function GoalContent() {
 
         <div className={styles.editText}>
           <div className={classes.four}>
-            <select
-              value={selectedGoalId || ""} // Устанавливаем ID, по умолчанию пустая строка
+            {/* <select
+              value={selectedGoalId || ""} 
               onChange={(e) => {
                 getGoalId(e.target.value);
               }}
@@ -235,18 +302,41 @@ export default function GoalContent() {
                   </option>
                 );
               })}
+            </select> */}
+
+            <select
+              name={"organizations"}
+              value={selectedGoalId}
+              onChange={(e) => selectGoal(e.target.value)}
+              className={classes.select}
+            >
+              {!organizationsWithGoal.length > 0 && <option>Выберите организацию</option>}
+              {organizationsWithGoal?.map((item, index) => (
+                <>
+                  <option key={index} value={item?.goal?.id}>
+                    {item?.organizationName}
+                  </option>
+                </>
+              ))}
+              {organizationsWithoutGoal?.map((item, index) => (
+                <>
+                  <option key={index} value={item?.id}>
+                    {item?.organizationName}
+                  </option>
+                </>
+              ))}
             </select>
           </div>
 
           <div className={classes.five}>
-            <div className={classes.iconAdd}>
+            {/* <div className={classes.iconAdd}>
               <img
                 src={iconAdd}
                 alt="iconAdd"
                 className={classes.image}
                 onClick={() => newGoal()}
               />
-            </div>
+            </div> */}
             <div className={classes.iconSave}>
               <img
                 src={Blacksavetmp}
@@ -460,7 +550,7 @@ export default function GoalContent() {
                                           editorState={item}
                                           setEditorState={(newState) => {
                                             const updatedState = [
-                                              ...editorState
+                                              ...editorState,
                                             ];
                                             updatedState[index] = newState;
                                             setEditorState(updatedState);
@@ -517,15 +607,15 @@ export default function GoalContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Цель обновлена"}
                           textError={
-                            Error?.data?.errors?.[0]?.errors?.[0] 
-                              ? Error.data.errors[0].errors[0] 
+                            Error?.data?.errors?.[0]?.errors?.[0]
+                              ? Error.data.errors[0].errors[0]
                               : Error?.data?.message
                           }
                         ></HandlerMutation>
                       </>
                     ) : (
                       <>
-                       <WaveLetters letters={"Выберите цель"}></WaveLetters>
+                        <WaveLetters letters={"Выберите цель"}></WaveLetters>
                       </>
                     )}
                   </>
@@ -538,4 +628,3 @@ export default function GoalContent() {
     </div>
   );
 }
-

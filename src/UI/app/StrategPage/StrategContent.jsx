@@ -50,7 +50,6 @@ export default function StrategContent() {
 
   const [organizationId, setOrganizationId] = useState("");
   const [updateOrganizationId, setUpdateOrganizationId] = useState("null");
-  const [disabledNumber, setDisabledNumber] = useState(true);
 
   // Доступ к локальному Redux стейту
   const selectedOrganizationId = useSelector(
@@ -61,14 +60,7 @@ export default function StrategContent() {
   );
 
   const [openModal, setOpenModal] = useState(false);
-  const [activeStrategDB, setActiveStrategDB] = useState();
-
-  useEffect(() => {
-    if (selectedOrganizationId && selectedStrategyId) {
-      setOrganizationId(selectedOrganizationId);
-      setNumber(selectedStrategyId);
-    }
-  }, []);
+  const [activeStrategDB, setActiveStrategDB] = useState(null);
 
   const {
     getOrganizations = [],
@@ -118,21 +110,28 @@ export default function StrategContent() {
 
   useEffect(() => {
     if (organizationId !== "") {
-      setDisabledNumber(false);
       const activeStrateg = data?.strategies?.find(
-        (item) => item.state === "Активный"
+        (item) => item.state === "Активный" 
       );
       setActiveStrategDB(activeStrateg?.id);
     }
   }, [organizationId]);
 
-  useEffect(() => {
-    const activeStrateg = data?.strategies?.find(
-      (item) => item.state === "Активный"
-    );
-    setActiveStrategDB(activeStrateg?.id);
-  }, [isLoadingStrateg]);
 
+  // useEffect(() => {
+  //   const activeStrateg = data?.strategies?.find(
+  //     (item) => item.state === "Активный"
+  //   );
+  //   setActiveStrategDB(activeStrateg?.id);
+  // }, [isLoadingStrateg, isFetchingStrateg]);
+
+  useEffect(() => {
+    if (selectedOrganizationId && selectedStrategyId) {
+      setOrganizationId(selectedOrganizationId);
+      setNumber(selectedStrategyId);
+    }
+  }, []);
+  
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
@@ -141,6 +140,8 @@ export default function StrategContent() {
   }, [editorState]);
 
   useEffect(() => {
+    setState(currentStrategy.state);
+    
     if (currentStrategy.content) {
       const { contentBlocks, entityMap } = convertFromHTML(
         currentStrategy.content
@@ -152,7 +153,7 @@ export default function StrategContent() {
       const oldEditorState = EditorState.createWithContent(contentState);
       setEditorState(oldEditorState);
     }
-  }, [currentStrategy.content, isLoadingGetStrategId, isFetchingGetStrategId]);
+  }, [currentStrategy.id, isLoadingGetStrategId, isFetchingGetStrategId]);
 
   const [
     updateStrateg,
@@ -164,15 +165,28 @@ export default function StrategContent() {
     },
   ] = useUpdateStrategMutation();
 
-  const reset = () => {
+  const resetRequest = () => {
     setManualSuccessReset(false);
     setManualErrorReset(false);
     setEditorState(EditorState.createEmpty());
     setHtmlContent();
-    // setNumber("");
     setState("");
     setSelectedDate("");
     setUpdateOrganizationId("null");
+    setOpenModal(false);
+    setActiveStrategDB(null);
+  };
+
+  const resetSelect = () => {
+    setManualSuccessReset(false);
+    setManualErrorReset(false);
+    setEditorState(EditorState.createEmpty());
+    setHtmlContent();
+    setState("");
+    setSelectedDate("");
+    setUpdateOrganizationId("null");
+    setNumber("");
+    setActiveStrategDB(null);
   };
 
   const save = () => {
@@ -190,6 +204,7 @@ export default function StrategContent() {
       saveUpdateStrateg();
     }
   };
+
   const btnYes = async () => {
     await updateStrateg({
       userId,
@@ -221,7 +236,9 @@ export default function StrategContent() {
         ...Data,
       })
         .unwrap()
-        .then(() => {})
+        .then(() => {
+          setOpenModal(false);
+        })
         .catch((error) => {
           // При ошибке также сбрасываем флаги
           setManualErrorReset(false);
@@ -252,7 +269,7 @@ export default function StrategContent() {
     })
       .unwrap()
       .then(() => {
-        reset();
+        resetRequest();
       })
       .catch((error) => {
         // При ошибке также сбрасываем флаги
@@ -301,7 +318,7 @@ export default function StrategContent() {
                 value={organizationId}
                 onChange={(e) => {
                   if (e.target.value) {
-                    reset();
+                    resetSelect();
                     setOrganizationId(e.target.value);
                   }
                 }}
@@ -323,7 +340,7 @@ export default function StrategContent() {
               <select
                 value={number}
                 onChange={(e) => {
-                  reset();
+                  resetSelect();
                   const selectedId = e.target.value;
                   setManualSuccessReset(true);
                   setManualErrorReset(true);
@@ -335,14 +352,21 @@ export default function StrategContent() {
                     setSelectedDate(selectedItem.dateActive);
                   }
                 }}
+                // className={`${classes.select} ${
+                //   currentStrategy.state === "Активный"
+                //     ? classes.active
+                //     : currentStrategy.state === "Завершено"
+                //     ? classes.completed
+                //     : classes.draft
+                // }`}
+
                 className={`${classes.select} ${
-                  currentStrategy.state === "Активный"
+               (state && currentStrategy.state) === "Активный"
                     ? classes.active
-                    : currentStrategy.state === "Завершено"
+                    : (state && currentStrategy.state) === "Завершено"
                     ? classes.completed
                     : classes.draft
                 }`}
-                disabled={disabledNumber}
               >
                 <option value="" disabled>
                   Выберите стратегию
@@ -395,7 +419,7 @@ export default function StrategContent() {
                     onChange={(e) => {
                       setState(e.target.value);
                     }}
-                    disabled={currentStrategy.state === "Завершено" && true}
+                    disabled={currentStrategy.state === "Завершено"}
                   >
                     <option value="" disabled>
                       {" "}
@@ -520,6 +544,7 @@ export default function StrategContent() {
                           key={currentStrategy.id}
                           editorState={editorState}
                           setEditorState={setEditorState}
+                          readOnly={currentStrategy.state === "Завершено"}
                         />
 
                         <HandlerMutation

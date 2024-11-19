@@ -9,12 +9,11 @@ export const goalApi = createApi({
       query: (userId = "") => ({
         url: `${userId}/goals`,
       }),
-      transformResponse: (response) => {
-        console.log(response); // Отладка ответа
-        return {
-         respone: response || [],
-        };
-      },
+      transformResponse: (response) => ({
+        organizationsWithGoal: response?.organizationsWithGoal || [],
+        organizationsWithoutGoal: response?.organizationsWithoutGoal || [],
+        goals: response?.organizationsWithGoal?.flatMap(org => org.goal) || []
+      }),
       providesTags: (result) =>
         result && Array.isArray(result.organizations)
           ? [

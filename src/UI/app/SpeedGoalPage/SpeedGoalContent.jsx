@@ -27,7 +27,7 @@ export default function SpeedGoalContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => navigate(`/${userId}/start`);
-  const newSpeedGoal = () => navigate("new");
+  // const newSpeedGoal = () => navigate("new");
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [nameStrateg, setNameStrateg] = useState("");
@@ -390,14 +390,14 @@ export default function SpeedGoalContent() {
             </select>
           </div>
           
-          <div className={classes.iconAdd}>
+          {/* <div className={classes.iconAdd}>
             <img
               src={iconAdd}
               alt="iconAdd"
               className={classes.image}
               onClick={() => newSpeedGoal()}
             />
-          </div>
+          </div> */}
           <div className={classes.iconSave}>
             <img
               src={Blacksavetmp}

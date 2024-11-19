@@ -114,6 +114,7 @@ export default function PostContent() {
     setIsPurposeChanges(false);
     setPostNameChanges(false);
   };
+  
   const saveUpdatePost = async () => {
     // Создаем объект с измененными полями
     const updatedData = {};
@@ -171,11 +172,14 @@ export default function PostContent() {
       console.log("Нет изменений для обновления");
     }
   };
+
   const selectPost = (id) => {
     setManualSuccessReset(true);
     setManualErrorReset(true);
     setSelectedPostId(id);
+    setIsOpenSearch(false);
   };
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>

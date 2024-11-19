@@ -5,6 +5,7 @@ export const strategApi = createApi({
   tagTypes: ["Strateg", "Strateg1"],
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
   endpoints: (build) => ({
+
     getStrateg: build.query({
       query: ({userId, organizationId}) => ({
         url: `${userId}/strategies/organization/${organizationId}`,
@@ -20,7 +21,6 @@ export const strategApi = createApi({
       }),
       invalidatesTags: (result) => result ? [{type: "Strateg", id: "LIST" }] : []
     }),
-
 
     getStrategNew: build.query({
       query: (userId = "") => ({

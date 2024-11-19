@@ -49,8 +49,7 @@ export default function StrategContent() {
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
   const [organizationId, setOrganizationId] = useState("");
-  const [updateOrganizationId, setUpdateOrganizationId] = useState("null");
-
+  
   // Доступ к локальному Redux стейту
   const selectedOrganizationId = useSelector(
     (state) => state.strateg.selectedOrganizationId
@@ -77,13 +76,15 @@ export default function StrategContent() {
   const {
     data = [],
     isLoadingStrateg,
+    isFetchingStrateg,
     isErrorStrateg,
   } = useGetStrategQuery(
     { userId, organizationId },
     {
-      selectFromResult: ({ data, isLoading, isError }) => ({
+      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
         data: data || {},
         isLoadingStrateg: isLoading,
+        isFetchingStrateg: isFetching,
         isErrorStrateg: isError,
       }),
       skip: !organizationId,
@@ -109,13 +110,15 @@ export default function StrategContent() {
   );
 
   useEffect(() => {
-    if (organizationId !== "") {
+    if (organizationId !== "" ) {
       const activeStrateg = data?.strategies?.find(
         (item) => item.state === "Активный" 
       );
+      console.log("activeStrateg");
+      console.log(activeStrateg);
       setActiveStrategDB(activeStrateg?.id);
     }
-  }, [organizationId]);
+  }, [organizationId, isLoadingStrateg, isFetchingStrateg]);
 
   useEffect(() => {
     if (selectedOrganizationId && selectedStrategyId) {
@@ -164,7 +167,6 @@ export default function StrategContent() {
     setHtmlContent();
     setState("");
     setSelectedDate("");
-    setUpdateOrganizationId("null");
     setOpenModal(false);
     setActiveStrategDB(null);
   };
@@ -176,9 +178,7 @@ export default function StrategContent() {
     setHtmlContent();
     setState("");
     setSelectedDate("");
-    setUpdateOrganizationId("null");
     setNumber("");
-    setActiveStrategDB(null);
   };
 
   const save = () => {
@@ -229,6 +229,7 @@ export default function StrategContent() {
       })
         .unwrap()
         .then(() => {
+          setState("Черновик");
           setOpenModal(false);
         })
         .catch((error) => {
@@ -236,6 +237,9 @@ export default function StrategContent() {
           setManualErrorReset(false);
           console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
         });
+    }else{
+      setOpenModal(false);
+      setState("Черновик");
     }
   };
 
@@ -246,12 +250,6 @@ export default function StrategContent() {
     }
     if (htmlContent !== currentStrategy.content) {
       Data.content = htmlContent;
-    }
-    if (
-      updateOrganizationId !== "null" &&
-      updateOrganizationId !== currentStrategy.organization.id
-    ) {
-      Data.organizationId = updateOrganizationId;
     }
     await updateStrateg({
       userId,

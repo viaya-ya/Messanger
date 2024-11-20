@@ -312,14 +312,15 @@ export default function PostNew() {
                   />
                 </div>
 
-                <div className={classes.post}>
+                {/* <div className={classes.post}>
                   <img src={blackStatistic} alt="blackStatistic" />
                   <div>
                     <span className={classes.nameButton}>
                       Выбрать или создать статистику для поста
                     </span>
                   </div>
-                </div>
+                </div> */}
+                
                 <HandlerMutation
                   Loading={isLoadingPostMutation}
                   Error={isErrorPostMutation}

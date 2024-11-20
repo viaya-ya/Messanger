@@ -99,6 +99,19 @@ export default function PolicyContent() {
 
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
+  const [inputSearchModalDirectory, setInputSearchModalDirectory] =
+    useState("");
+
+  const [
+    filterArraySearchModalDirectives,
+    setFilterArraySearchModalDirectives,
+  ] = useState([]);
+
+  const [
+    filterArraySearchModalInstructions,
+    setFilterArraySearchModalInstructions,
+  ] = useState([]);
+
   const {
     instructions = [],
     directives = [],
@@ -194,7 +207,7 @@ export default function PolicyContent() {
       convertToRaw(editorState.getCurrentContent())
     );
     setHtmlContent(rawContent);
-    console.log(rawContent);
+    // console.log(rawContent);
   }, [editorState]);
 
   useEffect(() => {
@@ -489,6 +502,49 @@ export default function PolicyContent() {
       });
   };
 
+  // Поиск в папке
+  useEffect(() => {
+    if (inputSearchModalDirectory !== "") {
+      const arrayDirectives = [...directives];
+      const arrayInstructions = [...instructions];
+      const filteredDirectives = arrayDirectives.filter((item) =>
+        item.policyName
+          .toLowerCase()
+          .includes(inputSearchModalDirectory.toLowerCase())
+      );
+      const filteredInstructions = arrayInstructions.filter((item) =>
+        item.policyName
+          .toLowerCase()
+          .includes(inputSearchModalDirectory.toLowerCase())
+      );
+      setFilterArraySearchModalDirectives(filteredDirectives);
+      setFilterArraySearchModalInstructions(filteredInstructions);
+    }else{
+      setFilterArraySearchModalDirectives([]);
+      setFilterArraySearchModalInstructions([]);
+    }
+  }, [inputSearchModalDirectory]);
+
+  useEffect(() => {
+    if (openModalUpdate === false) {
+      setInputSearchModalDirectory("");
+      setFilterArraySearchModalDirectives([]);
+      setFilterArraySearchModalInstructions([]);
+    }
+  }, [openModalUpdate]);
+  
+  useEffect(() => {
+    if (openModal === false) {
+      setInputSearchModalDirectory("");
+      setFilterArraySearchModalDirectives([]);
+      setFilterArraySearchModalInstructions([]);
+    }
+  }, [openModal]);
+
+  const handleInputChangeModalSearch = (e) => {
+    setInputSearchModalDirectory(e.target.value);
+  };
+
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>
@@ -532,11 +588,7 @@ export default function PolicyContent() {
             <div className={classes.div}>
               <input
                 type="text"
-                value={
-                  policyName
-                    ? policyName
-                    : currentPolicy.policyName || "Название политики"
-                }
+                value={policyName ? policyName : currentPolicy.policyName}
                 onChange={(e) => setPolicyName(e.target.value)}
                 title="Название политики"
                 className={classes.textMontserrat14}
@@ -938,37 +990,54 @@ export default function PolicyContent() {
                         <div className={classes.modal}>
                           <div className={classes.modalWindow}>
                             <div className={classes.modalTableRow}>
-                              <div className={classes.item}>
-                                <div className={classes.itemName}>
-                                  <span>
-                                    {" "}
-                                    <span style={{ color: "red" }}>*</span>{" "}
-                                    Название папки
-                                  </span>
-                                </div>
-                                <div className={classes.div}>
+                              <div className={classes.itemTable}>
+                                <div className={classes.itemRow1}>
                                   <input
-                                    type="text"
-                                    placeholder="Название папки"
-                                    value={directoryName}
-                                    onChange={(e) =>
-                                      setDirectoryName(e.target.value)
-                                    }
-                                    className={classes.textMontserrat14}
+                                    type="search"
+                                    placeholder="Найти"
+                                    value={inputSearchModalDirectory}
+                                    onChange={handleInputChangeModalSearch}
+                                    className={classes.searchModal}
                                   />
                                 </div>
-                              </div>
 
-                              <div className={classes.blockIconSavetmp}>
-                                <img
-                                  src={Blacksavetmp}
-                                  alt="Blacksavetmp"
-                                  className={classes.iconSavetmp}
-                                  style={{ marginLeft: "0.5%" }}
-                                  onClick={() => {
-                                    saveFolder();
-                                  }}
-                                />
+                                <div className={classes.itemRow2}>
+                                  <div className={classes.itemRow2Column}>
+                                    <div className={classes.itemName}>
+                                      <span>
+                                        {" "}
+                                        <span style={{ color: "red" }}>
+                                          *
+                                        </span>{" "}
+                                        Название папки
+                                      </span>
+                                    </div>
+
+                                    <div className={classes.div}>
+                                      <input
+                                        type="text"
+                                        placeholder="Название папки"
+                                        value={directoryName}
+                                        onChange={(e) =>
+                                          setDirectoryName(e.target.value)
+                                        }
+                                        className={classes.textMontserrat14}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className={classes.blockIconSavetmp}>
+                                    <img
+                                      src={Blacksavetmp}
+                                      alt="Blacksavetmp"
+                                      className={classes.iconSavetmp}
+                                      style={{ marginLeft: "0.5%" }}
+                                      onClick={() => {
+                                        saveFolder();
+                                      }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
                             </div>
 
@@ -986,49 +1055,101 @@ export default function PolicyContent() {
                                   <th>Инструкции</th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <tr>
-                                  <td>
-                                    {directives?.map((item) => (
-                                      <div
-                                        key={item.id}
-                                        className={classes.row}
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          checked={policyToPolicyDirectories.includes(
-                                            item.id
-                                          )}
-                                          onChange={() =>
-                                            handleCheckboxChange(item.id)
-                                          }
-                                        />
-                                        {item.policyName}
-                                      </div>
-                                    ))}
-                                  </td>
 
-                                  <td>
-                                    {instructions?.map((item) => (
-                                      <div
-                                        key={item.id}
-                                        className={classes.row}
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          checked={policyToPolicyDirectories.includes(
-                                            item.id
-                                          )}
-                                          onChange={() =>
+                              {filterArraySearchModalDirectives.length > 0 ||
+                              filterArraySearchModalInstructions.length > 0 ? (
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {filterArraySearchModalDirectives?.map(
+                                        (item) => (
+                                          <div
+                                            key={item.id}
+                                            className={classes.row}
+                                            onClick={() =>
+                                              handleCheckboxChange(item.id)
+                                            }
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={policyToPolicyDirectories.includes(
+                                                item.id
+                                              )}
+                                            />
+                                            {item.policyName}
+                                          </div>
+                                        )
+                                      )}
+                                    </td>
+
+                                    <td>
+                                      {filterArraySearchModalInstructions?.map(
+                                        (item) => (
+                                          <div
+                                            key={item.id}
+                                            className={classes.row}
+                                            onClick={() =>
+                                              handleCheckboxChange(item.id)
+                                            }
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={policyToPolicyDirectories.includes(
+                                                item.id
+                                              )}
+                                            />
+                                            {item.policyName}
+                                          </div>
+                                        )
+                                      )}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              ) : (
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {directives?.map((item) => (
+                                        <div
+                                          key={item.id}
+                                          className={classes.row}
+                                          onClick={() =>
                                             handleCheckboxChange(item.id)
                                           }
-                                        />
-                                        {item.policyName}
-                                      </div>
-                                    ))}
-                                  </td>
-                                </tr>
-                              </tbody>
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={policyToPolicyDirectories.includes(
+                                              item.id
+                                            )}
+                                          />
+                                          {item.policyName}
+                                        </div>
+                                      ))}
+                                    </td>
+
+                                    <td>
+                                      {instructions?.map((item) => (
+                                        <div
+                                          key={item.id}
+                                          className={classes.row}
+                                          onClick={() =>
+                                            handleCheckboxChange(item.id)
+                                          }
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={policyToPolicyDirectories.includes(
+                                              item.id
+                                            )}
+                                          />
+                                          {item.policyName}
+                                        </div>
+                                      ))}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              )}
                             </table>
                           </div>
                         </div>
@@ -1041,51 +1162,69 @@ export default function PolicyContent() {
                         <div className={classes.modal}>
                           <div className={classes.modalWindow}>
                             <div className={classes.modalTableRow}>
-                              <div className={classes.item}>
-                                <div className={classes.itemName}>
-                                  <span>
-                                    <span style={{ color: "red" }}>*</span>
-                                    Название папки
-                                  </span>
-                                </div>
-                                <div className={classes.div}>
+                              <div className={classes.itemTable}>
+                                <div className={classes.itemRow1}>
                                   <input
-                                    type="text"
-                                    placeholder="Название папки"
-                                    value={currentDirectoryName}
-                                    onChange={(e) =>
-                                      setCurrentDirectoryName(e.target.value)
-                                    }
-                                  />
-                                </div>
-                              </div>
-
-                              <div className={classes.modalTableRowIcon}>
-                                <div className={classes.blockIconSavetmp}>
-                                  <img
-                                    src={Blacksavetmp}
-                                    alt="Blacksavetmp"
-                                    className={classes.iconSavetmp}
-                                    onClick={() => saveUpdateFolder()}
+                                    type="search"
+                                    placeholder="Найти"
+                                    value={inputSearchModalDirectory}
+                                    onChange={handleInputChangeModalSearch}
+                                    className={classes.searchModal}
                                   />
                                 </div>
 
-                                <div className={classes.blockIconDeletetmp}>
-                                  <img
-                                    src={deleteGrey}
-                                    alt="deleteGrey"
-                                    className={classes.iconSavetmp}
-                                    onClick={() => {
-                                      // setManualDeleteSuccessResetDirectory(
-                                      //   true
-                                      // );
-                                      // setManualDeleteErrorResetDirectory(true);
-                                      setOpenModalDelete(true);
-                                    }}
-                                  />
+                                <div className={classes.itemRow2}>
+                                  <div className={classes.itemRow2Column}>
+                                    <div className={classes.itemName}>
+                                      <span>
+                                        <span style={{ color: "red" }}>*</span>
+                                        Название папки
+                                      </span>
+                                    </div>
+                                    <div className={classes.div}>
+                                      <input
+                                        type="text"
+                                        placeholder="Название папки"
+                                        value={currentDirectoryName}
+                                        onChange={(e) =>
+                                          setCurrentDirectoryName(
+                                            e.target.value
+                                          )
+                                        }
+                                        className={classes.textMontserrat14}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className={classes.modalTableRowIcon}>
+                                    <div className={classes.blockIconSavetmp}>
+                                      <img
+                                        src={Blacksavetmp}
+                                        alt="Blacksavetmp"
+                                        className={classes.iconSavetmp}
+                                        onClick={() => saveUpdateFolder()}
+                                      />
+                                    </div>
+
+                                    <div className={classes.blockIconDeletetmp}>
+                                      <img
+                                        src={deleteGrey}
+                                        alt="deleteGrey"
+                                        className={classes.iconSavetmp}
+                                        onClick={() => {
+                                          // setManualDeleteSuccessResetDirectory(
+                                          //   true
+                                          // );
+                                          // setManualDeleteErrorResetDirectory(true);
+                                          setOpenModalDelete(true);
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
+
                             <table className={classes.modalTable}>
                               <img
                                 src={exitModal}
@@ -1100,53 +1239,109 @@ export default function PolicyContent() {
                                   <th>Инструкции</th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <tr>
-                                  <td>
-                                    {currentDirectoryDirectives?.map((item) => (
-                                      <div
-                                        key={item.id}
-                                        className={classes.row}
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          checked={item.checked}
-                                          onChange={() =>
-                                            handleCheckboxChangeUpdate(
-                                              item.id,
-                                              "directives"
-                                            )
-                                          }
-                                        />
-                                        {item.policyName}
-                                      </div>
-                                    ))}
-                                  </td>
 
-                                  <td>
-                                    {currentDirectoryInstructions?.map(
-                                      (item) => (
-                                        <div
-                                          key={item.id}
-                                          className={classes.row}
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={item.checked}
-                                            onChange={() =>
+                              {filterArraySearchModalDirectives.length > 0 ||
+                              filterArraySearchModalInstructions.length > 0 ? (
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {filterArraySearchModalDirectives?.map(
+                                        (item) => (
+                                          <div
+                                            key={item.id}
+                                            className={classes.row}
+                                            onClick={() =>
+                                              handleCheckboxChangeUpdate(
+                                                item.id,
+                                                "directives"
+                                              )
+                                            }
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={item.checked}
+                                            />
+                                            {item.policyName}
+                                          </div>
+                                        )
+                                      )}
+                                    </td>
+
+                                    <td>
+                                      {filterArraySearchModalInstructions?.map(
+                                        (item) => (
+                                          <div
+                                            key={item.id}
+                                            className={classes.row}
+                                            onClick={() =>
                                               handleCheckboxChangeUpdate(
                                                 item.id,
                                                 "instructions"
                                               )
                                             }
-                                          />
-                                          {item.policyName}
-                                        </div>
-                                      )
-                                    )}
-                                  </td>
-                                </tr>
-                              </tbody>
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={item.checked}
+                                            />
+                                            {item.policyName}
+                                          </div>
+                                        )
+                                      )}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              ) : (
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {currentDirectoryDirectives?.map(
+                                        (item) => (
+                                          <div
+                                            key={item.id}
+                                            className={classes.row}
+                                            onClick={() =>
+                                              handleCheckboxChangeUpdate(
+                                                item.id,
+                                                "directives"
+                                              )
+                                            }
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={item.checked}
+                                            />
+                                            {item.policyName}
+                                          </div>
+                                        )
+                                      )}
+                                    </td>
+
+                                    <td>
+                                      {currentDirectoryInstructions?.map(
+                                        (item) => (
+                                          <div
+                                            key={item.id}
+                                            className={classes.row}
+                                            onClick={() =>
+                                              handleCheckboxChangeUpdate(
+                                                item.id,
+                                                "instructions"
+                                              )
+                                            }
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={item.checked}
+                                            />
+                                            {item.policyName}
+                                          </div>
+                                        )
+                                      )}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              )}
                             </table>
                           </div>
                         </div>

@@ -55,19 +55,6 @@
     /* Добавляет границу */
 }
 
-input[type="search"]::-webkit-input-placeholder {
-    background-image: url('../../image/search.svg');
-    /* Укажите здесь путь к вашему изображению */
-    background-repeat: no-repeat;
-    /* Предотвращает повторение изображения */
-    background-position: right center;
-    /* Располагает изображение слева от текста */
-    font-family: "Montserrat";
-    font-size: 14px;
-    color: #B4B4B4;
-    /* Необязательно: меняет цвет текста плейсхолдера */
-    font-style: italic;
-}
 
 .spanPomoshnik {
     align-self: flex-start;

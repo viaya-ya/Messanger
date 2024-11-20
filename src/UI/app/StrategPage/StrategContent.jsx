@@ -45,6 +45,7 @@ export default function StrategContent() {
   const [state, setState] = useState("");
   const [number, setNumber] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
@@ -172,8 +173,8 @@ export default function StrategContent() {
   };
 
   const resetSelect = () => {
-    setManualSuccessReset(false);
-    setManualErrorReset(false);
+    setManualSuccessReset(true);
+    setManualErrorReset(true);
     setEditorState(EditorState.createEmpty());
     setHtmlContent();
     setState("");
@@ -332,8 +333,6 @@ export default function StrategContent() {
                 onChange={(e) => {
                   resetSelect();
                   const selectedId = e.target.value;
-                  setManualSuccessReset(true);
-                  setManualErrorReset(true);
                   setNumber(selectedId);
                   const selectedItem = data.strategyToOrganizations?.find(
                     (item) => item?.strategy.id === selectedId
@@ -342,14 +341,7 @@ export default function StrategContent() {
                     setSelectedDate(selectedItem.dateActive);
                   }
                 }}
-                // className={`${classes.select} ${
-                //   currentStrategy.state === "Активный"
-                //     ? classes.active
-                //     : currentStrategy.state === "Завершено"
-                //     ? classes.completed
-                //     : classes.draft
-                // }`}
-
+                
                 className={`${classes.select} ${
                (state && currentStrategy.state) === "Активный"
                     ? classes.active

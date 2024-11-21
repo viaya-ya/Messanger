@@ -22,10 +22,10 @@ import {
   useGetStrategQuery,
   useUpdateStrategMutation,
   useGetStrategNewQuery,
+  usePostStrategMutation,
 } from "../../../BLL/strategApi.js";
 import styles from "../../Custom/CommonStyles.module.css";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
-import { useSelector } from "react-redux";
 import ModalWindow from "../../Custom/ModalWindow.jsx";
 
 export default function StrategContent() {
@@ -36,31 +36,25 @@ export default function StrategContent() {
     navigate(`/${userId}/start`);
   };
 
-  const newStrateg = () => {
-    navigate("new");
-  };
-
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [state, setState] = useState("");
   const [number, setNumber] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  
+
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
   const [organizationId, setOrganizationId] = useState("");
-  
-  // Доступ к локальному Redux стейту
-  const selectedOrganizationId = useSelector(
-    (state) => state.strateg.selectedOrganizationId
-  );
-  const selectedStrategyId = useSelector(
-    (state) => state.strateg.selectedStrategyId
-  );
 
   const [openModal, setOpenModal] = useState(false);
   const [activeStrategDB, setActiveStrategDB] = useState(null);
+  const [disabledSelectStrategy, setDisabledSelectStrategy] = useState(true);
+
+  const [openModalDraft, setOpenModalDraft] = useState(false);
+  const [postId, setPostId] = useState(null);
+  const [manualPostSuccessReset, setManualPostSuccessReset] = useState(false);
+  const [manualPostErrorReset, setManualPostErrorReset] = useState(false);
 
   const {
     getOrganizations = [],
@@ -75,7 +69,10 @@ export default function StrategContent() {
   });
 
   const {
-    data = [],
+    data = {},
+    completedStrategies = [],
+    draftAndActiveStrategies = [],
+    hasDraftStrategy,
     isLoadingStrateg,
     isFetchingStrateg,
     isErrorStrateg,
@@ -83,7 +80,10 @@ export default function StrategContent() {
     { userId, organizationId },
     {
       selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-        data: data || {},
+        data: data?.data || {},
+        draftAndActiveStrategies: data?.draftAndActiveStrategies || [],
+        completedStrategies: data?.completedStrategies || [],
+        hasDraftStrategy: data?.hasDraftStrategy || false,
         isLoadingStrateg: isLoading,
         isFetchingStrateg: isFetching,
         isErrorStrateg: isError,
@@ -110,10 +110,57 @@ export default function StrategContent() {
     }
   );
 
+  //coздание черновика
   useEffect(() => {
-    if (organizationId !== "" ) {
+    if (postId !== null) {
+      setNumber(postId);
+    }
+  }, [postId]);
+
+  const newStrateg = () => {
+    if (hasDraftStrategy) {
+      setOpenModalDraft(true);
+    } else {
+      setManualPostSuccessReset(true);
+      setManualPostErrorReset(true);
+      savePostStarteg();
+    }
+  };
+
+  const [
+    postStarteg,
+    {
+      isLoading: isLoadingPostStrateg,
+      isError: isErrorPostStrateg,
+      isSuccess: isSuccessPostStrateg,
+      error: ErrorPostStrateg,
+    },
+  ] = usePostStrategMutation();
+
+  const savePostStarteg = async () => {
+    await postStarteg({
+      userId,
+      content: " ",
+      organizationId: organizationId,
+    })
+      .unwrap()
+      .then((result) => {
+        setManualPostSuccessReset(false);
+        setManualPostErrorReset(false);
+        setPostId(result.id);
+      })
+      .catch((error) => {
+        setManualPostErrorReset(false);
+        // При ошибке также сбрасываем флаги
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
+  };
+
+  //остальная хуйня
+  useEffect(() => {
+    if (organizationId !== "") {
       const activeStrateg = data?.strategies?.find(
-        (item) => item.state === "Активный" 
+        (item) => item.state === "Активный"
       );
       console.log("activeStrateg");
       console.log(activeStrateg);
@@ -122,12 +169,11 @@ export default function StrategContent() {
   }, [organizationId, isLoadingStrateg, isFetchingStrateg]);
 
   useEffect(() => {
-    if (selectedOrganizationId && selectedStrategyId) {
-      setOrganizationId(selectedOrganizationId);
-      setNumber(selectedStrategyId);
+    if (organizationId !== "") {
+      setDisabledSelectStrategy(false);
     }
-  }, []);
-  
+  }, [organizationId]);
+
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
@@ -137,7 +183,7 @@ export default function StrategContent() {
 
   useEffect(() => {
     setState(currentStrategy.state);
-    
+
     if (currentStrategy.content) {
       const { contentBlocks, entityMap } = convertFromHTML(
         currentStrategy.content
@@ -175,6 +221,10 @@ export default function StrategContent() {
   const resetSelect = () => {
     setManualSuccessReset(true);
     setManualErrorReset(true);
+
+    setManualPostSuccessReset(true);
+    setManualPostErrorReset(true);
+    
     setEditorState(EditorState.createEmpty());
     setHtmlContent();
     setState("");
@@ -238,7 +288,7 @@ export default function StrategContent() {
           setManualErrorReset(false);
           console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
         });
-    }else{
+    } else {
       setOpenModal(false);
       setState("Черновик");
     }
@@ -268,7 +318,10 @@ export default function StrategContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
-
+console.log("isErrorPostStrateg  && !manualPostErrorReset");
+console.log(isErrorPostStrateg  && !manualPostErrorReset);
+console.log("isSuccessPostStrateg && !manualPostSuccessReset");
+console.log(isSuccessPostStrateg && !manualPostSuccessReset);
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>
@@ -341,39 +394,39 @@ export default function StrategContent() {
                     setSelectedDate(selectedItem.dateActive);
                   }
                 }}
-                
                 className={`${classes.select} ${
-               (state && currentStrategy.state) === "Активный"
+                  (state && currentStrategy.state) === "Активный"
                     ? classes.active
                     : (state && currentStrategy.state) === "Завершено"
                     ? classes.completed
                     : classes.draft
                 }`}
+                disabled={disabledSelectStrategy}
               >
                 <option value="" disabled>
                   Выберите стратегию
                 </option>
-                {data?.strategies
-                  ?.slice() 
-                  ?.sort((a, b) => {
-                    const order = { "Активный": 1, "Черновик": 2, "Завершено": 3 }; 
-                    return (order[a.state] || 4) - (order[b.state] || 4); 
-                  })
-                  ?.map((item) => (
-                    <option
-                      key={item?.id}
-                      value={item?.id}
-                      className={`${
-                        item.state === "Активный"
-                          ? classes.active
-                          : item.state === "Завершено"
-                          ? classes.completed
-                          : classes.draft
-                      }`}
-                    >
-                      Стратегия № {item?.strategyNumber}
-                    </option>
-                  ))}
+                {draftAndActiveStrategies?.map((item) => (
+                  <option
+                    key={item?.id}
+                    value={item?.id}
+                    className={`${
+                      item.state === "Активный" ? classes.active : classes.draft
+                    }`}
+                  >
+                    Стратегия № {item?.strategyNumber}
+                  </option>
+                ))}
+
+                {completedStrategies?.map((item) => (
+                  <option
+                    key={item?.id}
+                    value={item?.id}
+                    className={`${classes.completed}`}
+                  >
+                    Стратегия № {item?.strategyNumber}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -501,9 +554,9 @@ export default function StrategContent() {
       </div>
 
       <div className={classes.main}>
-        {isErrorStrateg ? (
+        {isErrorStrateg && isErrorNewStrateg ? (
           <>
-            <HandlerQeury Error={isErrorStrateg}></HandlerQeury>
+            <HandlerQeury Error={true}></HandlerQeury>
           </>
         ) : (
           <>
@@ -511,6 +564,7 @@ export default function StrategContent() {
               <HandlerQeury Error={isErrorGetStrategId}></HandlerQeury>
             ) : (
               <>
+                <HandlerQeury Loading={isLoadingNewStrateg}></HandlerQeury>
                 <HandlerQeury Loading={isLoadingStrateg}></HandlerQeury>
 
                 {isLoadingGetStrategId || isFetchingGetStrategId ? (
@@ -520,7 +574,7 @@ export default function StrategContent() {
                   ></HandlerQeury>
                 ) : (
                   <>
-                    {currentStrategy.content ? (
+                    {currentStrategy.id ? (
                       <>
                         <MyEditor
                           key={currentStrategy.id}
@@ -547,6 +601,18 @@ export default function StrategContent() {
                               : ErrorUpdateStrategMutation?.data?.message
                           }
                         ></HandlerMutation>
+
+                         <HandlerMutation
+                          Loading={isLoadingPostStrateg}
+                          Error={isErrorPostStrateg  && !manualPostErrorReset}
+                          Success={isSuccessPostStrateg && !manualPostSuccessReset}
+                          textSuccess={"Стратегия успешно создана."}
+                          textError={
+                            ErrorPostStrateg?.data?.errors?.[0]?.errors?.[0]
+                              ? ErrorPostStrateg.data.errors[0].errors[0]
+                              : ErrorPostStrateg?.data?.message
+                          }
+                        ></HandlerMutation>
                       </>
                     ) : (
                       <>
@@ -569,6 +635,16 @@ export default function StrategContent() {
             close={setOpenModal}
             btnYes={btnYes}
             btnNo={btnNo}
+          ></ModalWindow>
+        ) : (
+          <></>
+        )}
+
+        {openModalDraft ? (
+          <ModalWindow
+            text={"У Вас уже есть Черновик стратегии"}
+            close={setOpenModalDraft}
+            exitBtn={true}
           ></ModalWindow>
         ) : (
           <></>

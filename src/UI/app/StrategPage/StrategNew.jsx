@@ -22,7 +22,10 @@ import {
 } from "../../../BLL/strategApi.js";
 import styles from "../../Custom/CommonStyles.module.css";
 import { useDispatch } from "react-redux";
-import { setSelectedOrganizationId, setSelectedStrategyId } from "../../../BLL/strategSlice.js";
+import {
+  setSelectedOrganizationId,
+  setSelectedStrategyId,
+} from "../../../BLL/strategSlice.js";
 
 export default function StrategNew() {
   const navigate = useNavigate();
@@ -52,10 +55,10 @@ export default function StrategNew() {
   });
 
   useEffect(() => {
-    if(propsStrategyId){
+    if (propsStrategyId) {
       navigate(`/${userId}/strateg`);
     }
-  },[propsStrategyId])
+  }, [propsStrategyId]);
 
   useEffect(() => {
     const rawContent = draftToHtml(
@@ -79,6 +82,7 @@ export default function StrategNew() {
     setOrganizationId("");
     setEditorState(EditorState.createEmpty());
   };
+
   const savePostStarteg = async () => {
     await postStarteg({
       userId,
@@ -133,17 +137,17 @@ export default function StrategNew() {
             <select
               value={organizationId}
               onChange={(e) => {
-                const selectedOrgId = e.target.value; 
+                const selectedOrgId = e.target.value;
                 const selectedOrg = organizations.find(
                   (item) => item.id === selectedOrgId
-                ); 
+                );
                 const strategId = selectedOrg.strategies?.[0]?.id;
 
-                setOrganizationId(selectedOrgId); 
+                setOrganizationId(selectedOrgId);
                 if (selectedOrg?.strategies?.length > 0) {
-                  dispatch(setSelectedOrganizationId(selectedOrgId));                
+                  dispatch(setSelectedOrganizationId(selectedOrgId));
                   dispatch(setSelectedStrategyId(strategId));
-                  setPropsStrategyId(strategId);               
+                  setPropsStrategyId(strategId);
                 }
               }}
               className={classes.select}

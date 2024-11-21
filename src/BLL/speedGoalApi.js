@@ -5,19 +5,6 @@ export const speedGoalApi = createApi({
   tagTypes: ["SpeedGoal"],
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
   endpoints: (build) => ({
-    // getSpeedGoals: build.query({
-    //   query: (userId = "") => ({
-    //     url: `${userId}/objectives`,
-    //   }),
-    //   providesTags: (result, error, userId) =>
-    //     result ? [{ type: "SpeedGoal", id: userId }] : [],
-    //   transformResponse: (response) => {
-    //     return {
-    //       data: response.sort((a,b) => a.strategy?.strategyNumber - b.strategy?.strategyNumber  ) || {},
-    //     };
-    //   },
-    // }),
-
     getSpeedGoals: build.query({
       query: (userId = "") => ({
         url: `${userId}/objectives`,

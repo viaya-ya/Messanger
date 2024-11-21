@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetPostNewQuery, usePostPostsMutation } from "../../../BLL/postApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
+import exitModal from "../../image/exitModal.svg";
 
 export default function PostNew() {
   const navigate = useNavigate();
@@ -17,37 +18,38 @@ export default function PostNew() {
     navigate(`/${userId}/posts`);
   };
   const [postName, setPostName] = useState();
-  const [divisionName, setDivisionName] = useState(null);
-  const [disabledDivisionName, setDisabledDivisionName] = useState(false);
+  const [divisionName, setDivisionName] = useState();
+  const [divisionNameDB, setDivisionNameDB] = useState();
   const [product, setProduct] = useState();
   const [purpose, setPurpose] = useState();
   const [policy, setPolicy] = useState("null");
   const [worker, setWorker] = useState("null");
   const [parentId, setParentId] = useState("null");
-  const [organization, setOrganization] = useState();
+  const [organization, setOrganization] = useState("");
 
-  useEffect(() => {
-    if (parentId !== "null") {
-      setDisabledDivisionName(true);
-    } else {
-      setDisabledDivisionName(false);
-      setDivisionName("");
-    }
-  }, [parentId]);
+  const [openModal, setOpenModal] = useState(false);
+  const [filterArraySearchModalPolicy, setFilterArraySearchModalPolicy] =
+    useState([]);
+  const [inputSearchModalDirectory, setInputSearchModalDirectory] =
+    useState("");
+
+
 
   const {
     workers = [],
     policies = [],
-    postsWithoutParentId = [],
+    posts = [],
     organizations = [],
+    maxDivisionNumber,
     isLoadingGetNew,
     isErrorGetNew,
   } = useGetPostNewQuery(userId, {
     selectFromResult: ({ data, isLoading, isError }) => ({
       workers: data?.workers || [],
       policies: data?.policies || [],
-      postsWithoutParentId: data?.postsWithoutParentId || [],
+      posts: data?.posts || [],
       organizations: data?.organizations || [],
+      maxDivisionNumber: data?.maxDivisionNumber,
       isLoadingGetNew: isLoading,
       isErrorGetNew: isError,
     }),
@@ -76,17 +78,17 @@ export default function PostNew() {
 
   const savePosts = async () => {
     const Data = {};
-    if(policy !== "null"){
-      Data.addPolicyId = policy
+    if (policy !== "null") {
+      Data.addPolicyId = policy;
     }
-    if(divisionName !== null){
-      Data.divisionName = divisionName
+    if (divisionName !== divisionNameDB) {
+      Data.divisionName = divisionName;
     }
-    if(parentId !== "null"){
-      Data.parentId = parentId
+    if (parentId !== "null") {
+      Data.parentId = parentId;
     }
-    if(worker !== "null"){
-      Data.responsibleUserId = worker
+    if (worker !== "null") {
+      Data.responsibleUserId = worker;
     }
     await postPosts({
       userId: userId,
@@ -104,6 +106,41 @@ export default function PostNew() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+
+  const intsallPolicy = () => {
+    setOpenModal(true);
+  };
+
+  const exit = () => {
+    setOpenModal(false);
+  };
+
+  const handleRadioChangePolicy = (id) => {
+    setPolicy((prevPolicy) => (prevPolicy === id ? "null" : id));
+  };
+
+  const handleInputChangeModalSearch = (e) => {
+    setInputSearchModalDirectory(e.target.value);
+  };
+
+  useEffect(() => {
+    if (inputSearchModalDirectory !== "") {
+      const filteredDirectives = policies.filter((item) =>
+        item.policyName
+          .toLowerCase()
+          .includes(inputSearchModalDirectory.toLowerCase())
+      );
+
+      setFilterArraySearchModalPolicy(filteredDirectives);
+    } else {
+      setFilterArraySearchModalPolicy([]);
+    }
+  }, [inputSearchModalDirectory]);
+
+  useEffect(() => {
+    setDivisionName(`Подразделение №${maxDivisionNumber + 1}`);
+    setDivisionNameDB(`Подразделение №${maxDivisionNumber + 1}`);
+  },[maxDivisionNumber]);
 
   return (
     <div className={classes.dialog}>
@@ -154,6 +191,7 @@ export default function PostNew() {
                 onChange={(e) => {
                   setPostName(e.target.value);
                 }}
+                className={classes.select}
               />
             </div>
           </div>
@@ -169,14 +207,14 @@ export default function PostNew() {
                 onChange={(e) => {
                   setDivisionName(e.target.value);
                 }}
-                disabled={disabledDivisionName}
+                className={classes.select}
               />
             </div>
           </div>
 
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Руководствующий пост</span>
+              <span>Руководитель</span>
             </div>
             <div className={classes.div}>
               <select
@@ -185,14 +223,10 @@ export default function PostNew() {
                 value={parentId}
                 onChange={(e) => {
                   setParentId(e.target.value);
-                  const obj = postsWithoutParentId.find(
-                    (item) => item.id === e.target.value
-                  );
-                  setDivisionName(obj?.divisionName);
                 }}
               >
                 <option value="null"> — </option>
-                {postsWithoutParentId?.map((item) => {
+                {posts?.map((item) => {
                   return <option value={item.id}>{item.postName}</option>;
                 })}
               </select>
@@ -201,7 +235,7 @@ export default function PostNew() {
 
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Руководитель поста</span>
+              <span>Сотрудник</span>
             </div>
             <div className={classes.div}>
               <select
@@ -226,27 +260,6 @@ export default function PostNew() {
 
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Прикрепить политику</span>
-            </div>
-            <div className={classes.div}>
-              <select
-                name="mySelect"
-                className={classes.select}
-                value={policy}
-                onChange={(e) => {
-                  setPolicy(e.target.value);
-                }}
-              >
-                <option value="null"> — </option>
-                {policies?.map((item) => {
-                  return <option value={item.id}>{item.policyName}</option>;
-                })}
-              </select>
-            </div>
-          </div>
-
-          <div className={classes.item}>
-            <div className={classes.itemName}>
               <span>
                 Организация <span style={{ color: "red" }}>*</span>
               </span>
@@ -260,7 +273,7 @@ export default function PostNew() {
                   setOrganization(e.target.value);
                 }}
               >
-                <option value="">Выберите опцию</option>
+                <option value="" disabled>Выберите организацию</option>
                 {organizations?.map((item) => {
                   return (
                     <option value={item.id}>{item.organizationName}</option>
@@ -312,23 +325,122 @@ export default function PostNew() {
                   />
                 </div>
 
-                {/* <div className={classes.post}>
-                  <img src={blackStatistic} alt="blackStatistic" />
+                <div className={classes.post} onClick={() => intsallPolicy()}>
+                  <img src={greyPolicy} alt="greyPolicy" />
                   <div>
                     <span className={classes.nameButton}>
-                      Выбрать или создать статистику для поста
+                      Прикрепить политику
                     </span>
                   </div>
-                </div> */}
-                
+                </div>
+
+                {openModal ? (
+                  <>
+                    <div className={classes.modal}>
+                      <div className={classes.modalWindow}>
+                        <div className={classes.modalTableRow}>
+                          <div className={classes.itemTable}>
+                            <div className={classes.itemRow1}>
+                              <input
+                                type="search"
+                                placeholder="Найти"
+                                value={inputSearchModalDirectory}
+                                onChange={handleInputChangeModalSearch}
+                                className={classes.searchModal}
+                              />
+                            </div>
+
+                            <div className={classes.itemRow2}>
+                              <div className={classes.iconSave}>
+                                <img
+                                  src={Blacksavetmp}
+                                  alt="Blacksavetmp"
+                                  className={classes.image}
+                                  style={{ marginLeft: "0.5%" }}
+                                  onClick={() => {
+                                    // saveFolder();
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <table className={classes.modalTable}>
+                          <img
+                            src={exitModal}
+                            alt="exitModal"
+                            onClick={exit}
+                            className={classes.exitImage}
+                          />
+
+                          <thead>
+                            <tr>
+                              <th>Название политики</th>
+                            </tr>
+                          </thead>
+
+                          {filterArraySearchModalPolicy.length > 0 ? (
+                            <tbody>
+                              <tr>
+                                <td>
+                                  {filterArraySearchModalPolicy?.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      className={classes.row}
+                                      onClick={() =>
+                                        handleRadioChangePolicy(item.id)
+                                      }
+                                    >
+                                      <input
+                                        type="radio"
+                                        checked={policy === item.id}
+                                      />
+                                      {item.policyName}
+                                    </div>
+                                  ))}
+                                </td>
+                              </tr>
+                            </tbody>
+                          ) : (
+                            <tbody>
+                              <tr>
+                                <td>
+                                  {policies?.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      className={classes.row}
+                                      onClick={() =>
+                                        handleRadioChangePolicy(item.id)
+                                      }
+                                    >
+                                      <input
+                                        type="radio"
+                                        checked={policy === item.id}
+                                      />
+                                      {item.policyName}
+                                    </div>
+                                  ))}
+                                </td>
+                              </tr>
+                            </tbody>
+                          )}
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <></>
+                )}
+
                 <HandlerMutation
                   Loading={isLoadingPostMutation}
                   Error={isErrorPostMutation}
                   Success={isSuccessPostMutation}
                   textSuccess={"Пост успешно создан."}
                   textError={
-                    Error?.data?.errors?.[0]?.errors?.[0] 
-                      ? Error.data.errors[0].errors[0] 
+                    Error?.data?.errors?.[0]?.errors?.[0]
+                      ? Error.data.errors[0].errors[0]
                       : Error?.data?.message
                   }
                 ></HandlerMutation>

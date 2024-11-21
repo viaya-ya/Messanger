@@ -5,6 +5,7 @@ export const postApi = createApi({
   tagTypes: ["Post", "PostNew"],
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
   endpoints: (build) => ({
+    
     getPosts: build.query({
       query: (userId = "") => ({
         url: `${userId}/posts`,
@@ -30,11 +31,12 @@ export const postApi = createApi({
         return {
           workers: response?.workers || [],
           policies: response?.policies || [],
-          postsWithoutParentId: response?.postsWithoutParentId || [],
+          posts: response?.posts || [],
           organizations: response?.organizations || [],
+          maxDivisionNumber: response?.maxDivisionNumber,
         };
       },
-      providesTags: (result, error, userId) => [{ type: "PostNew", id: "NEW" }],
+      providesTags: (result, error, userId) => [{ type: "Post", id: "LIST" }, { type: "PostNew", id: "NEW" }],
     }),
 
     getPostId: build.query({
@@ -47,9 +49,11 @@ export const postApi = createApi({
         return {
           currentPost: response?.currentPost || {},
           parentPost: response?.parentPost || {},
-          policyGet: response?.currentPost?.policy || {},
+          policyDB: response?.currentPost?.policy.id || null,
           workers: response?.workers || [],
           organizations: response?.organizations || [],
+          policies: response?.policiesActive || [],
+          posts: response?.posts || [],
         };
       },
     }),

@@ -16,6 +16,7 @@ import {
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
+import exitModal from "../../image/exitModal.svg";
 
 export default function PostContent() {
   const navigate = useNavigate();
@@ -27,7 +28,6 @@ export default function PostContent() {
     navigate("new");
   };
   const [postName, setPostName] = useState(null);
-  const [postNameChanges, setPostNameChanges] = useState(false);
   const [divisionName, setDivisionName] = useState(null);
   const [product, setProduct] = useState(null);
   const [isProductChanges, setIsProductChanges] = useState(false);
@@ -42,6 +42,16 @@ export default function PostContent() {
 
   const [isOpenSearch, setIsOpenSearch] = useState(false);
   const selectRef = useRef(null); // Для отслеживания кликов вне компонента
+
+  const [openModal, setOpenModal] = useState(false);
+  const [filterArraySearchModalPolicy, setFilterArraySearchModalPolicy] =
+    useState([]);
+  const [inputSearchModalDirectory, setInputSearchModalDirectory] =
+    useState("");
+  const [policy, setPolicy] = useState(null);
+  const [parentPostId, setParentPostId] = useState(null);
+  const [divisionNameDB, setDivisionNameDB] = useState(null);
+
   const {
     data = [],
     isLoadingGetPosts,
@@ -58,7 +68,9 @@ export default function PostContent() {
     currentPost = {},
     workers = [],
     organizations = [],
-    policyGet = {},
+    policies = [],
+    policyDB = null,
+    posts = [],
     parentPost = {},
     isLoadingGetPostId,
     isErrorGetPostId,
@@ -70,8 +82,10 @@ export default function PostContent() {
         currentPost: data?.currentPost || {},
         workers: data?.workers || [],
         organizations: data?.organizations || [],
+        policies: data?.policies || [],
+        posts: data?.posts || [],
         parentPost: data?.parentPost || {},
-        policyGet: data?.policyGet || {},
+        policyDB: data?.policyDB || null,
         isLoadingGetPostId: isLoading,
         isErrorGetPostId: isError,
         isFetchingGetPostId: isFetching,
@@ -112,9 +126,8 @@ export default function PostContent() {
     setOrganization(null);
     setIsProductChanges(false);
     setIsPurposeChanges(false);
-    setPostNameChanges(false);
   };
-  
+
   const saveUpdatePost = async () => {
     // Создаем объект с измененными полями
     const updatedData = {};
@@ -123,7 +136,7 @@ export default function PostContent() {
     if (postName !== currentPost.postName && postName !== null) {
       updatedData.postName = postName;
     }
-    if (divisionName !== currentPost.divisionName && divisionName !== null) {
+    if (divisionName !== divisionNameDB && divisionName !== null) {
       updatedData.divisionName = divisionName;
     }
     if (
@@ -146,6 +159,9 @@ export default function PostContent() {
       organization !== null
     ) {
       updatedData.organizationId = organization;
+    }
+    if (policy !== policyDB) {
+      updatedData.policyId = policy === null ? null : policy;
     }
     console.log(JSON.stringify(updatedData));
     // Проверяем, если есть данные для обновления
@@ -179,6 +195,72 @@ export default function PostContent() {
     setSelectedPostId(id);
     setIsOpenSearch(false);
   };
+
+  const intsallPolicy = () => {
+    setOpenModal(true);
+  };
+
+  const exit = () => {
+    setOpenModal(false);
+  };
+
+  const handleRadioChangePolicy = (id) => {
+    setPolicy((prevPolicy) => (prevPolicy === id ? null : id));
+  };
+  const handleInputChangeModalSearch = (e) => {
+    setInputSearchModalDirectory(e.target.value);
+  };
+
+  useEffect(() => {
+    if (inputSearchModalDirectory !== "") {
+      const filteredDirectives = policies.filter((item) =>
+        item.policyName
+          .toLowerCase()
+          .includes(inputSearchModalDirectory.toLowerCase())
+      );
+
+      setFilterArraySearchModalPolicy(filteredDirectives);
+    } else {
+      setFilterArraySearchModalPolicy([]);
+    }
+  }, [inputSearchModalDirectory]);
+
+  useEffect(() => {
+    if (policyDB !== null) {
+      setPolicy(policyDB);
+    }
+  }, [policyDB, isLoadingGetPostId]);
+
+  useEffect(() => {
+    if (currentPost.postName) {
+      setPostName(currentPost.postName);
+    }
+
+    if (currentPost.divisionName) {
+      setDivisionName(`${currentPost.divisionName} №${currentPost.divisionNumber}`);
+      setDivisionNameDB(`${currentPost.divisionName} №${currentPost.divisionNumber}`);
+    } else {
+      setDivisionName("");
+    }
+
+    if (currentPost?.user?.id) {
+      setWorker(currentPost?.user?.id);
+    } else {
+      setWorker("");
+    }
+
+    if (parentPost?.id) {
+      setParentPostId(parentPost?.id);
+    } else {
+      setParentPostId("");
+    }
+
+    if (currentPost?.organization?.id) {
+      setOrganization(currentPost?.organization?.id);
+    } else {
+      setOrganization("");
+    }
+  }, [currentPost.id]);
 
   return (
     <div className={classes.dialog}>
@@ -214,7 +296,6 @@ export default function PostContent() {
         </div>
 
         <div className={classes.editText}>
-       
           <div className={classes.item}>
             <div className={classes.itemName}>
               <span>
@@ -224,13 +305,11 @@ export default function PostContent() {
             <div className={classes.div}>
               <input
                 type="text"
-                value={
-                  postNameChanges ? postName : postName || currentPost.postName
-                }
+                value={postName}
                 onChange={(e) => {
                   setPostName(e.target.value);
-                  setPostNameChanges(true);
                 }}
+                className={classes.select}
               />
               <div className={classes.sixth} ref={selectRef}>
                 <img
@@ -239,12 +318,11 @@ export default function PostContent() {
                   onClick={() => setIsOpenSearch(true)}
                 />
                 {isOpenSearch && (
-           
                   <ul className={classes.policySearch}>
                     {data?.map((item) => {
                       return (
                         <li
-                        className={classes.policySearchItem}
+                          className={classes.policySearchItem}
                           onClick={() => selectPost(item.id)}
                           key={item.id}
                         >
@@ -267,44 +345,50 @@ export default function PostContent() {
                 <div className={classes.div}>
                   <input
                     type="text"
-                    value={divisionName || currentPost.divisionName}
+                    value={divisionName}
                     onChange={(e) => {
                       setDivisionName(e.target.value);
                     }}
-                    disabled={parentPost?.divisionName}
+                    className={classes.select}
                   />
                 </div>
               </div>
 
               <div className={classes.item}>
                 <div className={classes.itemName}>
-                  <span>Руководствующий пост</span>
-                </div>
-                <div className={classes.div}>
-                  <input
-                    type="text"
-                    value={parentPost?.divisionName}
-                    disabled
-                  />
-                </div>
-              </div>
-
-              <div className={classes.item}>
-                <div className={classes.itemName}>
-                  <span>Руководитель поста</span>
+                  <span>Руководитель</span>
                 </div>
                 <div className={classes.div}>
                   <select
                     name="mySelect"
                     className={classes.select}
-                    value={worker || currentPost?.user?.id}
+                    value={parentPostId}
+                    onChange={(e) => {
+                      setParentPostId(e.target.value);
+                    }}
+                  >
+                    <option value=""> — </option>
+                    {posts?.map((item) => {
+                      return <option value={item.id}>{item.postName}</option>;
+                    })}
+                  </select>
+                </div>
+              </div>
+
+              <div className={classes.item}>
+                <div className={classes.itemName}>
+                  <span>Сотрудник</span>
+                </div>
+                <div className={classes.div}>
+                  <select
+                    name="mySelect"
+                    className={classes.select}
+                    value={worker}
                     onChange={(e) => {
                       setWorker(e.target.value);
                     }}
                   >
-                    <option value="" disabled>
-                      Выберите опцию
-                    </option>
+                    <option value="">—</option>
                     {workers?.map((item) => {
                       return (
                         <option value={item.id}>
@@ -326,27 +410,18 @@ export default function PostContent() {
                   <select
                     name="mySelect"
                     className={classes.select}
-                    value={organization || currentPost?.organization?.id}
+                    value={organization}
                     onChange={(e) => {
                       setOrganization(e.target.value);
                     }}
                   >
-                    <option value="">Выберите опцию</option>
+                    <option value="">—</option>
                     {organizations?.map((item) => {
                       return (
                         <option value={item.id}>{item.organizationName}</option>
                       );
                     })}
                   </select>
-                </div>
-              </div>
-
-              <div className={classes.item}>
-                <div className={classes.itemName}>
-                  <span>Прикрепить политику</span>
-                </div>
-                <div className={classes.div}>
-                  <input type="text" value={policyGet?.policyName} disabled />
                 </div>
               </div>
             </>
@@ -429,6 +504,18 @@ export default function PostContent() {
                           />
                         </div>
 
+                        <div
+                          className={classes.post}
+                          onClick={() => intsallPolicy()}
+                        >
+                          <img src={greyPolicy} alt="greyPolicy" />
+                          <div>
+                            <span className={classes.nameButton}>
+                              Прикрепить политику
+                            </span>
+                          </div>
+                        </div>
+
                         <div className={classes.post}>
                           <img src={blackStatistic} alt="blackStatistic" />
                           <div>
@@ -438,6 +525,109 @@ export default function PostContent() {
                           </div>
                         </div>
 
+                        {openModal ? (
+                          <>
+                            <div className={classes.modal}>
+                              <div className={classes.modalWindow}>
+                                <div className={classes.modalTableRow}>
+                                  <div className={classes.itemTable}>
+                                    <div className={classes.itemRow1}>
+                                      <input
+                                        type="search"
+                                        placeholder="Найти"
+                                        value={inputSearchModalDirectory}
+                                        onChange={handleInputChangeModalSearch}
+                                        className={classes.searchModal}
+                                      />
+                                    </div>
+
+                                    <div className={classes.itemRow2}>
+                                      <div className={classes.iconSave}>
+                                        <img
+                                          src={Blacksavetmp}
+                                          alt="Blacksavetmp"
+                                          className={classes.image}
+                                          style={{ marginLeft: "0.5%" }}
+                                          onClick={() => {
+                                            // saveFolder();
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <table className={classes.modalTable}>
+                                  <img
+                                    src={exitModal}
+                                    alt="exitModal"
+                                    onClick={exit}
+                                    className={classes.exitImage}
+                                  />
+
+                                  <thead>
+                                    <tr>
+                                      <th>Название политики</th>
+                                    </tr>
+                                  </thead>
+
+                                  {filterArraySearchModalPolicy.length > 0 ? (
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          {filterArraySearchModalPolicy?.map(
+                                            (item) => (
+                                              <div
+                                                key={item.id}
+                                                className={classes.row}
+                                                onClick={() =>
+                                                  handleRadioChangePolicy(
+                                                    item.id
+                                                  )
+                                                }
+                                              >
+                                                <input
+                                                  type="radio"
+                                                  checked={policy === item.id}
+                                                />
+                                                {item.policyName}
+                                              </div>
+                                            )
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  ) : (
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          {policies?.map((item) => (
+                                            <div
+                                              key={item.id}
+                                              className={classes.row}
+                                              onClick={() =>
+                                                handleRadioChangePolicy(item.id)
+                                              }
+                                            >
+                                              <input
+                                                type="radio"
+                                                checked={policy === item.id}
+                                              />
+                                              {item.policyName}
+                                            </div>
+                                          ))}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  )}
+                                </table>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+
                         <HandlerMutation
                           Loading={isLoadingUpdatePostMutation}
                           Error={isErrorUpdatePostMutation && !manualErrorReset} // Учитываем ручной сброс
@@ -446,9 +636,10 @@ export default function PostContent() {
                           } // Учитываем ручной сброс
                           textSuccess={"Пост обновлен"}
                           textError={
-                            Error?.data?.errors?.[0]?.errors?.[0]
-                              ? Error.data.errors[0].errors[0]
-                              : Error?.data?.message
+                            ErrorUpdatePostMutation?.data?.errors?.[0]
+                              ?.errors?.[0]
+                              ? ErrorUpdatePostMutation.data.errors[0].errors[0]
+                              : ErrorUpdatePostMutation?.data?.message
                           }
                         ></HandlerMutation>
                       </>

@@ -9,7 +9,8 @@
 
 .header {
     max-width: 100%;
-    height: 170px;
+    min-height: 120px;
+    max-height: 170px;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.25);
@@ -17,7 +18,7 @@
 }
 
 .fon {
-    height: 40px;
+    height: 32px;
     background-color: #005475;
     border-radius: 0px 8px 0px 0px;
 }
@@ -87,27 +88,13 @@
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    column-gap: 40px;
+    column-gap: 35px;
     row-gap: 10px;
 }
 
-/* .itemName span {
-    font-style: italic;
-    font-size: 12px;
-    font-family: 'Montserrat';
-    font-weight: 400;
-}
-
-.select {
-    position: relative;
-    font-family: 'Montserrat';
-    & option{
-        font-family: 'Montserrat';
-    }
-} */
-
 .item {
-    max-width: 175px;
+    width:170px;
+    max-width: 170px;
 }
 
 .itemName span {
@@ -120,15 +107,12 @@
 .select {
     position: relative;
     font-family: 'Montserrat';
-    max-width: 175px;
-
-    & option {
-        font-family: 'Montserrat';
-        max-width: 175px;
-    }
+    width:100%;
+    max-width:100%;
 }
 
 .div {
+    max-width:100%;
     position: relative;
     display: flex;
 }
@@ -261,6 +245,8 @@
     background-color: #FFFFFF;
     padding: 2%;
     resize: none;
+    font-family: "Montserrat";
+    font-size: 12px;
 }
 
 textarea::placeholder {
@@ -334,4 +320,132 @@ textarea::placeholder {
     display: block;
     background-color: rgb(240, 240, 240);
 
+}
+
+.modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalWindow {
+    position: relative;
+    height: 80vh;
+    max-width: 26vw;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.modalTable {
+    border-collapse: collapse;
+    display: block;
+}
+
+.exitImage {
+    position: absolute;
+    float: right;
+    top: -27px;
+    right: -27px;
+    cursor: pointer;
+}
+
+
+.modalTable {
+    border-collapse: separate;
+}
+
+.modalTable thead,
+.modalTable tbody {
+    display: block;
+    width: calc(50vw - 20px);
+
+}
+
+.modalTable tbody {
+    max-width: 50vw;
+    height: 65vh;
+    margin-top: 5px;
+    border-radius: 10px;
+
+}
+
+.modalTable tbody tr {
+    display: flex;
+    column-gap: 5px;
+}
+
+.modalTable th {
+    width: calc(25vw - 13.5px);
+    padding: 10px;
+    white-space: nowrap;
+    vertical-align: top;
+
+}
+
+.modalTable td {
+    width: calc(25vw - 10px);
+    height: calc(65vh - 50px);
+    display: flex;
+    row-gap: 5px;
+    flex-direction: column;
+    overflow-y: auto;
+    font-family: 'Montserrat';
+    white-space: nowrap;
+    vertical-align: top;
+
+}
+
+.modalTable thead th {
+    color: #005475;
+    font-family: 'Montserrat';
+    background-color: #DDEBF1;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-radius: 10px;
+}
+
+.row {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    background-color: #f0f3f5;
+    border-radius: 10px;
+}
+
+.itemTable {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    margin-bottom: 10px;
+}
+
+.itemRow1 {
+    margin-left: auto;
+}
+
+.itemRow2 {
+    margin-left: auto;
+}
+
+.searchModal {
+    width: 150px;
+    height: 22px;
+    border-bottom: 1px solid #ccc;
+}
+
+input[type="radio"]:checked {
+    accent-color: #005475; 
 }

@@ -9,6 +9,7 @@ import { statisticsApi } from './statisticsApi';
 import { policyDirectoriesApi } from './policyDirectoriesApi';
 import { organizationApi } from './organizationApi';
 import strategReducer from "./strategSlice";
+import postReducer from "./postSlice";
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
         [policyDirectoriesApi.reducerPath]: policyDirectoriesApi.reducer,
         [organizationApi.reducerPath]: organizationApi.reducer,
         strateg: strategReducer,
+        post: postReducer,
     },
     middleware: (getDefaultMiddlware) => getDefaultMiddlware()
                                                                 .concat(policyApi.middleware)

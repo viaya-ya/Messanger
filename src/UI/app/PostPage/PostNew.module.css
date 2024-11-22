@@ -285,6 +285,7 @@ textarea::placeholder {
 }
 
 .modalWindow {
+    left: 10%;
     position: relative;
     height: 80vh;
     max-width: 26vw;

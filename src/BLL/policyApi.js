@@ -10,10 +10,44 @@ export const policyApi = createApi({
         url: `${userId}/policies`,
       }),
 
-      transformResponse: (response) => ({
-        directives: response.directives || [],
-        instructions: response.instructions || [],
-      }),
+      transformResponse: (response) => {
+        const directivesActive = response.directives
+          .filter((item) => item.state === "Активный")
+          .sort((a, b) => a.policyName.localeCompare(b.policyName));
+
+        const directivesDraft = response.directives
+          .filter((item) => item.state === "Черновик")
+          .sort((a, b) => a.policyName.localeCompare(b.policyName));
+
+        const directivesCompleted = response.directives
+          .filter((item) => item.state === "Отменён")
+          .sort((a, b) => a.policyName.localeCompare(b.policyName));
+
+        const instructionsActive = response.instructions
+          .filter((item) => item.state === "Активный")
+          .sort((a, b) => a.policyName.localeCompare(b.policyName));
+
+        const instructionsDraft = response.instructions
+          .filter((item) => item.state === "Черновик")
+          .sort((a, b) => a.policyName.localeCompare(b.policyName));
+
+        const instructionsCompleted = response.instructions
+          .filter((item) => item.state === "Отменён")
+          .sort((a, b) => a.policyName.localeCompare(b.policyName));
+
+        return {
+          directives: response.directives || [],
+          instructions: response.instructions || [],
+
+          directivesActive: directivesActive || [],
+          directivesDraft: directivesDraft || [],
+          directivesCompleted: directivesCompleted || [],
+
+          instructionsActive: instructionsActive || [],
+          instructionsDraft: instructionsDraft || [],
+          instructionsCompleted: instructionsCompleted || [],
+        };
+      },
 
       providesTags: (result) =>
         result && Array.isArray(result)
@@ -29,7 +63,7 @@ export const policyApi = createApi({
         url: `${userId}/policies/new`,
         method: "POST",
         body,
-      }), 
+      }),
       invalidatesTags: [{ type: "Policy", id: "LIST" }],
     }),
 
@@ -71,13 +105,12 @@ export const policyApi = createApi({
     }),
 
     postImage: build.mutation({
-      query: ({ userId, policyId, formData}) => ({
+      query: ({ userId, policyId, formData }) => ({
         url: `${userId}/file-upload/upload?policyId=${policyId}`,
         method: "POST",
         body: formData,
-      }), 
+      }),
     }),
-    
   }),
 });
 
@@ -87,5 +120,5 @@ export const {
   useGetPoliciesNewQuery,
   useGetPoliciesIdQuery,
   useUpdatePoliciesMutation,
-  usePostImageMutation
+  usePostImageMutation,
 } = policyApi;

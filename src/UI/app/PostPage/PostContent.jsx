@@ -17,7 +17,7 @@ import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import exitModal from "../../image/exitModal.svg";
-
+import { useSelector } from "react-redux";
 export default function PostContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -27,6 +27,7 @@ export default function PostContent() {
   const newPost = () => {
     navigate("new");
   };
+  const createdId = useSelector((state) => state.post.postCreatedId);
   const [postName, setPostName] = useState(null);
   const [divisionName, setDivisionName] = useState(null);
   const [product, setProduct] = useState(null);
@@ -49,6 +50,7 @@ export default function PostContent() {
   const [inputSearchModalDirectory, setInputSearchModalDirectory] =
     useState("");
   const [policy, setPolicy] = useState(null);
+  const [policyName, setPolicyName] = useState(null);
   const [parentPostId, setParentPostId] = useState(null);
   const [divisionNameDB, setDivisionNameDB] = useState(null);
 
@@ -105,6 +107,12 @@ export default function PostContent() {
   ] = useUpdatePostsMutation();
 
   useEffect(() => {
+    if (createdId) {
+      setSelectedPostId(createdId);
+    }
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
         setIsOpenSearch(false);
@@ -116,6 +124,63 @@ export default function PostContent() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (inputSearchModalDirectory !== "") {
+      const filteredDirectives = policies.filter((item) =>
+        item.policyName
+          .toLowerCase()
+          .includes(inputSearchModalDirectory.toLowerCase())
+      );
+
+      setFilterArraySearchModalPolicy(filteredDirectives);
+    } else {
+      setFilterArraySearchModalPolicy([]);
+    }
+  }, [inputSearchModalDirectory]);
+
+  useEffect(() => {
+    if (policyDB !== null) {
+      setPolicy(policyDB);
+      const element = policies.find((item) => item.id === policyDB);
+      setPolicyName(element.policyName);
+    }
+  }, [policyDB, isLoadingGetPostId]);
+
+  useEffect(() => {
+    if (currentPost.postName) {
+      setPostName(currentPost.postName);
+    }
+
+    if (currentPost.divisionName) {
+      setDivisionName(
+        `${currentPost.divisionName} №${currentPost.divisionNumber}`
+      );
+      setDivisionNameDB(
+        `${currentPost.divisionName} №${currentPost.divisionNumber}`
+      );
+    } else {
+      setDivisionName("");
+    }
+
+    if (currentPost?.user?.id) {
+      setWorker(currentPost?.user?.id);
+    } else {
+      setWorker("");
+    }
+
+    if (parentPost?.id) {
+      setParentPostId(parentPost?.id);
+    } else {
+      setParentPostId("");
+    }
+
+    if (currentPost?.organization?.id) {
+      setOrganization(currentPost?.organization?.id);
+    } else {
+      setOrganization("");
+    }
+  }, [currentPost.id]);
 
   const reset = () => {
     setPostName(null);
@@ -204,63 +269,17 @@ export default function PostContent() {
     setOpenModal(false);
   };
 
-  const handleRadioChangePolicy = (id) => {
-    setPolicy((prevPolicy) => (prevPolicy === id ? null : id));
+  const handleRadioChangePolicy = (id, element) => {
+    setPolicy((prevPolicy) => {
+      const newPolicy = prevPolicy === id ? null : id;
+      setPolicyName(newPolicy === null ? null : element.policyName); 
+      return newPolicy;
+  });
   };
+
   const handleInputChangeModalSearch = (e) => {
     setInputSearchModalDirectory(e.target.value);
   };
-
-  useEffect(() => {
-    if (inputSearchModalDirectory !== "") {
-      const filteredDirectives = policies.filter((item) =>
-        item.policyName
-          .toLowerCase()
-          .includes(inputSearchModalDirectory.toLowerCase())
-      );
-
-      setFilterArraySearchModalPolicy(filteredDirectives);
-    } else {
-      setFilterArraySearchModalPolicy([]);
-    }
-  }, [inputSearchModalDirectory]);
-
-  useEffect(() => {
-    if (policyDB !== null) {
-      setPolicy(policyDB);
-    }
-  }, [policyDB, isLoadingGetPostId]);
-
-  useEffect(() => {
-    if (currentPost.postName) {
-      setPostName(currentPost.postName);
-    }
-
-    if (currentPost.divisionName) {
-      setDivisionName(`${currentPost.divisionName} №${currentPost.divisionNumber}`);
-      setDivisionNameDB(`${currentPost.divisionName} №${currentPost.divisionNumber}`);
-    } else {
-      setDivisionName("");
-    }
-
-    if (currentPost?.user?.id) {
-      setWorker(currentPost?.user?.id);
-    } else {
-      setWorker("");
-    }
-
-    if (parentPost?.id) {
-      setParentPostId(parentPost?.id);
-    } else {
-      setParentPostId("");
-    }
-
-    if (currentPost?.organization?.id) {
-      setOrganization(currentPost?.organization?.id);
-    } else {
-      setOrganization("");
-    }
-  }, [currentPost.id]);
 
   return (
     <div className={classes.dialog}>
@@ -510,9 +529,15 @@ export default function PostContent() {
                         >
                           <img src={greyPolicy} alt="greyPolicy" />
                           <div>
-                            <span className={classes.nameButton}>
-                              Прикрепить политику
-                            </span>
+                            {policyName ? (
+                              <span className={classes.nameButton}>
+                              Политика: {policyName}
+                              </span>
+                            ) : (
+                              (<span className={classes.nameButton}>
+                                Прикрепить политику
+                              </span>)
+                            )}
                           </div>
                         </div>
 
@@ -582,7 +607,7 @@ export default function PostContent() {
                                                 className={classes.row}
                                                 onClick={() =>
                                                   handleRadioChangePolicy(
-                                                    item.id
+                                                    item.id, item
                                                   )
                                                 }
                                               >
@@ -606,7 +631,7 @@ export default function PostContent() {
                                               key={item.id}
                                               className={classes.row}
                                               onClick={() =>
-                                                handleRadioChangePolicy(item.id)
+                                                handleRadioChangePolicy(item.id, item)
                                               }
                                             >
                                               <input

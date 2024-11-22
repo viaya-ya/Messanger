@@ -19,6 +19,11 @@ export const postApi = createApi({
         method: "POST",
         body,
       }),
+      transformErrorResponse: (response) => {
+        return{
+          id: response?.id,
+        }
+      },
       invalidatesTags: [{ type: "Post", id: "LIST" }, { type: "PostNew", id: "NEW" }],
     }),
 

@@ -365,6 +365,7 @@
     border-radius: 4px;
 }
 
+
 .main {
     position: relative;
     height: calc(100vh - 120px - 24px - 25px);
@@ -506,6 +507,7 @@ textarea::placeholder {
     }
 }
 
+
 .policySearchItem:hover .listULElement {
     display: block;
 }
@@ -518,6 +520,102 @@ textarea::placeholder {
 .policySearchItem {
     position: relative;
 }
+
+
+
+
+.listULElementNested {
+    display: none;
+    max-height: 300px;
+    min-width: 150px;
+    max-width: 300px;
+    position: absolute;
+    left: calc(98%);
+    top: 0;
+    margin: 0;
+    list-style: none;
+    z-index: 100;
+    padding-left: 20px;
+
+    & li {
+        padding: 2px;
+        cursor: pointer;
+        width: 100%;
+        background-color: white;
+
+        &:hover {
+            background-color: rgb(240, 240, 240)
+        }
+    }
+}
+
+.listULElementNestedTwo {
+    display: none;
+    max-height: 300px;
+    min-width: 150px;
+    max-width: 300px;
+    overflow: auto;
+    position: absolute;
+    left: calc(100%);
+    top: 0;
+    margin: 0;
+    list-style: none;
+    z-index: 100;
+    padding-left: 20px;
+
+    & li {
+        padding: 5px;
+        cursor: pointer;
+        width: 100%;
+        background-color: white;
+
+        &:hover {
+            background-color: rgb(240, 240, 240)
+        }
+    }
+}
+
+.listULNested {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    column-gap: 10px;
+}
+
+
+
+.policySearchItemNested:hover .listULElementNested {
+    display: block;
+}
+
+.policySearchItemNested:hover {
+    display: block;
+    background-color: rgb(240, 240, 240);
+}
+
+.policySearchItemNested {
+    position: relative;
+}
+
+
+.policySearchItemNestedNested {
+    position: relative;
+}
+
+.policySearchItemNestedNested:hover .listULElementNestedTwo {
+    display: block;
+}
+
+.policySearchItemNestedNested:hover {
+    display: block;
+    background-color: rgb(240, 240, 240);
+}
+
+
+
 
 .listText {
     white-space: nowrap;
@@ -571,6 +669,7 @@ textarea::placeholder {
 }
 
 .modalWindow {
+    left: 10%;
     position: relative;
     height: 80vh;
     max-width: 50vw;
@@ -721,6 +820,7 @@ textarea::placeholder {
 }
 
 .modalDeleteElement {
+    left: 10%;
     position: relative;
     height: 100px;
     width: 250px;
@@ -829,3 +929,64 @@ input[type="checkbox"]:checked::before {
     transform: translate(-50%, -50%);
 
 }
+
+.activeText {
+    color: #005475;
+}
+
+.draftText {
+    color: black;
+}
+.completedText {
+    color: grey;
+}
+
+/* .listUL {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    column-gap: 10px;
+}
+
+.listULElement {
+    display: none;
+    max-height: 300px;
+    min-width: 150px;
+    max-width: 300px;
+    overflow: auto;
+    position: absolute;
+    left: calc(98%);
+    top: 0;
+    margin: 0;
+    list-style: none;
+    z-index: 100;
+    padding-left: 20px;
+
+    & li {
+        padding: 5px;
+        cursor: pointer;
+        width: 100%;
+        background-color: white;
+
+        &:hover {
+            background-color: rgb(240, 240, 240)
+        }
+    }
+}
+
+
+.policySearchItem:hover .listULElement {
+    display: block;
+}
+
+.policySearchItem:hover {
+    display: block;
+    background-color: rgb(240, 240, 240)
+}
+
+.policySearchItem {
+    position: relative;
+} */

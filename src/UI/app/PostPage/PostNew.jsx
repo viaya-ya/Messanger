@@ -10,6 +10,9 @@ import { useGetPostNewQuery, usePostPostsMutation } from "../../../BLL/postApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import exitModal from "../../image/exitModal.svg";
+import { useDispatch } from "react-redux";
+import { setPostCreatedId } from "../../../BLL/postSlice.js";
+import ModalWindow from "../../Custom/ModalWindow.jsx";
 
 export default function PostNew() {
   const navigate = useNavigate();
@@ -17,23 +20,24 @@ export default function PostNew() {
   const back = () => {
     navigate(`/${userId}/posts`);
   };
+  const dispatch = useDispatch();
   const [postName, setPostName] = useState();
   const [divisionName, setDivisionName] = useState();
   const [divisionNameDB, setDivisionNameDB] = useState();
   const [product, setProduct] = useState();
   const [purpose, setPurpose] = useState();
   const [policy, setPolicy] = useState("null");
+  const [policyName, setPolicyName] = useState(null);
   const [worker, setWorker] = useState("null");
   const [parentId, setParentId] = useState("null");
   const [organization, setOrganization] = useState("");
 
   const [openModal, setOpenModal] = useState(false);
+  const [openModalStatistic, setOpenModalStatistic] = useState(false);
   const [filterArraySearchModalPolicy, setFilterArraySearchModalPolicy] =
     useState([]);
   const [inputSearchModalDirectory, setInputSearchModalDirectory] =
     useState("");
-
-
 
   const {
     workers = [],
@@ -76,6 +80,11 @@ export default function PostNew() {
     setOrganization("");
   };
 
+  const successCreatePost = (id) => {
+    dispatch(setPostCreatedId(id));
+    navigate(`/${userId}/posts`);
+  };
+
   const savePosts = async () => {
     const Data = {};
     if (policy !== "null") {
@@ -99,8 +108,11 @@ export default function PostNew() {
       organizationId: organization,
     })
       .unwrap()
-      .then(() => {
+      .then((result) => {
         reset();
+        setTimeout(() => {
+          successCreatePost(result?.id);
+        }, 2000);
       })
       .catch((error) => {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
@@ -115,8 +127,12 @@ export default function PostNew() {
     setOpenModal(false);
   };
 
-  const handleRadioChangePolicy = (id) => {
-    setPolicy((prevPolicy) => (prevPolicy === id ? "null" : id));
+  const handleRadioChangePolicy = (id, element) => {
+    setPolicy((prevPolicy) => {
+      const newPolicy = prevPolicy === id ? "null" : id;
+      setPolicyName(newPolicy === "null" ? null : element.policyName);
+      return newPolicy;
+    });
   };
 
   const handleInputChangeModalSearch = (e) => {
@@ -140,7 +156,7 @@ export default function PostNew() {
   useEffect(() => {
     setDivisionName(`Подразделение №${maxDivisionNumber + 1}`);
     setDivisionNameDB(`Подразделение №${maxDivisionNumber + 1}`);
-  },[maxDivisionNumber]);
+  }, [maxDivisionNumber]);
 
   return (
     <div className={classes.dialog}>
@@ -273,7 +289,9 @@ export default function PostNew() {
                   setOrganization(e.target.value);
                 }}
               >
-                <option value="" disabled>Выберите организацию</option>
+                <option value="" disabled>
+                  Выберите организацию
+                </option>
                 {organizations?.map((item) => {
                   return (
                     <option value={item.id}>{item.organizationName}</option>
@@ -328,11 +346,36 @@ export default function PostNew() {
                 <div className={classes.post} onClick={() => intsallPolicy()}>
                   <img src={greyPolicy} alt="greyPolicy" />
                   <div>
+                    {policyName ? (
+                      <span className={classes.nameButton}>
+                        Политика: {policyName}
+                      </span>
+                    ) : (
+                      <span className={classes.nameButton}>
+                        Прикрепить политику
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className={classes.post}
+                  onClick={() => setOpenModalStatistic(true)}
+                >
+                  <img src={blackStatistic} alt="blackStatistic" />
+                  <div>
                     <span className={classes.nameButton}>
-                      Прикрепить политику
+                      Выбрать или создать статистику для поста
                     </span>
                   </div>
                 </div>
+                {openModalStatistic && (
+                  <ModalWindow
+                    text={"Выбрать или создать статистику для поста, можно после создания поста."}
+                    close={setOpenModalStatistic}
+                    exitBtn = {true}
+                  ></ModalWindow>
+                )}
 
                 {openModal ? (
                   <>
@@ -389,7 +432,7 @@ export default function PostNew() {
                                       key={item.id}
                                       className={classes.row}
                                       onClick={() =>
-                                        handleRadioChangePolicy(item.id)
+                                        handleRadioChangePolicy(item.id, item)
                                       }
                                     >
                                       <input
@@ -411,7 +454,7 @@ export default function PostNew() {
                                       key={item.id}
                                       className={classes.row}
                                       onClick={() =>
-                                        handleRadioChangePolicy(item.id)
+                                        handleRadioChangePolicy(item.id, item)
                                       }
                                     >
                                       <input

@@ -9,10 +9,31 @@ export const policyDirectoriesApi = createApi({
       query: (userId = "") => ({
         url: `${userId}/policyDirectory`,
       }),
-      transformResponse: (respone) => {
-        console.log(respone);
+      transformResponse: (response) => {
+        console.log(response);
+
+        const foldersSort = response
+        ?.map((element) => ({
+          ...element,
+          policyToPolicyDirectories: element.policyToPolicyDirectories
+          ?.sort((a, b) =>
+            a?.policy?.policyName.localeCompare(b?.policy?.policyName)
+          )
+          ?.sort((a, b) => {
+              if (a?.policy?.type === "Директива" && b?.policy?.type !== "Директива") {
+                return -1; 
+              }
+              if (a?.policy?.type !== "Директива" && b?.policy?.type === "Директива") {
+                return 1;
+              }
+              return 0; 
+            }), 
+        }));
+         
+
         return {
-          folders: respone || [],
+          folders: response || [],
+          foldersSort: foldersSort,
         };
       },
       providesTags: [{ type: "policyDirectories", id: "LIST" }],
@@ -25,25 +46,26 @@ export const policyDirectoriesApi = createApi({
         body,
       }),
       invalidatesTags: (result) =>
-        result ? [{ type: "policyDirectories", id: "LIST"  }] : [],
+        result ? [{ type: "policyDirectories", id: "LIST" }] : [],
     }),
 
     updatePolicyDirectories: build.mutation({
-      query: ({userId, policyDirectoryId , ...body}) => ({
+      query: ({ userId, policyDirectoryId, ...body }) => ({
         url: `${userId}/policyDirectory/${policyDirectoryId}/update`,
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result) => result ?  [{ type: "policyDirectories", id: "LIST" }]: []
-    }), 
+      invalidatesTags: (result) =>
+        result ? [{ type: "policyDirectories", id: "LIST" }] : [],
+    }),
 
     deletePolicyDirectories: build.mutation({
-      query: ({userId, policyDirectoryId}) => ({
+      query: ({ userId, policyDirectoryId }) => ({
         url: `${userId}/policyDirectory/${policyDirectoryId}/remove`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "policyDirectories", id: "LIST"  }],
-    }), 
+      invalidatesTags: [{ type: "policyDirectories", id: "LIST" }],
+    }),
   }),
 });
 
@@ -51,5 +73,5 @@ export const {
   useGetPolicyDirectoriesQuery,
   usePostPolicyDirectoriesMutation,
   useDeletePolicyDirectoriesMutation,
-  useUpdatePolicyDirectoriesMutation
+  useUpdatePolicyDirectoriesMutation,
 } = policyDirectoriesApi;

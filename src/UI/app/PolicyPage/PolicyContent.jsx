@@ -23,7 +23,6 @@ import MyEditor from "../../Custom/MyEditor";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { convertToRaw } from "draft-js";
-// import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import addCircleBlue from "../../image/addCircleBlue.svg";
@@ -114,7 +113,15 @@ export default function PolicyContent() {
 
   const {
     instructions = [],
+    instructionsActive = [],
+    instructionsDraft = [],
+    instructionsCompleted = [],
+
     directives = [],
+    directivesActive = [],
+    directivesDraft = [],
+    directivesCompleted = [],
+
     isLoadingGetPolicies,
     isErrorGetPolicies,
     isFetchingGetPolicies,
@@ -123,8 +130,16 @@ export default function PolicyContent() {
       isLoadingGetPolicies: isLoading,
       isErrorGetPolicies: isError,
       isFetchingGetPolicies: isFetching,
-      instructions: data?.instructions || [],
       directives: data?.directives || [],
+      instructions: data?.instructions || [],
+
+      instructionsActive: data?.instructionsActive || [],
+      instructionsDraft: data?.instructionsDraft || [],
+      instructionsCompleted: data?.instructionsCompleted || [],
+
+      directivesActive: data?.directivesActive || [],
+      directivesDraft: data?.directivesDraft || [],
+      directivesCompleted: data?.directivesCompleted || [],
     }),
   });
 
@@ -160,6 +175,7 @@ export default function PolicyContent() {
 
   const {
     folders = [],
+    foldersSort = [],
     isLoadingGetPolicyDirectoriesMutation,
     isErrorGetPolicyDirectoriesMutation,
     isFetchingGetPolicyDirectoriesMutation,
@@ -169,6 +185,7 @@ export default function PolicyContent() {
       isErrorGetPolicyDirectoriesMutation: isError,
       isFetchingGetPolicyDirectoriesMutation: isFetching,
       folders: data?.folders || [],
+      foldersSort: data?.foldersSort || [],
     }),
   });
 
@@ -308,16 +325,16 @@ export default function PolicyContent() {
   };
 
   useEffect(() => {
-    if (instructions.length > 0) {
-      const update = instructions.map((item) => ({
+    if (instructionsActive.length > 0) {
+      const update = instructionsActive.map((item) => ({
         id: item.id,
         policyName: item.policyName,
         checked: false,
       }));
       setCurrentDirectoryInstructions(update);
     }
-    if (directives.length > 0) {
-      const update = directives.map((item) => ({
+    if (directivesActive.length > 0) {
+      const update = directivesActive.map((item) => ({
         id: item.id,
         policyName: item.policyName,
         checked: false,
@@ -336,20 +353,21 @@ export default function PolicyContent() {
         (element) => element.policy.id
       );
       setPolicyToPolicyDirectoriesUpdate(policyIds);
-      const filterArray = instructions
+      const filterArray = instructionsActive
         .filter((item) => policyIds.includes(item.id))
         .map((item) => ({
           id: item.id,
           policyName: item.policyName,
           checked: true,
         }));
-      const filterArray1 = directives
+      const filterArray1 = directivesActive
         .filter((item) => policyIds.includes(item.id))
         .map((item) => ({
           id: item.id,
           policyName: item.policyName,
           checked: true,
         }));
+
       const update = currentDirectoryInstructions
         ?.map((item) => {
           const foundItem = filterArray?.find(
@@ -369,6 +387,7 @@ export default function PolicyContent() {
           }
           return b.checked - a.checked; // true (1) должно быть выше false (0)
         });
+
       const update1 = currentDirectoryDirectives
         ?.map((item) => {
           const foundItem = filterArray1?.find(
@@ -505,8 +524,8 @@ export default function PolicyContent() {
   // Поиск в папке
   useEffect(() => {
     if (inputSearchModalDirectory !== "") {
-      const arrayDirectives = [...directives];
-      const arrayInstructions = [...instructions];
+      const arrayDirectives = [...directivesActive];
+      const arrayInstructions = [...instructionsActive];
       const filteredDirectives = arrayDirectives.filter((item) =>
         item.policyName
           .toLowerCase()
@@ -519,7 +538,7 @@ export default function PolicyContent() {
       );
       setFilterArraySearchModalDirectives(filteredDirectives);
       setFilterArraySearchModalInstructions(filteredInstructions);
-    }else{
+    } else {
       setFilterArraySearchModalDirectives([]);
       setFilterArraySearchModalInstructions([]);
     }
@@ -532,7 +551,7 @@ export default function PolicyContent() {
       setFilterArraySearchModalInstructions([]);
     }
   }, [openModalUpdate]);
-  
+
   useEffect(() => {
     if (openModal === false) {
       setInputSearchModalDirectory("");
@@ -601,7 +620,7 @@ export default function PolicyContent() {
                 />
                 {isOpenSearch && (
                   <ul className={classes.policySearch}>
-                    <li className={classes.policySearchItem}>
+                    <li className={classes.policySearchItemNested}>
                       <div className={classes.listUL}>
                         <img src={folder} alt="folder" />
                         <div className={classes.listText}>Директивы</div>
@@ -611,20 +630,91 @@ export default function PolicyContent() {
                           style={{ marginLeft: "auto" }}
                         />
                       </div>
-                      <ul className={classes.listULElement}>
-                        {directives?.map((item) => (
-                          <li
-                            key={item.id}
-                            onClick={() => getPolicyId(item.id)}
-                            className={classes.textMontserrat}
-                          >
-                            {item.policyName}
-                          </li>
-                        ))}
+                      <ul className={classes.listULElementNested}>
+                        <li className={classes.policySearchItemNestedNested}>
+                          <div className={classes.listULNested}>
+                            <img src={folder} alt="folder" />
+                            <div
+                              className={`${classes.listText} ${classes.activeText}`}
+                            >
+                              Активные
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElementNestedTwo}>
+                            {directivesActive?.map((item) => (
+                              <li
+                                key={item.id}
+                                onClick={() => getPolicyId(item.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {item.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+
+                        <li className={classes.policySearchItemNestedNested}>
+                          <div className={classes.listULNested}>
+                            <img src={folder} alt="folder" />
+                            <div
+                              className={`${classes.listText} ${classes.draftText}`}
+                            >
+                              Черновики
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElementNestedTwo}>
+                            {directivesDraft?.map((item) => (
+                              <li
+                                key={item.id}
+                                onClick={() => getPolicyId(item.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {item.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+
+                        <li className={classes.policySearchItemNestedNested}>
+                          <div className={classes.listULNested}>
+                            <img src={folder} alt="folder" />
+                            <div
+                              className={`${classes.listText} ${classes.completedText}`}
+                            >
+                              Завершенные
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElementNestedTwo}>
+                            {directivesCompleted?.map((item) => (
+                              <li
+                                key={item.id}
+                                onClick={() => getPolicyId(item.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {item.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
                       </ul>
                     </li>
 
-                    <li className={classes.policySearchItem}>
+                    <li className={classes.policySearchItemNested}>
                       <div className={classes.listUL}>
                         <img src={folder} alt="folder" />
                         <div className={classes.listText}>Инструкции</div>
@@ -634,20 +724,91 @@ export default function PolicyContent() {
                           style={{ marginLeft: "auto" }}
                         />
                       </div>
-                      <ul className={classes.listULElement}>
-                        {instructions?.map((item) => (
-                          <li
-                            key={item.id}
-                            onClick={() => getPolicyId(item.id)}
-                            className={classes.textMontserrat}
-                          >
-                            {item.policyName}
-                          </li>
-                        ))}
+                      <ul className={classes.listULElementNested}>
+                        <li className={classes.policySearchItemNestedNested}>
+                          <div className={classes.listULNested}>
+                            <img src={folder} alt="folder" />
+                            <div
+                              className={`${classes.listText} ${classes.activeText}`}
+                            >
+                              Активные
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElementNestedTwo}>
+                            {instructionsActive?.map((item) => (
+                              <li
+                                key={item.id}
+                                onClick={() => getPolicyId(item.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {item.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+
+                        <li className={classes.policySearchItemNestedNested}>
+                          <div className={classes.listULNested}>
+                            <img src={folder} alt="folder" />
+                            <div
+                              className={`${classes.listText} ${classes.draftText}`}
+                            >
+                              Черновики
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElementNestedTwo}>
+                            {instructionsDraft?.map((item) => (
+                              <li
+                                key={item.id}
+                                onClick={() => getPolicyId(item.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {item.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+
+                        <li className={classes.policySearchItemNestedNested}>
+                          <div className={classes.listULNested}>
+                            <img src={folder} alt="folder" />
+                            <div
+                              className={`${classes.listText} ${classes.completedText}`}
+                            >
+                              Завершенные
+                            </div>
+                            <img
+                              src={iconSublist}
+                              alt="iconSublist"
+                              style={{ marginLeft: "auto" }}
+                            />
+                          </div>
+                          <ul className={classes.listULElementNestedTwo}>
+                            {instructionsCompleted?.map((item) => (
+                              <li
+                                key={item.id}
+                                onClick={() => getPolicyId(item.id)}
+                                className={classes.textMontserrat}
+                              >
+                                {item.policyName}
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
                       </ul>
                     </li>
 
-                    {folders?.map((item) => {
+                    {foldersSort?.map((item) => {
                       return (
                         <li className={classes.policySearchItem}>
                           <div
@@ -1109,7 +1270,7 @@ export default function PolicyContent() {
                                 <tbody>
                                   <tr>
                                     <td>
-                                      {directives?.map((item) => (
+                                      {directivesActive?.map((item) => (
                                         <div
                                           key={item.id}
                                           className={classes.row}
@@ -1129,7 +1290,7 @@ export default function PolicyContent() {
                                     </td>
 
                                     <td>
-                                      {instructions?.map((item) => (
+                                      {instructionsActive?.map((item) => (
                                         <div
                                           key={item.id}
                                           className={classes.row}

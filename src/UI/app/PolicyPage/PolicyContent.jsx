@@ -35,6 +35,7 @@ import {
 } from "../../../BLL/policyDirectoriesApi.js";
 import styles from "../../Custom/CommonStyles.module.css";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
+import { useSelector } from "react-redux";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ export default function PolicyContent() {
     navigate("new");
   };
   const { userId } = useParams();
+  const policyCreatedId = useSelector((state) => state.policy.policyCreatedId);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [isOpenSearch, setIsOpenSearch] = useState(false);
@@ -99,7 +101,7 @@ export default function PolicyContent() {
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
   const [inputSearchModalDirectory, setInputSearchModalDirectory] =
-    useState("");
+    useState("");  
 
   const [
     filterArraySearchModalDirectives,
@@ -218,6 +220,12 @@ export default function PolicyContent() {
       error: ErrorDeleteDirectories,
     },
   ] = useDeletePolicyDirectoriesMutation();
+
+  useEffect(() => {
+    if (policyCreatedId) {
+      getPolicyId(policyCreatedId);
+    }
+  }, []);
 
   useEffect(() => {
     const rawContent = draftToHtml(

@@ -21,6 +21,8 @@ import { convertToRaw } from "draft-js";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
+import { useDispatch } from "react-redux";
+import { setPolicyCreatedId } from "../../../BLL/policySlice.js";
 
 export default function NewPolicy() {
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ export default function NewPolicy() {
   const [organizationId, setOrganizationId] = useState("");
   // const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
   // const [isPolicyToOrganizations, setIsPolicyToOrganizations] = useState(false);
-
+  const dispatch = useDispatch();
   const {
     organizations = [],
     isLoadingNewPolicies,
@@ -68,6 +70,11 @@ export default function NewPolicy() {
     console.log(rawContent);
   }, [editorState]);
 
+  const successCreatePolicy = (id) => {
+    dispatch(setPolicyCreatedId(id));
+    navigate(`/${userId}/policy`);
+  };
+
   const reset = () => {
     setPolicyName("Политика");
     setType("null");
@@ -76,6 +83,7 @@ export default function NewPolicy() {
     // setIsPolicyToOrganizations(true);
     setEditorState(EditorState.createEmpty());
   };
+  
   const savePolicy = async () => {
     const Data = {};
 
@@ -95,7 +103,8 @@ export default function NewPolicy() {
       // policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
-      .then(() => {
+      .then((result) => {
+        successCreatePolicy(result?.id);
         reset();
       })
       .catch((error) => {

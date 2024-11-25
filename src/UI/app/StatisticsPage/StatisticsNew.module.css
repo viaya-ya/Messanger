@@ -250,6 +250,20 @@
     }
 }
 
+.element:hover span {
+    color: #005475;
+}
+
+.element svg {
+    transition: fill 0.3s ease;
+    /* Добавляем анимацию для цвета SVG */
+}
+
+.element:hover svg path {
+    fill: #005475;
+    /* Меняем цвет SVG при наведении */
+}
+
 .addPoint {
     width: 30px;
     height: 50px;
@@ -258,11 +272,15 @@
     &:hover {
         cursor: pointer;
         background-color: #8a8989;
+        
+        &:svg path {
+            fill: #005475;
+        }
+        
     }
 
     & img {
-        margin-top: 12px;
-        margin-left: 5px;
+     margin-top: 10px; 
     }
 }
 

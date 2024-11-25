@@ -54,7 +54,7 @@ export const postApi = createApi({
         return {
           currentPost: response?.currentPost || {},
           parentPost: response?.parentPost || {},
-          policyDB: response?.currentPost?.policy.id || null,
+          policyDB: response?.currentPost?.policy?.id || null,
           workers: response?.workers || [],
           organizations: response?.organizations || [],
           policies: response?.policiesActive || [],

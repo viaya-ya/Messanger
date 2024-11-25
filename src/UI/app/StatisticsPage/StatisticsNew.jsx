@@ -7,6 +7,8 @@ import Graphic from "../../Custom/Graphic";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import statisticsArrowLeft from "../../image/statisticsArrowLeft.svg";
 import statisticsArrowRight from "../../image/statisticsArrowRight.svg";
+import trash from "../../image/trash.svg";
+import addBlock from "../../image/iconAdd.svg";
 import {
   useGetStatisticsNewQuery,
   usePostStatisticsMutation,
@@ -218,7 +220,7 @@ export default function StatisticsNew() {
 
                 <div className={classes.block2}>
                   <div className={classes.addPoint} onClick={addPoint}>
-                    <img src={statisticsArrowLeft} alt="statisticsArrowLeft" />
+                    <img src={addBlock} alt="addBlock" />
                   </div>
 
                   <div className={classes.points}>
@@ -260,8 +262,8 @@ export default function StatisticsNew() {
 
                   <div className={classes.deletePoint} onClick={deletePoint}>
                     <img
-                      src={statisticsArrowRight}
-                      alt="statisticsArrowRight"
+                      src={trash}
+                      alt="trash"
                     />
                   </div>
                 </div>

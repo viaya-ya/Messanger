@@ -87,10 +87,12 @@ export default function PostNew() {
 
   const savePosts = async () => {
     const Data = {};
-    if (policy !== "null") {
+    if (policy !== "null" && policy !== null) {
       Data.addPolicyId = policy;
     }
     if (divisionName !== divisionNameDB) {
+      Data.divisionName = divisionName;
+    }else{
       Data.divisionName = divisionName;
     }
     if (parentId !== "null") {

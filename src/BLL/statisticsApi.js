@@ -7,8 +7,8 @@ export const statisticsApi = createApi({
   endpoints: (build) => ({
 
     getStatistics: build.query({
-      query: (userId = "") => ({
-        url: `${userId}/statistics`,
+      query: ({userId, statisticData = true}) => ({
+        url: `${userId}/statistics/?statisticData=${statisticData}`,
       }),
       providesTags: (result) => result ? [{type: 'Statistics', id: "LIST"}] : [],
     }),

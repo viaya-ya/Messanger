@@ -10,6 +10,8 @@ import statisticsArrowLeft from "../../image/statisticsArrowLeft.svg";
 import statisticsArrowLeftWhite from "../../image/statisticsArrowLeftWhite.svg";
 import statisticsArrowRight from "../../image/statisticsArrowRight.svg";
 import statisticsArrowRightWhite from "../../image/statisticsArrowRightWhite.svg";
+import trash from "../../image/trash.svg";
+import addBlock from "../../image/iconAdd.svg";
 import {
   useGetStatisticsIdQuery,
   useGetStatisticsNewQuery,
@@ -86,7 +88,7 @@ export default function StatisticsContent() {
     isFetchingStatistic,
     isErrorStatistic,
     refetch,
-  } = useGetStatisticsQuery(userId, {
+  } = useGetStatisticsQuery({userId, statisticData: true }, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
       statistics: data || [],
       isLoadingStatistic: isLoading,
@@ -191,6 +193,79 @@ export default function StatisticsContent() {
     setReportDayComes(report[0]?.reportDay);
   }, [isLoadingOrganizations, isFetchingOrganizations]);
 
+  // Для начального отображения графика так как typeGraphic по умолчанию Ежедневный
+  useEffect(() => {
+    if (statisticDatas.length > 0) {
+      setReceivedPoints([]);
+      setOldReceivedPoints([]);
+      setArrayPoints([]);
+      setShowPoints([]);
+      setCount(0);
+      setDay(reportDay);
+    }
+    if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
+      const dayNow = new Date();
+      const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
+
+      // Определяем начальную дату - ближайший предыдущий день `day`, не более 7 дней назад
+      const startDate = new Date(dayNow);
+      let dayDifference;
+
+      if (currentWeekday >= day) {
+        // Если текущий день >= day, включаем текущую дату или ищем ближайший `day` ранее
+        dayDifference = currentWeekday - day;
+      } else {
+        // Если текущий день < day, откатываемся на предыдущую неделю
+        dayDifference = 7 - (day - currentWeekday);
+      }
+
+      startDate.setDate(dayNow.getDate() - dayDifference - 1);
+
+      // Ограничиваем начальную дату максимум 7 днями назад от текущего дня
+      const maxStartDate = new Date(dayNow);
+      maxStartDate.setDate(dayNow.getDate() - 7); // Последние 7 дней включают сегодня и 6 предыдущих дней
+
+      if (startDate < maxStartDate) {
+        startDate.setTime(maxStartDate.getTime());
+      }
+
+      // Фильтруем данные, оставляя записи от `startDate` до `dayNow` включительно
+      const updatedPoints = statisticDatas
+        .filter((item) => {
+          const itemDate = new Date(item.valueDate);
+          return (
+            startDate <= itemDate &&
+            itemDate <= dayNow &&
+            item.isCorrelation !== true
+          );
+        })
+        .map((item) => ({
+          ...item,
+          valueDate: item.valueDate.split("T")[0],
+        }))
+        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
+
+      const updatedPoints1 = statisticDatas
+        .filter((item) => {
+          const itemDate = new Date(item.valueDate);
+          return (
+            startDate <= itemDate &&
+            itemDate <= dayNow &&
+            item.isCorrelation !== true
+          );
+        })
+        .map((item) => ({
+          ...item,
+          valueDate: item.valueDate.split("T")[0],
+        }))
+        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
+
+      setOldReceivedPoints(updatedPoints);
+      setReceivedPoints(updatedPoints1);
+    }
+  }, [isLoadingGetStatisticId]);
+// (Конец) Для начального отображения графика так как typeGraphic по умолчанию Ежедневный
+
   // Все для начальной страницы
   useEffect(() => {
     if (typeGraphic !== "Ежедневный") {
@@ -205,7 +280,6 @@ export default function StatisticsContent() {
       reset(currentStatistic.name);
     }
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
-
   useEffect(() => {
     if (statisticDatas.length > 0) {
       setReceivedPoints([]);
@@ -1656,10 +1730,7 @@ export default function StatisticsContent() {
 
                         <div className={classes.block2}>
                           <div className={classes.addPoint} onClick={addPoint}>
-                            <img
-                              src={statisticsArrowLeft}
-                              alt="statisticsArrowLeft"
-                            />
+                            <img src={addBlock} alt="addBlock" />
                           </div>
 
                           {statisticId !== "" ? (
@@ -1805,10 +1876,7 @@ export default function StatisticsContent() {
                             className={classes.deletePoint}
                             onClick={deletePoint}
                           >
-                            <img
-                              src={statisticsArrowRight}
-                              alt="statisticsArrowRight"
-                            />
+                            <img src={trash} alt="trash" />
                           </div>
                         </div>
 
@@ -2070,9 +2138,8 @@ export default function StatisticsContent() {
                                     <span style={{ fontWeight: "700" }}>
                                       {showReportDay}
                                     </span>
-                                    . Если подтвердите действие, 
-                                    то отчетный день поменяется у всей
-                                    организации.
+                                    . Если подтвердите действие, то отчетный
+                                    день поменяется у всей организации.
                                   </span>
                                 </div>
 

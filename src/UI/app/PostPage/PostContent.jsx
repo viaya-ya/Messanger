@@ -18,6 +18,7 @@ import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import exitModal from "../../image/exitModal.svg";
 import { useSelector } from "react-redux";
+import { useGetStatisticsQuery } from "../../../BLL/statisticsApi.js";
 export default function PostContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -52,7 +53,18 @@ export default function PostContent() {
   const [policy, setPolicy] = useState(null);
   const [policyName, setPolicyName] = useState(null);
   const [parentPostId, setParentPostId] = useState(null);
-  const [divisionNameDB, setDivisionNameDB] = useState(null);
+  const [openModalStatistic, setOpenModalStatistic] = useState(false);
+  const [
+    filterArraySearchModalStatistics,
+    setFilterArraySearchModalStatistics,
+  ] = useState([]);
+  const [inputSearchModalStatistics, setInputSearchModalStatistics] =
+    useState("");
+
+    const [
+     statisticsChecked,
+     setStatisticsChecked,
+    ] = useState([]);
 
   const {
     data = [],
@@ -106,6 +118,21 @@ export default function PostContent() {
     },
   ] = useUpdatePostsMutation();
 
+  const {
+    statistics = [],
+    isLoadingStatistic,
+    isFetchingStatistic,
+    isErrorStatistic,
+  } = useGetStatisticsQuery({userId, statisticData: false }, {
+    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+      statistics: data || [],
+      isLoadingStatistic: isLoading,
+      isFetchingStatistic: isFetching,
+      isErrorStatistic: isError,
+    }),
+    skip: !openModalStatistic,
+  });
+
   useEffect(() => {
     if (createdId) {
       setSelectedPostId(createdId);
@@ -126,24 +153,10 @@ export default function PostContent() {
   }, []);
 
   useEffect(() => {
-    if (inputSearchModalDirectory !== "") {
-      const filteredDirectives = policies.filter((item) =>
-        item.policyName
-          .toLowerCase()
-          .includes(inputSearchModalDirectory.toLowerCase())
-      );
-
-      setFilterArraySearchModalPolicy(filteredDirectives);
-    } else {
-      setFilterArraySearchModalPolicy([]);
-    }
-  }, [inputSearchModalDirectory]);
-
-  useEffect(() => {
     if (policyDB !== null) {
       setPolicy(policyDB);
       const element = policies.find((item) => item.id === policyDB);
-      setPolicyName(element.policyName);
+      setPolicyName(element?.policyName);
     }
   }, [policyDB, isLoadingGetPostId]);
 
@@ -153,14 +166,7 @@ export default function PostContent() {
     }
 
     if (currentPost.divisionName) {
-      setDivisionName(
-        `${currentPost.divisionName} №${currentPost.divisionNumber}`
-      );
-      setDivisionNameDB(
-        `${currentPost.divisionName} №${currentPost.divisionNumber}`
-      );
-    } else {
-      setDivisionName("");
+      setDivisionName(currentPost.divisionName);
     }
 
     if (currentPost?.user?.id) {
@@ -201,7 +207,7 @@ export default function PostContent() {
     if (postName !== currentPost.postName && postName !== null) {
       updatedData.postName = postName;
     }
-    if (divisionName !== divisionNameDB && divisionName !== null) {
+    if (divisionName !== currentPost.divisionName && divisionName !== null) {
       updatedData.divisionName = divisionName;
     }
     if (
@@ -216,8 +222,12 @@ export default function PostContent() {
     ) {
       updatedData.purpose = purpose;
     }
+    if (parentPostId !== parentPost?.id && parentPostId !== null) {
+      updatedData.parentId = parentPostId === "" ? null : parentPostId;
+    }
+
     if (worker !== currentPost?.user?.id && worker !== null) {
-      updatedData.responsibleUserId = worker;
+      updatedData.responsibleUserId = worker === "" ? null : worker;
     }
     if (
       organization !== currentPost?.organization?.id &&
@@ -261,6 +271,7 @@ export default function PostContent() {
     setIsOpenSearch(false);
   };
 
+  // Политика
   const intsallPolicy = () => {
     setOpenModal(true);
   };
@@ -272,14 +283,68 @@ export default function PostContent() {
   const handleRadioChangePolicy = (id, element) => {
     setPolicy((prevPolicy) => {
       const newPolicy = prevPolicy === id ? null : id;
-      setPolicyName(newPolicy === null ? null : element.policyName); 
+      setPolicyName(newPolicy === null ? null : element.policyName);
       return newPolicy;
-  });
+    });
   };
 
   const handleInputChangeModalSearch = (e) => {
     setInputSearchModalDirectory(e.target.value);
   };
+
+  
+  useEffect(() => {
+    if (inputSearchModalDirectory !== "") {
+      const filteredDirectives = policies.filter((item) =>
+        item.policyName
+          .toLowerCase()
+          .includes(inputSearchModalDirectory.toLowerCase())
+      );
+
+      setFilterArraySearchModalPolicy(filteredDirectives);
+    } else {
+      setFilterArraySearchModalPolicy([]);
+    }
+  }, [inputSearchModalDirectory]);
+
+  // Статистика
+  const intsallStatistics = () => {
+    setOpenModalStatistic(true);
+  };
+
+  const exitStatistic = () => {
+    setOpenModalStatistic(false);
+  };
+
+  const handleChecboxChangeStatistics = (id) => {
+    setStatisticsChecked((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  const searchStatistics = (e) => {
+    setInputSearchModalStatistics(e.target.value);
+  };
+
+  useEffect(() => {
+    if (inputSearchModalStatistics !== "") {
+      const filtered = statistics.filter((item) =>
+        item.name
+          .toLowerCase()
+          .includes(inputSearchModalStatistics.toLowerCase())
+      );
+console.log(filtered);
+console.log(filtered);
+console.log(filtered);
+      setFilterArraySearchModalStatistics(filtered);
+    } else {
+      setFilterArraySearchModalStatistics([]);
+    }
+  }, [inputSearchModalStatistics]);
 
   return (
     <div className={classes.dialog}>
@@ -434,7 +499,9 @@ export default function PostContent() {
                       setOrganization(e.target.value);
                     }}
                   >
-                    <option value="">—</option>
+                    <option value="" disabled>
+                      Выберите организацию
+                    </option>
                     {organizations?.map((item) => {
                       return (
                         <option value={item.id}>{item.organizationName}</option>
@@ -531,17 +598,20 @@ export default function PostContent() {
                           <div>
                             {policyName ? (
                               <span className={classes.nameButton}>
-                              Политика: {policyName}
+                                Политика: {policyName}
                               </span>
                             ) : (
-                              (<span className={classes.nameButton}>
+                              <span className={classes.nameButton}>
                                 Прикрепить политику
-                              </span>)
+                              </span>
                             )}
                           </div>
                         </div>
 
-                        <div className={classes.post}>
+                        <div
+                          className={classes.post}
+                          onClick={() => intsallStatistics()}
+                        >
                           <img src={blackStatistic} alt="blackStatistic" />
                           <div>
                             <span className={classes.nameButton}>
@@ -567,7 +637,7 @@ export default function PostContent() {
                                     </div>
 
                                     <div className={classes.itemRow2}>
-                                      <div className={classes.iconSave}>
+                                      {/* <div className={classes.iconSave}>
                                         <img
                                           src={Blacksavetmp}
                                           alt="Blacksavetmp"
@@ -577,7 +647,7 @@ export default function PostContent() {
                                             // saveFolder();
                                           }}
                                         />
-                                      </div>
+                                      </div> */}
                                     </div>
                                   </div>
                                 </div>
@@ -607,7 +677,8 @@ export default function PostContent() {
                                                 className={classes.row}
                                                 onClick={() =>
                                                   handleRadioChangePolicy(
-                                                    item.id, item
+                                                    item.id,
+                                                    item
                                                   )
                                                 }
                                               >
@@ -631,7 +702,10 @@ export default function PostContent() {
                                               key={item.id}
                                               className={classes.row}
                                               onClick={() =>
-                                                handleRadioChangePolicy(item.id, item)
+                                                handleRadioChangePolicy(
+                                                  item.id,
+                                                  item
+                                                )
                                               }
                                             >
                                               <input
@@ -639,6 +713,114 @@ export default function PostContent() {
                                                 checked={policy === item.id}
                                               />
                                               {item.policyName}
+                                            </div>
+                                          ))}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  )}
+                                </table>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+
+                        {openModalStatistic ? (
+                          <>
+                            <div className={classes.modal}>
+                              <div className={classes.modalWindow}>
+                                <div className={classes.modalTableRow}>
+                                  <div className={classes.itemTable}>
+                                    <div className={classes.itemRow1}>
+                                      <input
+                                        type="search"
+                                        placeholder="Найти"
+                                        value={inputSearchModalStatistics}
+                                        onChange={searchStatistics}
+                                        className={classes.searchModal}
+                                      />
+                                    </div>
+
+                                    <div className={classes.itemRow2}>
+                                      {/* <div className={classes.iconSave}>
+                                        <img
+                                          src={Blacksavetmp}
+                                          alt="Blacksavetmp"
+                                          className={classes.image}
+                                          style={{ marginLeft: "0.5%" }}
+                                          onClick={() => {
+                                            // saveFolder();
+                                          }}
+                                        />
+                                      </div> */}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <table className={classes.modalTable}>
+                                  <img
+                                    src={exitModal}
+                                    alt="exitStatistic"
+                                    onClick={exitStatistic}
+                                    className={classes.exitImage}
+                                  />
+
+                                  <thead>
+                                    <tr>
+                                      <th>Название статистики</th>
+                                    </tr>
+                                  </thead>
+
+                                  {filterArraySearchModalStatistics.length >
+                                  0 ? (
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          {filterArraySearchModalStatistics?.map(
+                                            (item) => (
+                                              <div
+                                                key={item.id}
+                                                className={classes.row}
+                                                onClick={() =>
+                                                  handleChecboxChangeStatistics(
+                                                    item.id,
+                                                    item
+                                                  )
+                                                }
+                                              >
+                                                <input
+                                                  type="checkbox"
+                                                  checked={statisticsChecked.includes(item.id)}
+                                                />
+                                                {item.name}
+                                              </div>
+                                            )
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  ) : (
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          {statistics?.map((item) => (
+                                            <div
+                                              key={item.id}
+                                              className={classes.row}
+                                              onClick={() =>
+                                                handleChecboxChangeStatistics(
+                                                  item.id,
+                                                  item
+                                                )
+                                              }
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                checked={statisticsChecked.includes(item.id)}
+                                              />
+                                              {item.name}
                                             </div>
                                           ))}
                                         </td>

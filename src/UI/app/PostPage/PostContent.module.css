@@ -175,6 +175,7 @@
     background-color: white;
     border-radius: 10px;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.5);
+    z-index: 2;
 }
 
 .image:hover {
@@ -449,4 +450,23 @@ textarea::placeholder {
 
 input[type="radio"]:checked {
     accent-color: #005475; 
+}
+
+input[type="checkbox"]:disabled {
+    width: 17px;
+    height: 17px;
+    border: 2px solid #DDEBF1;
+    border-radius: 4px;
+    background-color: white;
+}
+
+input[type="checkbox"]:disabled::before {
+    content: "✓";
+    color: #acddf2;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
 }

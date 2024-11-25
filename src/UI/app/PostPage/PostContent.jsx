@@ -18,7 +18,10 @@ import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import exitModal from "../../image/exitModal.svg";
 import { useSelector } from "react-redux";
-import { useGetStatisticsQuery } from "../../../BLL/statisticsApi.js";
+import {
+  useGetStatisticsQuery,
+  useUpdateStatisticsToPostIdMutation,
+} from "../../../BLL/statisticsApi.js";
 export default function PostContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -61,10 +64,10 @@ export default function PostContent() {
   const [inputSearchModalStatistics, setInputSearchModalStatistics] =
     useState("");
 
-    const [
-     statisticsChecked,
-     setStatisticsChecked,
-    ] = useState([]);
+  const [statisticsChecked, setStatisticsChecked] = useState([]);
+  const [disabledStatisticsChecked, setDisabledStatisticsChecked] = useState(
+    []
+  );
 
   const {
     data = [],
@@ -86,13 +89,15 @@ export default function PostContent() {
     policyDB = null,
     posts = [],
     parentPost = {},
+    statisticsIncludedPost = [],
     isLoadingGetPostId,
     isErrorGetPostId,
     isFetchingGetPostId,
+    refetchPostId,
   } = useGetPostIdQuery(
     { userId, postId: selectedPostId },
     {
-      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+      selectFromResult: ({ data, isLoading, isError, isFetching, refetch }) => ({
         currentPost: data?.currentPost || {},
         workers: data?.workers || [],
         organizations: data?.organizations || [],
@@ -100,9 +105,11 @@ export default function PostContent() {
         posts: data?.posts || [],
         parentPost: data?.parentPost || {},
         policyDB: data?.policyDB || null,
+        statisticsIncludedPost: data?.statisticsIncludedPost || [],
         isLoadingGetPostId: isLoading,
         isErrorGetPostId: isError,
         isFetchingGetPostId: isFetching,
+        refetchPostId: refetch,
       }),
       skip: !selectedPostId,
     }
@@ -118,20 +125,38 @@ export default function PostContent() {
     },
   ] = useUpdatePostsMutation();
 
+  const [
+    updateStatisticsToPostId,
+    {
+      isLoading: isLoadingStatisticsToPostIdMutation,
+      isSuccess: isSuccessUpdateStatisticsToPostIdMutation,
+      isError: isErrorUpdateStatisticsToPostIdMutation,
+      error: ErrorUpdateStatisticsToPostIdMutation,
+    },
+  ] = useUpdateStatisticsToPostIdMutation();
+
   const {
     statistics = [],
     isLoadingStatistic,
     isFetchingStatistic,
     isErrorStatistic,
-  } = useGetStatisticsQuery({userId, statisticData: false }, {
-    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-      statistics: data || [],
-      isLoadingStatistic: isLoading,
-      isFetchingStatistic: isFetching,
-      isErrorStatistic: isError,
-    }),
-    skip: !openModalStatistic,
-  });
+  } = useGetStatisticsQuery(
+    { userId, statisticData: false },
+    {
+      selectFromResult: ({
+        data,
+        isLoading,
+        isError,
+        isFetching,
+      }) => ({
+        statistics: data || [],
+        isLoadingStatistic: isLoading,
+        isFetchingStatistic: isFetching,
+        isErrorStatistic: isError,
+      }),
+      skip: !openModalStatistic,
+    }
+  );
 
   useEffect(() => {
     if (createdId) {
@@ -186,7 +211,14 @@ export default function PostContent() {
     } else {
       setOrganization("");
     }
-  }, [currentPost.id]);
+    if (statisticsIncludedPost) {
+      const ids = statisticsIncludedPost.map((item) => item.id);
+      setStatisticsChecked(ids);
+      setDisabledStatisticsChecked(ids);
+    } else {
+      setStatisticsChecked([]);
+    }
+  }, [currentPost.id, isLoadingGetPostId, isFetchingGetPostId]);
 
   const reset = () => {
     setPostName(null);
@@ -292,7 +324,6 @@ export default function PostContent() {
     setInputSearchModalDirectory(e.target.value);
   };
 
-  
   useEffect(() => {
     if (inputSearchModalDirectory !== "") {
       const filteredDirectives = policies.filter((item) =>
@@ -337,14 +368,41 @@ export default function PostContent() {
           .toLowerCase()
           .includes(inputSearchModalStatistics.toLowerCase())
       );
-console.log(filtered);
-console.log(filtered);
-console.log(filtered);
       setFilterArraySearchModalStatistics(filtered);
     } else {
       setFilterArraySearchModalStatistics([]);
     }
   }, [inputSearchModalStatistics]);
+
+  const resetStatisticsId = () => {
+    setInputSearchModalStatistics("");
+    setStatisticsChecked([]);
+    setDisabledStatisticsChecked([]);
+    setFilterArraySearchModalStatistics([]);
+  };
+
+  const saveStatisticsId = async () => {
+    const data = statisticsChecked.filter((item) => {
+      return !disabledStatisticsChecked
+        .map((disabled) => disabled)
+        .includes(item);
+    });
+    if (data.length > 0) {
+      await updateStatisticsToPostId({
+        userId,
+        postId: selectedPostId,
+        ids: data,
+      })
+        .unwrap()
+        .then(() => {
+          resetStatisticsId();
+          refetchPostId();
+        })
+        .catch((error) => {
+          console.error("Ошибка:", JSON.stringify(error, null, 2));
+        });
+    }
+  };
 
   return (
     <div className={classes.dialog}>
@@ -744,17 +802,17 @@ console.log(filtered);
                                     </div>
 
                                     <div className={classes.itemRow2}>
-                                      {/* <div className={classes.iconSave}>
+                                      <div className={classes.iconSave}>
                                         <img
                                           src={Blacksavetmp}
                                           alt="Blacksavetmp"
                                           className={classes.image}
                                           style={{ marginLeft: "0.5%" }}
                                           onClick={() => {
-                                            // saveFolder();
+                                            saveStatisticsId();
                                           }}
                                         />
-                                      </div> */}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -792,7 +850,12 @@ console.log(filtered);
                                               >
                                                 <input
                                                   type="checkbox"
-                                                  checked={statisticsChecked.includes(item.id)}
+                                                  checked={statisticsChecked.includes(
+                                                    item.id
+                                                  )}
+                                                  disabled={disabledStatisticsChecked.includes(
+                                                    item.id
+                                                  )}
                                                 />
                                                 {item.name}
                                               </div>
@@ -818,7 +881,12 @@ console.log(filtered);
                                             >
                                               <input
                                                 type="checkbox"
-                                                checked={statisticsChecked.includes(item.id)}
+                                                checked={statisticsChecked.includes(
+                                                  item.id
+                                                )}
+                                                disabled={disabledStatisticsChecked.includes(
+                                                  item.id
+                                                )}
                                               />
                                               {item.name}
                                             </div>

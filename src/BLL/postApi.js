@@ -59,6 +59,7 @@ export const postApi = createApi({
           organizations: response?.organizations || [],
           policies: response?.policiesActive || [],
           posts: response?.posts || [],
+          statisticsIncludedPost: response?.currentPost.statistics || [],
         };
       },
     }),

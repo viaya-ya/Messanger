@@ -54,7 +54,18 @@ export const statisticsApi = createApi({
       }),
       invalidatesTags: (result, error,  {statisticId}) => result ? [{type: "Statistics1", id: statisticId }] : []
     }),
+
+    // для поста
+    updateStatisticsToPostId: build.mutation({
+      query: ({userId, postId , ...body}) => ({
+        url: `${userId}/statistics/${postId}/updateBulk`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result) => result ? [{type: "Statistics", id: "LIST" }] : []
+    }),
+
   }),
 });
 
-export const {usePostStatisticsMutation, useGetStatisticsNewQuery, useGetStatisticsIdQuery, useGetStatisticsQuery, useUpdateStatisticsMutation} = statisticsApi;
+export const {usePostStatisticsMutation, useGetStatisticsNewQuery, useGetStatisticsIdQuery, useGetStatisticsQuery, useUpdateStatisticsMutation, useUpdateStatisticsToPostIdMutation} = statisticsApi;

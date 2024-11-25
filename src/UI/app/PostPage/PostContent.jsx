@@ -93,11 +93,17 @@ export default function PostContent() {
     isLoadingGetPostId,
     isErrorGetPostId,
     isFetchingGetPostId,
-    refetchPostId,
+    refetch: refetchPostIdQuery,
   } = useGetPostIdQuery(
     { userId, postId: selectedPostId },
     {
-      selectFromResult: ({ data, isLoading, isError, isFetching, refetch }) => ({
+      selectFromResult: ({
+        data,
+        isLoading,
+        isError,
+        isFetching,
+        refetch,
+      }) => ({
         currentPost: data?.currentPost || {},
         workers: data?.workers || [],
         organizations: data?.organizations || [],
@@ -109,7 +115,7 @@ export default function PostContent() {
         isLoadingGetPostId: isLoading,
         isErrorGetPostId: isError,
         isFetchingGetPostId: isFetching,
-        refetchPostId: refetch,
+        refetch,
       }),
       skip: !selectedPostId,
     }
@@ -143,12 +149,7 @@ export default function PostContent() {
   } = useGetStatisticsQuery(
     { userId, statisticData: false },
     {
-      selectFromResult: ({
-        data,
-        isLoading,
-        isError,
-        isFetching,
-      }) => ({
+      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
         statistics: data || [],
         isLoadingStatistic: isLoading,
         isFetchingStatistic: isFetching,
@@ -218,7 +219,7 @@ export default function PostContent() {
     } else {
       setStatisticsChecked([]);
     }
-  }, [currentPost.id, isLoadingGetPostId, isFetchingGetPostId]);
+  }, [currentPost.id]);
 
   const reset = () => {
     setPostName(null);
@@ -339,6 +340,12 @@ export default function PostContent() {
   }, [inputSearchModalDirectory]);
 
   // Статистика
+  useEffect(() => {
+    const ids = statisticsIncludedPost.map((item) => item.id);
+    setStatisticsChecked(ids);
+    setDisabledStatisticsChecked(ids);
+  }, [isFetchingGetPostId]);
+
   const intsallStatistics = () => {
     setOpenModalStatistic(true);
   };
@@ -376,8 +383,6 @@ export default function PostContent() {
 
   const resetStatisticsId = () => {
     setInputSearchModalStatistics("");
-    setStatisticsChecked([]);
-    setDisabledStatisticsChecked([]);
     setFilterArraySearchModalStatistics([]);
   };
 
@@ -396,7 +401,7 @@ export default function PostContent() {
         .unwrap()
         .then(() => {
           resetStatisticsId();
-          refetchPostId();
+          refetchPostIdQuery();
         })
         .catch((error) => {
           console.error("Ошибка:", JSON.stringify(error, null, 2));
@@ -653,7 +658,7 @@ export default function PostContent() {
                           onClick={() => intsallPolicy()}
                         >
                           <img src={greyPolicy} alt="greyPolicy" />
-                          <div>
+                          <div className={classes.postNested}>
                             {policyName ? (
                               <span className={classes.nameButton}>
                                 Политика: {policyName}
@@ -671,11 +676,28 @@ export default function PostContent() {
                           onClick={() => intsallStatistics()}
                         >
                           <img src={blackStatistic} alt="blackStatistic" />
-                          <div>
-                            <span className={classes.nameButton}>
-                              Выбрать или создать статистику для поста
-                            </span>
-                          </div>
+
+                          {statisticsIncludedPost.length > 0 ? (
+                            <div className={classes.postNested}>
+                              <span className={classes.nameButton}>
+                                Статистики:{" "}
+                                {statisticsIncludedPost.map((item, index) => (
+                                  <span key={item.id}>
+                                    {item.name}
+                                    {index < statisticsIncludedPost.length - 1
+                                      ? ", "
+                                      : ""}
+                                  </span>
+                                ))}
+                              </span>
+                            </div>
+                          ) : (
+                            <div>
+                              <span className={classes.nameButton}>
+                                Выбрать или создать статистику для поста
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         {openModal ? (

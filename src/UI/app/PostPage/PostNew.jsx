@@ -38,7 +38,8 @@ export default function PostNew() {
     useState([]);
   const [inputSearchModalDirectory, setInputSearchModalDirectory] =
     useState("");
-
+  const [disabledOrganization, setDisabledOrganization] = useState(false);
+  
   const {
     workers = [],
     policies = [],
@@ -69,6 +70,17 @@ export default function PostNew() {
     },
   ] = usePostPostsMutation();
 
+  useEffect(() => {
+    if (parentId !== "null") {
+      const organization = posts?.find((item) => item.id === parentId);
+      setOrganization(organization?.organization?.id);
+      setDisabledOrganization(true);
+    }else{
+      setOrganization("");
+      setDisabledOrganization(false);
+    }
+  }, [parentId]);
+
   const reset = () => {
     setPostName("");
     setDivisionName(null);
@@ -92,7 +104,7 @@ export default function PostNew() {
     }
     if (divisionName !== divisionNameDB) {
       Data.divisionName = divisionName;
-    }else{
+    } else {
       Data.divisionName = divisionName;
     }
     if (parentId !== "null") {
@@ -245,7 +257,11 @@ export default function PostNew() {
               >
                 <option value="null"> — </option>
                 {posts?.map((item) => {
-                  return <option value={item.id}>{item.postName}</option>;
+                  return (
+                    <option key={item.id} value={item.id}>
+                      {item.postName}
+                    </option>
+                  );
                 })}
               </select>
             </div>
@@ -268,7 +284,7 @@ export default function PostNew() {
                 {workers?.map((item) => {
                   return (
                     <option value={item.id}>
-                      {`${item.firstName} ${item.lastName}`}
+                      {` ${item.lastName} ${item.firstName}`}
                     </option>
                   );
                 })}
@@ -290,6 +306,7 @@ export default function PostNew() {
                 onChange={(e) => {
                   setOrganization(e.target.value);
                 }}
+                disabled={disabledOrganization}
               >
                 <option value="" disabled>
                   Выберите организацию
@@ -373,9 +390,11 @@ export default function PostNew() {
                 </div>
                 {openModalStatistic && (
                   <ModalWindow
-                    text={"Выбрать или создать статистику для поста, можно после создания поста."}
+                    text={
+                      "Выбрать или создать статистику для поста, можно после создания поста."
+                    }
                     close={setOpenModalStatistic}
-                    exitBtn = {true}
+                    exitBtn={true}
                   ></ModalWindow>
                 )}
 

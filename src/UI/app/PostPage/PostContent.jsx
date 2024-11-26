@@ -12,6 +12,7 @@ import {
   useGetPostIdQuery,
   useGetPostsQuery,
   useUpdatePostsMutation,
+  useUpdateStatisticsToPostIdMutation
 } from "../../../BLL/postApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
@@ -20,8 +21,9 @@ import exitModal from "../../image/exitModal.svg";
 import { useSelector } from "react-redux";
 import {
   useGetStatisticsQuery,
-  useUpdateStatisticsToPostIdMutation,
 } from "../../../BLL/statisticsApi.js";
+import ModalWindow from "../../Custom/ModalWindow.jsx";
+
 export default function PostContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -68,6 +70,19 @@ export default function PostContent() {
   const [disabledStatisticsChecked, setDisabledStatisticsChecked] = useState(
     []
   );
+  const [disabledOrganization, setDisabledOrganization] =
+    useState(false);
+    const [disabledDivisionName, setDisabledDivisionName] =
+    useState(false);
+    const [selectParentPost, setSelectParentPost] =
+    useState();
+  const [manualSuccessResetStatistic, setManualSuccessResetStatistic] =
+    useState(false);
+  const [manualErrorResetStatistic, setManualErrorResetStatistic] =
+    useState(false);
+
+  const [openModalStatisticWarning, setOpenModalStatisticWarning] =
+    useState(false);
 
   const {
     data = [],
@@ -160,6 +175,19 @@ export default function PostContent() {
   );
 
   useEffect(() => {
+    if (parentPostId !== "") {
+      const obj = posts?.find((item) => item.id === parentPostId);
+      setOrganization(obj?.organization?.id);
+      setDisabledOrganization(true);
+      setDivisionName(obj?.divisionName);
+      setSelectParentPost(obj);
+    }else{
+      setOrganization("");
+      setDisabledOrganization(false);
+    }
+  }, [parentPostId]);
+  
+  useEffect(() => {
     if (createdId) {
       setSelectedPostId(createdId);
     }
@@ -191,8 +219,11 @@ export default function PostContent() {
       setPostName(currentPost.postName);
     }
 
-    if (currentPost.divisionName) {
-      setDivisionName(currentPost.divisionName);
+    if (parentPost?.id && (currentPost?.isHasChildPost === false)) {
+      setDivisionName(parentPost?.divisionName);
+      setDisabledDivisionName(true);
+    } else{
+      setDivisionName(currentPost?.divisionName);
     }
 
     if (currentPost?.user?.id) {
@@ -212,6 +243,7 @@ export default function PostContent() {
     } else {
       setOrganization("");
     }
+    
     if (statisticsIncludedPost) {
       const ids = statisticsIncludedPost.map((item) => item.id);
       setStatisticsChecked(ids);
@@ -233,6 +265,10 @@ export default function PostContent() {
   };
 
   const saveUpdatePost = async () => {
+
+    setManualSuccessResetStatistic(true);
+    setManualErrorResetStatistic(true);
+
     // Создаем объект с измененными полями
     const updatedData = {};
 
@@ -240,7 +276,7 @@ export default function PostContent() {
     if (postName !== currentPost.postName && postName !== null) {
       updatedData.postName = postName;
     }
-    if (divisionName !== currentPost.divisionName && divisionName !== null) {
+    if (divisionName !== currentPost.divisionName && divisionName !== selectParentPost?.divisionName &&  divisionName !== null) {
       updatedData.divisionName = divisionName;
     }
     if (
@@ -350,10 +386,6 @@ export default function PostContent() {
     setOpenModalStatistic(true);
   };
 
-  const exitStatistic = () => {
-    setOpenModalStatistic(false);
-  };
-
   const handleChecboxChangeStatistics = (id) => {
     setStatisticsChecked((prev) => {
       if (prev.includes(id)) {
@@ -384,9 +416,18 @@ export default function PostContent() {
   const resetStatisticsId = () => {
     setInputSearchModalStatistics("");
     setFilterArraySearchModalStatistics([]);
+    setStatisticsChecked([]);
+  };
+
+  const exitStatistic = () => {
+    setOpenModalStatistic(false);
+    resetStatisticsId();
   };
 
   const saveStatisticsId = async () => {
+    setManualSuccessReset(true);
+    setManualErrorReset(true);
+
     const data = statisticsChecked.filter((item) => {
       return !disabledStatisticsChecked
         .map((disabled) => disabled)
@@ -402,11 +443,41 @@ export default function PostContent() {
         .then(() => {
           resetStatisticsId();
           refetchPostIdQuery();
+          setOpenModalStatisticWarning(false);
+          setManualSuccessResetStatistic(false);
+          setManualErrorResetStatistic(false);
         })
         .catch((error) => {
+          setManualErrorResetStatistic(false);
           console.error("Ошибка:", JSON.stringify(error, null, 2));
         });
     }
+  };
+
+  // Модальное окно пиредупреждение что данные нужно сохранить
+  const openStatisticWarning = () => {
+    const data = statisticsChecked.filter((item) => {
+      return !disabledStatisticsChecked
+        .map((disabled) => disabled)
+        .includes(item);
+    });
+
+    if (data.length > 0) {
+      setManualSuccessResetStatistic(true);
+      setManualErrorResetStatistic(true);
+      setOpenModalStatisticWarning(true);
+    } else {
+      exitStatistic();
+    }
+  };
+
+  const btnYes = () => {
+    saveStatisticsId();
+  };
+
+  const btnNo = () => {
+    setOpenModalStatisticWarning(false);
+    exitStatistic();
   };
 
   return (
@@ -462,7 +533,11 @@ export default function PostContent() {
                 <img
                   src={subbarSearch}
                   alt="subbarSearch"
-                  onClick={() => setIsOpenSearch(true)}
+                  onClick={() => {
+                    setManualSuccessResetStatistic(true);
+                    setManualErrorResetStatistic(true);
+                    setIsOpenSearch(true);
+                  }}
                 />
                 {isOpenSearch && (
                   <ul className={classes.policySearch}>
@@ -496,6 +571,7 @@ export default function PostContent() {
                     onChange={(e) => {
                       setDivisionName(e.target.value);
                     }}
+                    disabled = {disabledDivisionName}
                     className={classes.select}
                   />
                 </div>
@@ -561,8 +637,9 @@ export default function PostContent() {
                     onChange={(e) => {
                       setOrganization(e.target.value);
                     }}
+                    disabled = {disabledOrganization}
                   >
-                    <option value="" disabled>
+                    <option value= "" disabled>
                       Выберите организацию
                     </option>
                     {organizations?.map((item) => {
@@ -807,122 +884,148 @@ export default function PostContent() {
                           <></>
                         )}
 
-                        {openModalStatistic ? (
+                        {isErrorStatistic ? (
+                          <HandlerQeury Error={isErrorStatistic}></HandlerQeury>
+                        ) : (
                           <>
-                            <div className={classes.modal}>
-                              <div className={classes.modalWindow}>
-                                <div className={classes.modalTableRow}>
-                                  <div className={classes.itemTable}>
-                                    <div className={classes.itemRow1}>
-                                      <input
-                                        type="search"
-                                        placeholder="Найти"
-                                        value={inputSearchModalStatistics}
-                                        onChange={searchStatistics}
-                                        className={classes.searchModal}
-                                      />
-                                    </div>
+                            <HandlerQeury
+                              Loading={isLoadingStatistic}
+                            ></HandlerQeury>
+                            {!isErrorStatistic && (
+                              <>
+                                {openModalStatistic ? (
+                                  <>
+                                    <div className={classes.modal}>
+                                      <div className={classes.modalWindow}>
+                                        <div className={classes.modalTableRow}>
+                                          <div className={classes.itemTable}>
+                                            <div className={classes.itemRow1}>
+                                              <input
+                                                type="search"
+                                                placeholder="Найти"
+                                                value={
+                                                  inputSearchModalStatistics
+                                                }
+                                                onChange={searchStatistics}
+                                                className={classes.searchModal}
+                                              />
+                                            </div>
 
-                                    <div className={classes.itemRow2}>
-                                      <div className={classes.iconSave}>
-                                        <img
-                                          src={Blacksavetmp}
-                                          alt="Blacksavetmp"
-                                          className={classes.image}
-                                          style={{ marginLeft: "0.5%" }}
-                                          onClick={() => {
-                                            saveStatisticsId();
-                                          }}
-                                        />
+                                            <div className={classes.itemRow2}>
+                                              <div className={classes.iconSave}>
+                                                <img
+                                                  src={Blacksavetmp}
+                                                  alt="Blacksavetmp"
+                                                  className={classes.image}
+                                                  style={{ marginLeft: "0.5%" }}
+                                                  onClick={() => {
+                                                    saveStatisticsId();
+                                                  }}
+                                                />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <table className={classes.modalTable}>
+                                          <img
+                                            src={exitModal}
+                                            alt="exitStatistic"
+                                            onClick={openStatisticWarning}
+                                            className={classes.exitImage}
+                                          />
+
+                                          <thead>
+                                            <tr>
+                                              <th>Название статистики</th>
+                                            </tr>
+                                          </thead>
+
+                                          {filterArraySearchModalStatistics.length >
+                                          0 ? (
+                                            <tbody>
+                                              <tr>
+                                                <td>
+                                                  {filterArraySearchModalStatistics?.map(
+                                                    (item) => (
+                                                      <div
+                                                        key={item.id}
+                                                        className={classes.row}
+                                                        onClick={() =>
+                                                          handleChecboxChangeStatistics(
+                                                            item.id,
+                                                            item
+                                                          )
+                                                        }
+                                                      >
+                                                        <input
+                                                          type="checkbox"
+                                                          checked={statisticsChecked.includes(
+                                                            item.id
+                                                          )}
+                                                          disabled={disabledStatisticsChecked.includes(
+                                                            item.id
+                                                          )}
+                                                        />
+                                                        {item.name}
+                                                      </div>
+                                                    )
+                                                  )}
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          ) : (
+                                            <tbody>
+                                              <tr>
+                                                <td>
+                                                  {statistics?.map((item) => (
+                                                    <div
+                                                      key={item.id}
+                                                      className={classes.row}
+                                                      onClick={() =>
+                                                        handleChecboxChangeStatistics(
+                                                          item.id,
+                                                          item
+                                                        )
+                                                      }
+                                                    >
+                                                      <input
+                                                        type="checkbox"
+                                                        checked={statisticsChecked.includes(
+                                                          item.id
+                                                        )}
+                                                        disabled={disabledStatisticsChecked.includes(
+                                                          item.id
+                                                        )}
+                                                      />
+                                                      {item.name}
+                                                    </div>
+                                                  ))}
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          )}
+                                        </table>
                                       </div>
                                     </div>
-                                  </div>
-                                </div>
-
-                                <table className={classes.modalTable}>
-                                  <img
-                                    src={exitModal}
-                                    alt="exitStatistic"
-                                    onClick={exitStatistic}
-                                    className={classes.exitImage}
-                                  />
-
-                                  <thead>
-                                    <tr>
-                                      <th>Название статистики</th>
-                                    </tr>
-                                  </thead>
-
-                                  {filterArraySearchModalStatistics.length >
-                                  0 ? (
-                                    <tbody>
-                                      <tr>
-                                        <td>
-                                          {filterArraySearchModalStatistics?.map(
-                                            (item) => (
-                                              <div
-                                                key={item.id}
-                                                className={classes.row}
-                                                onClick={() =>
-                                                  handleChecboxChangeStatistics(
-                                                    item.id,
-                                                    item
-                                                  )
-                                                }
-                                              >
-                                                <input
-                                                  type="checkbox"
-                                                  checked={statisticsChecked.includes(
-                                                    item.id
-                                                  )}
-                                                  disabled={disabledStatisticsChecked.includes(
-                                                    item.id
-                                                  )}
-                                                />
-                                                {item.name}
-                                              </div>
-                                            )
-                                          )}
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  ) : (
-                                    <tbody>
-                                      <tr>
-                                        <td>
-                                          {statistics?.map((item) => (
-                                            <div
-                                              key={item.id}
-                                              className={classes.row}
-                                              onClick={() =>
-                                                handleChecboxChangeStatistics(
-                                                  item.id,
-                                                  item
-                                                )
-                                              }
-                                            >
-                                              <input
-                                                type="checkbox"
-                                                checked={statisticsChecked.includes(
-                                                  item.id
-                                                )}
-                                                disabled={disabledStatisticsChecked.includes(
-                                                  item.id
-                                                )}
-                                              />
-                                              {item.name}
-                                            </div>
-                                          ))}
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  )}
-                                </table>
-                              </div>
-                            </div>
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </>
+                            )}
                           </>
-                        ) : (
-                          <></>
+                        )}
+
+                        {openModalStatisticWarning && (
+                          <ModalWindow
+                            text={
+                              "У Вас имеются не сохранненые данные, нажмите на Да и даннные сохраняться"
+                            }
+                            close={setOpenModalStatisticWarning}
+                            btnYes={btnYes}
+                            btnNo={btnNo}
+                          ></ModalWindow>
                         )}
 
                         <HandlerMutation
@@ -937,6 +1040,27 @@ export default function PostContent() {
                               ?.errors?.[0]
                               ? ErrorUpdatePostMutation.data.errors[0].errors[0]
                               : ErrorUpdatePostMutation?.data?.message
+                          }
+                        ></HandlerMutation>
+
+                        <HandlerMutation
+                          Loading={isLoadingStatisticsToPostIdMutation}
+                          Error={
+                            isErrorUpdateStatisticsToPostIdMutation &&
+                            !manualErrorResetStatistic
+                          } // Учитываем ручной сброс
+                          Success={
+                            isSuccessUpdateStatisticsToPostIdMutation &&
+                            !manualSuccessResetStatistic
+                          } // Учитываем ручной сброс
+                          textSuccess={"Статистика для поста обновлена"}
+                          textError={
+                            ErrorUpdateStatisticsToPostIdMutation?.data
+                              ?.errors?.[0]?.errors?.[0]
+                              ? ErrorUpdateStatisticsToPostIdMutation.data
+                                  .errors[0].errors[0]
+                              : ErrorUpdateStatisticsToPostIdMutation?.data
+                                  ?.message
                           }
                         ></HandlerMutation>
                       </>

@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const postApi = createApi({
   reducerPath: "postApi",
-  tagTypes: ["Post", "PostNew"],
+  tagTypes: ["Post", "PostNew", "Statistics"],
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
   endpoints: (build) => ({
     
@@ -10,6 +10,9 @@ export const postApi = createApi({
       query: (userId = "") => ({
         url: `${userId}/posts`,
       }),
+      transformResponse: (response) => {
+        return response.sort((a, b) => a.postName.localeCompare(b.postName));
+      },
       providesTags: (result, error, userId) =>  [{ type: "Post", id: "LIST" }],
     }),
 
@@ -33,11 +36,22 @@ export const postApi = createApi({
       }),
       transformResponse: (response) => {
         console.log(response); // Отладка ответа
+        const sortWorkers = response?.workers?.sort((a, b) => {
+          const lastNameComparison = a.lastName.localeCompare(b.lastName);
+          if (lastNameComparison !== 0) {
+            return lastNameComparison; // Если фамилии разные, сортируем по ним
+          }
+          return a.firstName.localeCompare(b.firstName); // Если фамилии одинаковы, сортируем по имени
+        });
+        
+        const sortPolicies = response?.policies?.sort((a, b) => a.policyName.localeCompare(b.policyName));
+        const sortPosts = response?.posts?.sort((a, b) => a.postName.localeCompare(b.postName));
+        const sortOrganizations = response?.organizations?.sort((a, b) => a.organizationName.localeCompare(b.organizationName));
         return {
-          workers: response?.workers || [],
-          policies: response?.policies || [],
-          posts: response?.posts || [],
-          organizations: response?.organizations || [],
+          workers: sortWorkers || [],
+          policies: sortPolicies || [],
+          posts: sortPosts || [],
+          organizations:sortOrganizations || [],
           maxDivisionNumber: response?.maxDivisionNumber,
         };
       },
@@ -48,17 +62,31 @@ export const postApi = createApi({
       query: ({userId, postId}) => ({
         url: `${userId}/posts/${postId}`,
       }),
-      providesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
+      providesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }, { type: "Statistics", id: "LIST" }],
       transformResponse: (response) => {
         console.log(response); // Отладка ответа
+        const sortWorkers = response?.workers?.sort((a, b) => {
+          const lastNameComparison = a.lastName.localeCompare(b.lastName);
+          if (lastNameComparison !== 0) {
+            return lastNameComparison; // Если фамилии разные, сортируем по ним
+          }
+          return a.firstName.localeCompare(b.firstName); // Если фамилии одинаковы, сортируем по имени
+        });
+        
+        const sortPoliciesActive = response?.policiesActive?.sort((a, b) => a.policyName.localeCompare(b.policyName));
+        const sortPosts = response?.posts?.sort((a, b) => a.postName.localeCompare(b.postName));
+        const sortOrganizations = response?.organizations?.sort((a, b) => a.organizationName.localeCompare(b.organizationName));
+
         return {
           currentPost: response?.currentPost || {},
           parentPost: response?.parentPost || {},
           policyDB: response?.currentPost?.policy?.id || null,
-          workers: response?.workers || [],
-          organizations: response?.organizations || [],
-          policies: response?.policiesActive || [],
-          posts: response?.posts || [],
+
+          workers: sortWorkers || [],
+          organizations:sortOrganizations || [],
+          policies: sortPoliciesActive || [],
+          posts: sortPosts || [],
+
           statisticsIncludedPost: response?.currentPost.statistics || [],
         };
       },
@@ -75,7 +103,18 @@ export const postApi = createApi({
         { type: "Post", id: postId },  // Инвалидация конкретного поста
       ],
     }),
+
+    updateStatisticsToPostId: build.mutation({
+      query: ({ userId, postId, ...body }) => ({
+        url: `${userId}/statistics/${postId}/updateBulk`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result) =>
+        result ? [{ type: "Statistics", id: "LIST" }] : [],
+    }),
+
   }),
 });
 
-export const { useGetPostsQuery, useGetPostNewQuery, usePostPostsMutation, useGetPostIdQuery, useUpdatePostsMutation } = postApi;
+export const { useGetPostsQuery, useGetPostNewQuery, usePostPostsMutation, useGetPostIdQuery, useUpdatePostsMutation, useUpdateStatisticsToPostIdMutation } = postApi;

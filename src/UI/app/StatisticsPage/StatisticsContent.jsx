@@ -88,14 +88,17 @@ export default function StatisticsContent() {
     isFetchingStatistic,
     isErrorStatistic,
     refetch,
-  } = useGetStatisticsQuery({userId, statisticData: true }, {
-    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-      statistics: data || [],
-      isLoadingStatistic: isLoading,
-      isFetchingStatistic: isFetching,
-      isErrorStatistic: isError,
-    }),
-  });
+  } = useGetStatisticsQuery(
+    { userId, statisticData: true },
+    {
+      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+        statistics: data || [],
+        isLoadingStatistic: isLoading,
+        isFetchingStatistic: isFetching,
+        isErrorStatistic: isError,
+      }),
+    }
+  );
 
   const {
     posts = [],
@@ -264,7 +267,7 @@ export default function StatisticsContent() {
       setReceivedPoints(updatedPoints1);
     }
   }, [isLoadingGetStatisticId]);
-// (Конец) Для начального отображения графика так как typeGraphic по умолчанию Ежедневный
+  // (Конец) Для начального отображения графика так как typeGraphic по умолчанию Ежедневный
 
   // Все для начальной страницы
   useEffect(() => {
@@ -280,6 +283,7 @@ export default function StatisticsContent() {
       reset(currentStatistic.name);
     }
   }, [currentStatistic, isLoadingGetStatisticId, isFetchingGetStatisticId]);
+
   useEffect(() => {
     if (statisticDatas.length > 0) {
       setReceivedPoints([]);
@@ -767,7 +771,8 @@ export default function StatisticsContent() {
       Data.description = description;
     }
     if (createPoints.length > 0) {
-      const formatDate = createPoints.map((item) => {
+      const array = createPoints.filter((item) => item.value !== "");
+      const formatDate = array.map((item) => {
         return {
           value: item.value,
           valueDate: new Date(item.valueDate),
@@ -937,7 +942,10 @@ export default function StatisticsContent() {
 
   const updateModalPoint = (value, index) => {
     const updatedShowPoints = [...showPoints];
-    const update = updatedShowPoints.map((item) => ({ ...item }));
+    const update = updatedShowPoints.map((item) => ({
+      ...item,
+      isCorrelation: false,
+    })); /// добавил 26.11.2024
     if (typeGraphic === "Ежемесячный" || typeGraphic === "Ежегодовой") {
       update[index]["value"] = Number(value);
       update[index]["isCorrelation"] = true;
@@ -1071,15 +1079,20 @@ export default function StatisticsContent() {
           return dataMap[date];
         } else {
           return {
+            id: date,
             valueDate: date,
-            value: 0, // Заполняем нулевым значением, если данных за день нет
+            value: "", // Заполняем нулевым значением, если данных за день нет
             isCorrelation: false,
           };
         }
       });
 
+      const crPoints = updatedPoints.filter((item) => item.value === "");
+      const _updatedPoints = updatedPoints.filter((item) => item.value !== "");
+
       setOldReceivedPoints(updatedPoints);
-      setReceivedPoints(updatedPoints);
+      setReceivedPoints(_updatedPoints);
+      setCreatePoints(crPoints);
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежемесячный") {
@@ -1306,6 +1319,7 @@ export default function StatisticsContent() {
         result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
       );
     }
+
     if (statisticDatas.length > 0 && typeGraphic === "26") {
       const today = new Date();
       today.setDate(today.getDate() - count * 7);
@@ -1380,6 +1394,7 @@ export default function StatisticsContent() {
         result.sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate))
       );
     }
+
     if (statisticDatas.length > 0 && typeGraphic === "52") {
       const today = new Date();
       today.setDate(today.getDate() - count * 7);
@@ -1557,6 +1572,7 @@ export default function StatisticsContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>
@@ -1766,6 +1782,8 @@ export default function StatisticsContent() {
                                       <input
                                         type="text"
                                         value={item.value}
+                                        inputMode="numeric"
+                                        placeholder="—"
                                         onChange={(e) => {
                                           const newValue =
                                             e.target.value.replace(

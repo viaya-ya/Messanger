@@ -101,7 +101,7 @@ export default function PolicyContent() {
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
   const [inputSearchModalDirectory, setInputSearchModalDirectory] =
-    useState("");  
+    useState("");
 
   const [
     filterArraySearchModalDirectives,
@@ -817,8 +817,10 @@ export default function PolicyContent() {
                     </li>
 
                     {foldersSort?.map((item) => {
+                      let hasInstruction = false;
+                      let hasDirective = false;
                       return (
-                        <li className={classes.policySearchItem}>
+                        <li className={classes.policySearchItem} key={item.id}>
                           <div
                             className={classes.listUL}
                             onClick={() => openUpdate(item)}
@@ -834,15 +836,57 @@ export default function PolicyContent() {
                             />
                           </div>
                           <ul className={classes.listULElement}>
-                            {item.policyToPolicyDirectories?.map((element) => (
-                              <li
-                                key={element.policy.id}
-                                onClick={() => getPolicyId(element.policy.id)}
-                                className={classes.textMontserrat}
-                              >
-                                {element.policy.policyName}
-                              </li>
-                            ))}
+                            {item.policyToPolicyDirectories?.map((element) => {
+                             
+                             const isInstruction =
+                                element.policy.type === "Инструкция";
+
+                              let instructionHeader = null;
+
+                              if (isInstruction && !hasInstruction) {
+                                hasInstruction = true;
+                                instructionHeader = (
+                                  <li
+                                    key="instruction-header"
+                                    className={`${classes.headerText}`}
+                                  >
+                                    Инструкции
+                                  </li>
+                                );
+                              }
+
+                              const isDirective =
+                                element.policy.type === "Директива";
+
+                              let directiveHeader = null;
+
+                              if (isDirective && !hasDirective) {
+                                hasDirective = true;
+                                directiveHeader = (
+                                  <li
+                                    key="directive-header"
+                                    className={`${classes.headerText}`}
+                                  >
+                                    Директивы
+                                  </li>
+                                );
+                              }
+
+                              return (
+                                <React.Fragment key={element.policy.id}>
+                                  {directiveHeader}
+                                  {instructionHeader}
+                                  <li
+                                    onClick={() =>
+                                      getPolicyId(element.policy.id)
+                                    }
+                                    className={classes.textMontserrat}
+                                  >
+                                    {element.policy.policyName}
+                                  </li>
+                                </React.Fragment>
+                              );
+                            })}
                           </ul>
                         </li>
                       );

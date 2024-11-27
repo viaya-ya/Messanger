@@ -34,11 +34,10 @@ export default function NewPolicy() {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [policyName, setPolicyName] = useState("Политика");
-  const [type, setType] = useState("null");
-  const [state, setState] = useState("null");
+  const [type, setType] = useState("Директива");
+  const [state, setState] = useState("Черновик");
   const [organizationId, setOrganizationId] = useState("");
-  // const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
-  // const [isPolicyToOrganizations, setIsPolicyToOrganizations] = useState(false);
+
   const dispatch = useDispatch();
   const {
     organizations = [],
@@ -77,13 +76,12 @@ export default function NewPolicy() {
 
   const reset = () => {
     setPolicyName("Политика");
-    setType("null");
-    setState("null");
+    setType("Директива");
+    setState("Черновик");
     setOrganizationId("");
-    // setIsPolicyToOrganizations(true);
     setEditorState(EditorState.createEmpty());
   };
-  
+
   const savePolicy = async () => {
     const Data = {};
 
@@ -100,7 +98,6 @@ export default function NewPolicy() {
       content: htmlContent,
       ...Data,
       organizationId: organizationId,
-      // policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
       .then((result) => {
@@ -174,7 +171,7 @@ export default function NewPolicy() {
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               >
-                <option value="null"> — </option>
+                {/* <option value="null"> — </option> */}
                 <option value="Директива">Директива</option>
                 <option value="Инструкция">Инструкция</option>
               </select>
@@ -183,7 +180,9 @@ export default function NewPolicy() {
 
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Состояние</span>
+              <span>
+                Состояние<span style={{ color: "red" }}>*</span>
+              </span>
             </div>
             <div className={classes.div}>
               <select
@@ -192,20 +191,13 @@ export default function NewPolicy() {
                 value={state}
                 onChange={(e) => setState(e.target.value)}
               >
-                <option value="null"> — </option>
+                {/* <option value="null"> — </option> */}
                 <option value="Черновик">Черновик</option>
                 <option value="Активный">Активный</option>
               </select>
             </div>
           </div>
 
-          {/* <div className={classes.five}>
-            <CustomSelect
-              organizations={organizations}
-              setPolicyToOrganizations={setPolicyToOrganizations}
-              isPolicyToOrganizations={isPolicyToOrganizations}
-            ></CustomSelect>
-          </div> */}
 
           <div className={classes.item}>
             <div className={classes.itemName}>
@@ -234,17 +226,6 @@ export default function NewPolicy() {
             </div>
           </div>
 
-          {/* <div className={classes.sixth}>
-            <img src={subbarSearch} alt="subbarSearch" />
-            <div>
-              <input
-                type="text"
-                value={policyName}
-                onChange={(e) => setPolicyName(e.target.value)}
-                title="Название политики"
-              ></input>
-            </div>
-          </div> */}
 
           <div className={classes.imageButton}>
             {/* <div className={classes.blockSelect}>

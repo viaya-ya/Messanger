@@ -24,13 +24,14 @@ import ModalWindow from "../../Custom/ModalWindow.jsx";
 
 export default function PostContent() {
   const navigate = useNavigate();
-  const { userId } = useParams();
+  const { userId, paramPostID } = useParams();
   const back = () => {
     navigate(`/${userId}/start`);
   };
   const newPost = () => {
     navigate("new");
   };
+
   const createdId = useSelector((state) => state.post.postCreatedId);
   const [postName, setPostName] = useState(null);
   const [divisionName, setDivisionName] = useState(null);
@@ -169,15 +170,33 @@ export default function PostContent() {
     }
   );
 
-  useEffect(() => {
+// Для перехода от статистик к посту
+useEffect(() => {
+  if (paramPostID) {
+    setSelectedPostId(paramPostID);
+  }
+}, []);
+// Конец
 
-    const obj = parentPostId !== "" ? posts?.find((item) => item.id === parentPostId) : null;
-  
+// Открыть создавшийся пост
+useEffect(() => {
+  if (createdId) {
+    setSelectedPostId(createdId);
+  }
+}, []);
+// Конец
+
+  useEffect(() => {
+    const obj =
+      parentPostId !== ""
+        ? posts?.find((item) => item.id === parentPostId)
+        : null;
+
     setOrganization(obj?.organization?.id || "");
     setDisabledOrganization(!!obj);
-  
+
     setSelectParentPost(obj);
-  
+
     if (parentPostId && currentPost?.isHasChildPost === false) {
       setDivisionName(obj?.divisionName || "");
       setDisabledDivisionName(true);
@@ -186,38 +205,6 @@ export default function PostContent() {
       setDisabledDivisionName(false);
     }
   }, [parentPostId]);
-
-  
-  // useEffect(() => {
-
-  //   if (parentPostId !== "") {
-  //     const obj = posts?.find((item) => item.id === parentPostId);
-  //     setOrganization(obj?.organization?.id);
-  //     setDisabledOrganization(true);
-
-  //     setSelectParentPost(obj);
-  //   } else {
-  //     setOrganization("");
-  //     setDisabledOrganization(false);
-  //   }
-
-  //   if (parentPostId && currentPost?.isHasChildPost === false) {
-  //     const obj = posts?.find((item) => item.id === parentPostId);
-  //     setDivisionName(obj?.divisionName);
-  //     setDisabledDivisionName(true);
-  //   } else {
-  //     setDivisionName(currentPost?.divisionName);
-  //     setDisabledDivisionName(false);
-  //   }
-
-  // }, [parentPostId]);
-
-  
-  useEffect(() => {
-    if (createdId) {
-      setSelectedPostId(createdId);
-    }
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -508,6 +495,11 @@ export default function PostContent() {
   const btnNo = () => {
     setOpenModalStatisticWarning(false);
     exitStatistic();
+  };
+
+  // Переход к созданию статистики
+  const  goToStatisticsNew = () => {
+    navigate(`/${userId}/statistics/new/${selectedPostId}`);
   };
 
   return (
@@ -927,32 +919,36 @@ export default function PostContent() {
                                   <>
                                     <div className={classes.modal}>
                                       <div className={classes.modalWindow}>
-                                        <div className={classes.modalTableRow}>
-                                          <div className={classes.itemTable}>
-                                            <div className={classes.itemRow1}>
-                                              <input
-                                                type="search"
-                                                placeholder="Найти"
-                                                value={
-                                                  inputSearchModalStatistics
-                                                }
-                                                onChange={searchStatistics}
-                                                className={classes.searchModal}
+                                        <div className={classes.itemTable}>
+                                          <div className={classes.itemRow1}>
+                                            <input
+                                              type="search"
+                                              placeholder="Найти"
+                                              value={inputSearchModalStatistics}
+                                              onChange={searchStatistics}
+                                              className={classes.searchModal}
+                                            />
+                                          </div>
+
+                                          <div className={classes.itemRow2}>
+                                            <div className={classes.iconAdd}>
+                                              <img
+                                                src={iconAdd}
+                                                alt="iconAdd"
+                                                className={classes.image}
+                                                onClick={() => goToStatisticsNew()}
                                               />
                                             </div>
-
-                                            <div className={classes.itemRow2}>
-                                              <div className={classes.iconSave}>
-                                                <img
-                                                  src={Blacksavetmp}
-                                                  alt="Blacksavetmp"
-                                                  className={classes.image}
-                                                  style={{ marginLeft: "0.5%" }}
-                                                  onClick={() => {
-                                                    saveStatisticsId();
-                                                  }}
-                                                />
-                                              </div>
+                                            <div className={classes.iconSave}>
+                                              <img
+                                                src={Blacksavetmp}
+                                                alt="Blacksavetmp"
+                                                className={classes.image}
+                                                style={{ marginLeft: "0.5%" }}
+                                                onClick={() => {
+                                                  saveStatisticsId();
+                                                }}
+                                              />
                                             </div>
                                           </div>
                                         </div>

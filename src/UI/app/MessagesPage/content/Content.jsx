@@ -21,23 +21,30 @@ import StatisticsNew from "../../StatisticsPage/StatisticsNew";
 export default function Content() {
   const location = useLocation();
   const { userId } = useParams();
-  console.log(location);
   return (
     <div className={classes.content}>
       <Contact></Contact>
       {location.pathname ===  "/" + userId + "/start" && <Dialog />}
+
       {location.pathname === "/" + userId + "/goal" && <GoalContent />}
       {location.pathname === "/" + userId + "/goal/new" && <NewGoal />}
+
       {location.pathname === "/" + userId + "/policy" && <PolicyContent />}
       {location.pathname === "/" + userId + "/policy/new" && <NewPolicy />}
-      {location.pathname === "/" + userId +"/posts" && <PostContent />}
+
+      {/* {location.pathname === "/" + userId +"/posts" && <PostContent />} */}
+      {location.pathname.startsWith(`/${userId}/posts`) && <PostContent />}
       {location.pathname === "/" + userId + "/posts/new" && <PostNew />}
+
       {location.pathname ===  "/" + userId +"/speedgoal" && <SpeedGoalContent />}
       {location.pathname === "/" + userId + "/speedgoal/new" && <SpeedGoalNew />}
+
       {location.pathname ===  "/" + userId + "/strateg" && <StrategContent />}
       {location.pathname === "/" + userId + "/strateg/new" && <StrategNew />}
+
       {location.pathname === "/" + userId + "/statistics" && <StatisticsContent />}
-      {location.pathname === "/" + userId + "/statistics/new" && <StatisticsNew />}
+      {location.pathname.startsWith(`/${userId}/statistics/new`) && <StatisticsNew />}
+      
       {location.pathname === "/" + userId + "/project" && <ProjectContent />}
       {location.pathname === "/" + userId + "/project/new" && < ProjectNew/>}
     </div>

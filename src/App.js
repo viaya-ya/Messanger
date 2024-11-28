@@ -73,7 +73,7 @@ function App() {
           }
         ></Route>
         <Route
-          path="/:userId/posts"
+          path="/:userId/posts/:paramPostID?"
           element={
             <div className="messages">
               <Header></Header>
@@ -143,7 +143,7 @@ function App() {
           }
         ></Route>
         <Route
-          path="/:userId/statistics/new"
+          path="/:userId/statistics/new/:paramPostID?"
           element={
             <div className="messages">
               <Header></Header>

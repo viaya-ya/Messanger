@@ -22,9 +22,9 @@ import { setStatisticCreatedId } from "../../../BLL/statisticsSlice.js";
 
 export default function StatisticsNew() {
   const navigate = useNavigate();
-  const { userId } = useParams();
+  const { userId, paramPostID } = useParams();
   const back = () => {
-    navigate(`/${userId}/statistics`);
+    paramPostID ? navigate(`/${userId}/posts/${paramPostID}`) : navigate(`/${userId}/statistics`);
   };
 
   const [type, setType] = useState("");
@@ -76,6 +76,16 @@ export default function StatisticsNew() {
       error: Error,
     },
   ] = usePostStatisticsMutation();
+  
+// Для создания статистики через страницу пост
+  useEffect(() => {
+    if (paramPostID) {
+      const obj = posts.find((item) => item.id === paramPostID);
+      setOrganization(obj?.organization.id);
+      setPostId(paramPostID);
+    }
+  }, []);
+// Конец
 
   useEffect(() => {
     if (organization !== "") {
@@ -376,4 +386,3 @@ export default function StatisticsNew() {
     </div>
   );
 }
-

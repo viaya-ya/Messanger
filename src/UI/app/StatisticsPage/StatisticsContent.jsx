@@ -7,11 +7,10 @@ import Graphic from "../../Custom/Graphic";
 import iconAdd from "../../image/iconAdd.svg";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import statisticsArrowLeft from "../../image/statisticsArrowLeft.svg";
-import statisticsArrowLeftWhite from "../../image/statisticsArrowLeftWhite.svg";
 import statisticsArrowRight from "../../image/statisticsArrowRight.svg";
-import statisticsArrowRightWhite from "../../image/statisticsArrowRightWhite.svg";
 import trash from "../../image/trash.svg";
 import addBlock from "../../image/iconAdd.svg";
+import hint from "../../image/hint.svg";
 import {
   useGetStatisticsIdQuery,
   useGetStatisticsNewQuery,
@@ -27,6 +26,7 @@ import {
   useUpdateOrganizationsMutation,
 } from "../../../BLL/organizationApi.js";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
+import { useSelector } from "react-redux";
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -81,6 +81,10 @@ export default function StatisticsContent() {
     useState(true);
   const [manualErrorResetOrganization, setManualErrorResetOrganization] =
     useState(true);
+
+  const createdStatiscticId = useSelector(
+    (state) => state.statistic.statisticCreatedId
+  );
 
   const {
     statistics = [],
@@ -166,6 +170,15 @@ export default function StatisticsContent() {
     }),
   });
 
+  // Для открытия созданной статистики
+  useEffect(() => {
+    const obj = statistics.find((item) => item.id === createdStatiscticId);
+    if (obj) {
+      setOrganizationId(obj?.post?.organization?.id);
+      setStatisticId(createdStatiscticId);
+    }
+  }, [isLoadingStatistic]);
+
   useEffect(() => {
     if (statistics.length > 0) {
       const array = statistics.filter(
@@ -182,7 +195,9 @@ export default function StatisticsContent() {
       setPostsToOrganization(arrayPosts);
       setStatisticsToOrganization(array);
 
-      setStatisticId("");
+      if (!createdStatiscticId) {
+        setStatisticId("");
+      }
 
       setReportDay(report[0]?.reportDay);
       setReportDayComes(report[0]?.reportDay);
@@ -190,84 +205,10 @@ export default function StatisticsContent() {
   }, [organizationId]);
 
   useEffect(() => {
-    console.log("isLoadingOrganizations");
     const report = organizations.filter((item) => item?.id === organizationId);
     setReportDay(report[0]?.reportDay);
     setReportDayComes(report[0]?.reportDay);
   }, [isLoadingOrganizations, isFetchingOrganizations]);
-
-  // Для начального отображения графика так как typeGraphic по умолчанию Ежедневный
-  useEffect(() => {
-    if (statisticDatas.length > 0) {
-      setReceivedPoints([]);
-      setOldReceivedPoints([]);
-      setArrayPoints([]);
-      setShowPoints([]);
-      setCount(0);
-      setDay(reportDay);
-    }
-    if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
-      const dayNow = new Date();
-      const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
-
-      // Определяем начальную дату - ближайший предыдущий день `day`, не более 7 дней назад
-      const startDate = new Date(dayNow);
-      let dayDifference;
-
-      if (currentWeekday >= day) {
-        // Если текущий день >= day, включаем текущую дату или ищем ближайший `day` ранее
-        dayDifference = currentWeekday - day;
-      } else {
-        // Если текущий день < day, откатываемся на предыдущую неделю
-        dayDifference = 7 - (day - currentWeekday);
-      }
-
-      startDate.setDate(dayNow.getDate() - dayDifference - 1);
-
-      // Ограничиваем начальную дату максимум 7 днями назад от текущего дня
-      const maxStartDate = new Date(dayNow);
-      maxStartDate.setDate(dayNow.getDate() - 7); // Последние 7 дней включают сегодня и 6 предыдущих дней
-
-      if (startDate < maxStartDate) {
-        startDate.setTime(maxStartDate.getTime());
-      }
-
-      // Фильтруем данные, оставляя записи от `startDate` до `dayNow` включительно
-      const updatedPoints = statisticDatas
-        .filter((item) => {
-          const itemDate = new Date(item.valueDate);
-          return (
-            startDate <= itemDate &&
-            itemDate <= dayNow &&
-            item.isCorrelation !== true
-          );
-        })
-        .map((item) => ({
-          ...item,
-          valueDate: item.valueDate.split("T")[0],
-        }))
-        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
-
-      const updatedPoints1 = statisticDatas
-        .filter((item) => {
-          const itemDate = new Date(item.valueDate);
-          return (
-            startDate <= itemDate &&
-            itemDate <= dayNow &&
-            item.isCorrelation !== true
-          );
-        })
-        .map((item) => ({
-          ...item,
-          valueDate: item.valueDate.split("T")[0],
-        }))
-        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
-
-      setOldReceivedPoints(updatedPoints);
-      setReceivedPoints(updatedPoints1);
-    }
-  }, [isLoadingGetStatisticId]);
-  // (Конец) Для начального отображения графика так как typeGraphic по умолчанию Ежедневный
 
   // Все для начальной страницы
   useEffect(() => {
@@ -287,6 +228,7 @@ export default function StatisticsContent() {
   useEffect(() => {
     if (statisticDatas.length > 0) {
       setReceivedPoints([]);
+      setCreatePoints([]);
       setOldReceivedPoints([]);
       setArrayPoints([]);
       setShowPoints([]);
@@ -296,63 +238,110 @@ export default function StatisticsContent() {
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежедневный") {
       const dayNow = new Date();
+
       const currentWeekday = dayNow.getDay(); // Текущий день недели (0 - Воскресенье, 1 - Понедельник и т.д.)
 
-      // Определяем начальную дату - ближайший предыдущий день `day`, не более 7 дней назад
+      // Определяем начальную дату - ближайший предыдущий день `day`
       const startDate = new Date(dayNow);
       let dayDifference;
 
       if (currentWeekday >= day) {
-        // Если текущий день >= day, включаем текущую дату или ищем ближайший `day` ранее
         dayDifference = currentWeekday - day;
       } else {
-        // Если текущий день < day, откатываемся на предыдущую неделю
         dayDifference = 7 - (day - currentWeekday);
       }
 
-      startDate.setDate(dayNow.getDate() - dayDifference - 1);
+      startDate.setDate(dayNow.getDate() - dayDifference);
 
-      // Ограничиваем начальную дату максимум 7 днями назад от текущего дня
-      const maxStartDate = new Date(dayNow);
-      maxStartDate.setDate(dayNow.getDate() - 7); // Последние 7 дней включают сегодня и 6 предыдущих дней
+      console.log(startDate);
 
-      if (startDate < maxStartDate) {
-        startDate.setTime(maxStartDate.getTime());
+      // Вычисляем конечную дату (b = startDate + 7 дней)
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 7);
+
+      // Генерируем массив всех дат в диапазоне [startDate, endDate)
+      const allDates = [];
+      for (
+        let date = new Date(startDate);
+        date < endDate;
+        date.setDate(date.getDate() + 1)
+      ) {
+        allDates.push(new Date(date).toISOString().split("T")[0]);
       }
 
-      // Фильтруем данные, оставляя записи от `startDate` до `dayNow` включительно
-      const updatedPoints = statisticDatas
-        .filter((item) => {
-          const itemDate = new Date(item.valueDate);
-          return (
-            startDate <= itemDate &&
-            itemDate <= dayNow &&
-            item.isCorrelation !== true
-          );
-        })
-        .map((item) => ({
-          ...item,
-          valueDate: item.valueDate.split("T")[0],
-        }))
-        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
+      // Фильтруем данные и заполняем пропущенные даты
+      const filteredData = statisticDatas
+      ?.filter((item) => {
+        // Проверяем, если valueDate существует и валиден
+        const itemDate = item?.valueDate ? new Date(item.valueDate) : null;
+    
+        // Если itemDate не валидная, пропускаем элемент
+        if (isNaN(itemDate?.getTime())) {
+          return false; // Пропускаем невалидные даты
+        }
+    
+        // Проверяем, если startDate и endDate валидные
+        const isValidStartDate = startDate instanceof Date && !isNaN(startDate.getTime());
+        const isValidEndDate = endDate instanceof Date && !isNaN(endDate.getTime());
+    
+        if (!isValidStartDate || !isValidEndDate) {
+          return false; // Пропускаем, если startDate или endDate невалидны
+        }
+    
+        const itemDateStr = itemDate.toISOString().split("T")[0];
+        const startDateStr = startDate.toISOString().split("T")[0];
+        const endDateStr = endDate.toISOString().split("T")[0];
+    
+        // Возвращаем результат фильтрации
+        return (
+          startDateStr <= itemDateStr &&
+          itemDateStr < endDateStr &&
+          item.isCorrelation !== true
+        );
+      })
+      ?.map((item) => ({
+        ...item,
+        valueDate: item.valueDate?.split("T")[0], // Предполагаем, что valueDate - строка с датой
+      }));
+    
 
-      const updatedPoints1 = statisticDatas
-        .filter((item) => {
-          const itemDate = new Date(item.valueDate);
-          return (
-            startDate <= itemDate &&
-            itemDate <= dayNow &&
-            item.isCorrelation !== true
-          );
-        })
-        .map((item) => ({
-          ...item,
-          valueDate: item.valueDate.split("T")[0],
-        }))
-        .sort((a, b) => new Date(b.valueDate) - new Date(a.valueDate));
+      const updatedPoints = [];
+      const _updatedPoints = [];
+      const _createdPoints = [];
 
-      setOldReceivedPoints(updatedPoints);
-      setReceivedPoints(updatedPoints1);
+      allDates.forEach((date) => {
+        const existingPoint = filteredData.find(
+          (item) => item.valueDate === date
+        );
+
+        if (existingPoint) {
+          updatedPoints.push(existingPoint);
+          _updatedPoints.push({ ...existingPoint });
+        } else {
+          _createdPoints.push({
+            id: date,
+            valueDate: date,
+            value: "",
+            isCorrelation: false,
+          });
+        }
+      });
+
+      // Сортируем данные по убыванию даты
+      updatedPoints.sort(
+        (a, b) => new Date(b.valueDate) - new Date(a.valueDate)
+      );
+      _updatedPoints.sort(
+        (a, b) => new Date(b.valueDate) - new Date(a.valueDate)
+      );
+      _createdPoints.sort(
+        (a, b) => new Date(b.valueDate) - new Date(a.valueDate)
+      );
+
+      // Устанавливаем данные
+      setOldReceivedPoints(_updatedPoints);
+      setReceivedPoints(updatedPoints);
+      setCreatePoints(_createdPoints);
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "Ежемесячный") {
@@ -720,12 +709,12 @@ export default function StatisticsContent() {
       );
     }
   }, [
-    currentStatistic,
+    currentStatistic.id,
     isLoadingGetStatisticId,
     isFetchingGetStatisticId,
     typeGraphic,
     reportDay,
-    type,
+    day,
   ]);
 
   function compareArrays(oldArray, newArray) {
@@ -772,14 +761,16 @@ export default function StatisticsContent() {
     }
     if (createPoints.length > 0) {
       const array = createPoints.filter((item) => item.value !== "");
-      const formatDate = array.map((item) => {
-        return {
-          value: item.value,
-          valueDate: new Date(item.valueDate),
-          isCorrelation: false,
-        };
-      });
-      Data.statisticDataCreateDtos = formatDate;
+      if (array.length > 0) {
+        const formatDate = array.map((item) => {
+          return {
+            value: item.value,
+            valueDate: new Date(item.valueDate),
+            isCorrelation: false,
+          };
+        });
+        Data.statisticDataCreateDtos = formatDate;
+      }
     }
     if (receivedPoints.length > 0) {
       const array = compareArrays(oldReceivedPoints, receivedPoints);
@@ -788,6 +779,7 @@ export default function StatisticsContent() {
         Data.statisticDataUpdateDtos.push(...array);
       }
     }
+    console.log(Data);
     if (Object.keys(Data).length > 0) {
       await updateStatistics({
         userId,
@@ -1045,7 +1037,7 @@ export default function StatisticsContent() {
         dayDifference = 7 - (day - currentWeekday);
       }
 
-      startDate.setDate(dayNow.getDate() - dayDifference - 1);
+      startDate.setDate(dayNow.getDate() - dayDifference);
 
       // Ограничиваем начальную дату максимум 7 днями назад от текущего дня
       const maxStartDate = new Date(dayNow);
@@ -1090,7 +1082,9 @@ export default function StatisticsContent() {
       const crPoints = updatedPoints.filter((item) => item.value === "");
       const _updatedPoints = updatedPoints.filter((item) => item.value !== "");
 
-      setOldReceivedPoints(updatedPoints);
+      const updatedPoints1 = _updatedPoints.map((item) => ({ ...item }));
+
+      setOldReceivedPoints(updatedPoints1);
       setReceivedPoints(_updatedPoints);
       setCreatePoints(crPoints);
     }
@@ -1606,23 +1600,25 @@ export default function StatisticsContent() {
           />
         </div>
         <div className={styles.editText}>
-          <div className={classes.one}>
-            <div className={classes.statisticsArrowLeft}>
-              <img
-                src={statisticsArrowLeftWhite}
-                alt="statisticsArrowLeftWhite"
-                onClick={handleArrowLeftClick}
-              />
-            </div>
+          {currentStatistic.id && (
+            <div className={classes.block1Arrrow}>
+              <div className={classes.statisticsArrowLeft}>
+                <img
+                  src={statisticsArrowLeft}
+                  alt="statisticsArrowLeftWhite"
+                  onClick={handleArrowLeftClick}
+                />
+              </div>
 
-            <div className={classes.statisticsArrowLeft}>
-              <img
-                src={statisticsArrowRightWhite}
-                alt="statisticsArrowRightWhite"
-                onClick={handleArrowRightClick}
-              />
+              <div className={classes.statisticsArrowLeft}>
+                <img
+                  src={statisticsArrowRight}
+                  alt="statisticsArrowRightWhite"
+                  onClick={handleArrowRightClick}
+                />
+              </div>
             </div>
-          </div>
+          )}
           <div className={classes.five}>
             <div className={classes.item}>
               <div className={classes.itemName}>
@@ -2003,6 +1999,7 @@ export default function StatisticsContent() {
                                   description || currentStatistic.description
                                 }
                                 onChange={(e) => setDescription(e.target.value)}
+                                className={classes.textMontserrat}
                               ></textarea>
                             </div>
                           ) : (
@@ -2052,9 +2049,16 @@ export default function StatisticsContent() {
                                 <div className={classes.tableHeader}>
                                   {typeGraphic === "Ежемесячный" ||
                                   typeGraphic === "Ежегодовой" ? (
-                                    <>
-                                      <span>Коррекционное число</span>
-                                    </>
+                                    <div className={classes.tableHeading}>
+                                      <span>Значение за месяц</span>
+                                      <div className={classes.tableHintWrapper}>
+                                        <img
+                                          src={hint}
+                                          alt="hint"
+                                          className={classes.tableHint}
+                                        />
+                                      </div>
+                                    </div>
                                   ) : (
                                     <div className=""></div>
                                   )}
@@ -2136,6 +2140,7 @@ export default function StatisticsContent() {
                             </div>
                           </>
                         )}
+
                         {openModaReportDay ? (
                           <>
                             <div className={classes.modalDelete}>

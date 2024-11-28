@@ -17,6 +17,8 @@ import { useGetOrganizationsQuery } from "../../../BLL/organizationApi.js";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
+import { useDispatch } from "react-redux";
+import { setStatisticCreatedId } from "../../../BLL/statisticsSlice.js";
 
 export default function StatisticsNew() {
   const navigate = useNavigate();
@@ -36,7 +38,8 @@ export default function StatisticsNew() {
   const [organization, setOrganization] = useState("");
   const [postsToOrganization, setPostsToOrganization] = useState([]);
   const [disabledPosts, setDisabledPosts] = useState(true);
-  // const [day, setDay] = useState("");
+
+  const dispatch = useDispatch();
 
   const {
     posts = [],
@@ -76,8 +79,6 @@ export default function StatisticsNew() {
 
   useEffect(() => {
     if (organization !== "") {
-      console.log("organization");
-      console.log(organization);
       const array = posts.filter(
         (item) => item?.organization?.id === organization
       );
@@ -85,7 +86,7 @@ export default function StatisticsNew() {
       setDisabledPosts(false);
     }
   }, [organization]);
-  
+
   const addPoint = () => {
     setPoints((prevState) => [
       { valueDate: "", value: 0, id: new Date() },
@@ -124,6 +125,11 @@ export default function StatisticsNew() {
     setOrganization("");
   };
 
+  const createStatisticNavigate = (id) => {
+    dispatch(setStatisticCreatedId(id));
+    navigate(`/${userId}/statistics`);
+  };
+
   const saveStatistics = async () => {
     const formatDate = points.map((item) => {
       return {
@@ -146,8 +152,11 @@ export default function StatisticsNew() {
       statisticDataCreateDtos: formatDate,
     })
       .unwrap()
-      .then(() => {
+      .then((result) => {
         reset();
+        createStatisticNavigate(result.id);
+        console.log("result.id");
+        console.log(result.id);
       })
       .catch((error) => {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
@@ -261,10 +270,7 @@ export default function StatisticsNew() {
                   </div>
 
                   <div className={classes.deletePoint} onClick={deletePoint}>
-                    <img
-                      src={trash}
-                      alt="trash"
-                    />
+                    <img src={trash} alt="trash" />
                   </div>
                 </div>
 
@@ -346,6 +352,7 @@ export default function StatisticsNew() {
                       placeholder="Описание статистики: что и как считать"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
+                      className={classes.textMontserrat}
                     ></textarea>
                   </div>
                 </div>
@@ -370,14 +377,3 @@ export default function StatisticsNew() {
   );
 }
 
-// const onChangePoints = (value, type, index) => {
-//   const updatedPoints = [...points];
-//   if (type === "value") {
-//     updatedPoints[index][type] = Number(value);
-//   } else {
-//     updatedPoints[index][type] = value;
-//   }
-//   updatedPoints.sort((a, b) => b.value - a.value);
-//   console.log(updatedPoints);
-//   setPoints(updatedPoints);
-// };

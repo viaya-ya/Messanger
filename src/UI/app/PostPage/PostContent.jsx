@@ -12,16 +12,14 @@ import {
   useGetPostIdQuery,
   useGetPostsQuery,
   useUpdatePostsMutation,
-  useUpdateStatisticsToPostIdMutation
+  useUpdateStatisticsToPostIdMutation,
 } from "../../../BLL/postApi";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import exitModal from "../../image/exitModal.svg";
 import { useSelector } from "react-redux";
-import {
-  useGetStatisticsQuery,
-} from "../../../BLL/statisticsApi.js";
+import { useGetStatisticsQuery } from "../../../BLL/statisticsApi.js";
 import ModalWindow from "../../Custom/ModalWindow.jsx";
 
 export default function PostContent() {
@@ -70,12 +68,9 @@ export default function PostContent() {
   const [disabledStatisticsChecked, setDisabledStatisticsChecked] = useState(
     []
   );
-  const [disabledOrganization, setDisabledOrganization] =
-    useState(false);
-    const [disabledDivisionName, setDisabledDivisionName] =
-    useState(false);
-    const [selectParentPost, setSelectParentPost] =
-    useState();
+  const [disabledOrganization, setDisabledOrganization] = useState(false);
+  const [disabledDivisionName, setDisabledDivisionName] = useState(false);
+  const [selectParentPost, setSelectParentPost] = useState();
   const [manualSuccessResetStatistic, setManualSuccessResetStatistic] =
     useState(false);
   const [manualErrorResetStatistic, setManualErrorResetStatistic] =
@@ -175,17 +170,48 @@ export default function PostContent() {
   );
 
   useEffect(() => {
-    if (parentPostId !== "") {
-      const obj = posts?.find((item) => item.id === parentPostId);
-      setOrganization(obj?.organization?.id);
-      setDisabledOrganization(true);
-      setDivisionName(obj?.divisionName);
-      setSelectParentPost(obj);
-    }else{
-      setOrganization("");
-      setDisabledOrganization(false);
+
+    const obj = parentPostId !== "" ? posts?.find((item) => item.id === parentPostId) : null;
+  
+    setOrganization(obj?.organization?.id || "");
+    setDisabledOrganization(!!obj);
+  
+    setSelectParentPost(obj);
+  
+    if (parentPostId && currentPost?.isHasChildPost === false) {
+      setDivisionName(obj?.divisionName || "");
+      setDisabledDivisionName(true);
+    } else {
+      setDivisionName(currentPost?.divisionName || "");
+      setDisabledDivisionName(false);
     }
   }, [parentPostId]);
+
+  
+  // useEffect(() => {
+
+  //   if (parentPostId !== "") {
+  //     const obj = posts?.find((item) => item.id === parentPostId);
+  //     setOrganization(obj?.organization?.id);
+  //     setDisabledOrganization(true);
+
+  //     setSelectParentPost(obj);
+  //   } else {
+  //     setOrganization("");
+  //     setDisabledOrganization(false);
+  //   }
+
+  //   if (parentPostId && currentPost?.isHasChildPost === false) {
+  //     const obj = posts?.find((item) => item.id === parentPostId);
+  //     setDivisionName(obj?.divisionName);
+  //     setDisabledDivisionName(true);
+  //   } else {
+  //     setDivisionName(currentPost?.divisionName);
+  //     setDisabledDivisionName(false);
+  //   }
+
+  // }, [parentPostId]);
+
   
   useEffect(() => {
     if (createdId) {
@@ -219,11 +245,12 @@ export default function PostContent() {
       setPostName(currentPost.postName);
     }
 
-    if (parentPost?.id && (currentPost?.isHasChildPost === false)) {
+    if (parentPost?.id && currentPost?.isHasChildPost === false) {
       setDivisionName(parentPost?.divisionName);
       setDisabledDivisionName(true);
-    } else{
+    } else {
       setDivisionName(currentPost?.divisionName);
+      setDisabledDivisionName(false);
     }
 
     if (currentPost?.user?.id) {
@@ -243,7 +270,7 @@ export default function PostContent() {
     } else {
       setOrganization("");
     }
-    
+
     if (statisticsIncludedPost) {
       const ids = statisticsIncludedPost.map((item) => item.id);
       setStatisticsChecked(ids);
@@ -265,7 +292,6 @@ export default function PostContent() {
   };
 
   const saveUpdatePost = async () => {
-
     setManualSuccessResetStatistic(true);
     setManualErrorResetStatistic(true);
 
@@ -276,7 +302,11 @@ export default function PostContent() {
     if (postName !== currentPost.postName && postName !== null) {
       updatedData.postName = postName;
     }
-    if (divisionName !== currentPost.divisionName && divisionName !== selectParentPost?.divisionName &&  divisionName !== null) {
+    if (
+      divisionName !== currentPost.divisionName &&
+      divisionName !== selectParentPost?.divisionName &&
+      divisionName !== null
+    ) {
       updatedData.divisionName = divisionName;
     }
     if (
@@ -571,7 +601,7 @@ export default function PostContent() {
                     onChange={(e) => {
                       setDivisionName(e.target.value);
                     }}
-                    disabled = {disabledDivisionName}
+                    disabled={disabledDivisionName}
                     className={classes.select}
                   />
                 </div>
@@ -637,9 +667,9 @@ export default function PostContent() {
                     onChange={(e) => {
                       setOrganization(e.target.value);
                     }}
-                    disabled = {disabledOrganization}
+                    disabled={disabledOrganization}
                   >
-                    <option value= "" disabled>
+                    <option value="" disabled>
                       Выберите организацию
                     </option>
                     {organizations?.map((item) => {

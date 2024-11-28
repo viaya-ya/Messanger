@@ -315,3 +315,6 @@ input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
 }
 
+.textMontserrat {
+    font-family: 'Montserrat';
+}

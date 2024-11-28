@@ -28,7 +28,7 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
           newHeight = 600;
         } else if (window.innerWidth > 800) {
           newWidth = 700;
-          newHeight = 500;
+          newHeight = 400;
         } 
       } else {
         if(typeGraphic === "52"){
@@ -37,7 +37,7 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
             newHeight = 600;
           } else if (window.innerWidth > 800) {
             newWidth = 880;
-            newHeight = 500;
+            newHeight = 400;
           } 
         }else{
           if (window.innerWidth > 1400) {
@@ -45,7 +45,7 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
             newHeight = 600;
           } else if (window.innerWidth > 800) {
             newWidth = 400;
-            newHeight = 500;
+            newHeight = 400;
           } 
         }        
       }

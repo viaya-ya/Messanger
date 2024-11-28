@@ -15,7 +15,6 @@ import blackStrategy from "../../image/blackStrategy.svg";
 import Blacksavetmp from "../../image/Blacksavetmp.svg";
 import deleteGrey from "../../image/deleteGrey.svg";
 import addCircle from "../../image/addCircle.svg";
-import CustomSelect from "../../Custom/CustomSelect.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetProjectNewQuery,
@@ -41,9 +40,7 @@ export default function ProjectNew() {
   const [tasks, setTasks] = useState([]);
   const [statistics, setStatistics] = useState([]);
   const [commons, setCommons] = useState([]);
-  const [projectToOrganizations, setProjectToOrganizations] = useState([]);
-  const [isProjectToOrganizations, setIsProjectToOrganizations] =
-    useState(false);
+  const [organizationId, setOrganizationId] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [showEditorState, setShowEditorState] = useState(false);
@@ -93,7 +90,6 @@ export default function ProjectNew() {
     setStatistics([]);
     setCommons([]);
     setHtmlContent(null);
-    setIsProjectToOrganizations(true);
     setEditorState(EditorState.createEmpty());
   };
 
@@ -130,7 +126,6 @@ export default function ProjectNew() {
     await postProject({
       userId,
       ...Data,
-      projectToOrganizations: projectToOrganizations,
     })
       .unwrap()
       .then(() => {
@@ -299,7 +294,7 @@ export default function ProjectNew() {
                   setType(e.target.value);
                 }}
               >
-                <option value="null">Выбрать опцию</option>
+                <option value="null" disabled>Выбрать тип</option>
                 <option value="Проект">Проект</option>
                 <option value="Программа">Программа</option>
               </select>
@@ -318,7 +313,7 @@ export default function ProjectNew() {
                 }}
                 className={classes.select}
               >
-                <option value="null">Выберите опцию</option>
+                <option value="null" disabled>Выберите программу</option>
                 {programsWithoutProject.map((item) => {
                   return <option value={item.id}>{item.projectNumber}</option>;
                 })}
@@ -338,22 +333,42 @@ export default function ProjectNew() {
                 }}
                 className={classes.select}
               >
-                <option value="null">Выберите опцию</option>
+                <option value="null" disabled>Выберите стратегию</option>
                 {strategies.map((item) => {
                   return <option value={item.id}>{item.strategyNumber}</option>;
                 })}
               </select>
             </div>
           </div>
+
           <div className={classes.item}>
-            <CustomSelect
-              organizations={organizations}
-              setPolicyToOrganizations={setProjectToOrganizations}
-              isPolicyToOrganizations={isProjectToOrganizations}
-            ></CustomSelect>
+            <div className={classes.itemName}>
+              <span>
+                Организация <span style={{ color: "red" }}>*</span>
+              </span>
+            </div>
+            <div className={classes.div}>
+              <select
+                name="mySelect"
+                className={classes.select}
+                value={organizationId}
+                onChange={(e) => {
+                  setOrganizationId(e.target.value);
+                }}
+              >
+                <option value="" disabled>
+                  Выберите организацию
+                </option>
+                {organizations?.map((item) => {
+                  return (
+                    <option value={item.id}>{item.organizationName}</option>
+                  );
+                })}
+              </select>
+            </div>
           </div>
 
-          <div className={classes.blockSelect}>
+          {/* <div className={classes.blockSelect}>
             <img src={Addlink} alt="Addlink" className={classes.select} />
             <ul className={`${classes.optionNumber}`}>
               <div className={classes.nameList}>
@@ -369,7 +384,7 @@ export default function ProjectNew() {
               <li> Подготовить команду для новго </li>
               <li> Провести открытие нового </li>
             </ul>
-          </div>
+          </div> */}
 
           <div className={classes.blockSelect}>
             <img
@@ -410,7 +425,7 @@ export default function ProjectNew() {
             </ul>
           </div>
 
-          <div className={classes.blockSelect}>
+          {/* <div className={classes.blockSelect}>
             <img src={Select} alt="Select" className={classes.select} />
             <ul className={classes.option}>
               <div className={classes.nameList}>ДЕЙСТВИЯ</div>
@@ -438,7 +453,7 @@ export default function ProjectNew() {
                 <img src={tgBlack} alt="tgBlack" /> Отправить текст в Telegram{" "}
               </li>
             </ul>
-          </div>
+          </div> */}
 
           <div className={classes.iconSave}>
             <img

@@ -173,6 +173,13 @@
 
 }
 
+.block1Arrrow {
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+    margin-right: auto;
+}
+
 .block2 {
     width: 99%;
     display: flex;
@@ -348,57 +355,71 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .modalTable thead,
 .modalTable tbody {
     display: block;
-    /* Чтобы задать высоту для tbody */
     width: 400px;
+    border-radius: 10px;
+}
+
+
+.modalTable thead tr {
+    display: flex;
+    column-gap: 5px;
 }
 
 .modalTable tbody {
     width: 400px;
     max-height: 65vh;
-    /* Ограничиваем высоту для появления скролла */
-    overflow-y: auto;
-    /* Включаем скролл */
+    margin-top: 5px;
+    border-radius: 10px;
 }
 
 .modalTable th {
     width: 200px;
     padding: 10px;
-    border: 3px solid #005475;
-    border-bottom: 1px solid #005475;
-    font-family: "Montserrat";
     white-space: nowrap;
-    /* Чтобы содержимое не переносилось */
     vertical-align: top;
-    /* Выравнивание содержимого по верхнему краю */
 }
 
 .modalTable td {
     width: 200px;
-    border: 2px solid #005475;
-    border-top: 1px solid #005475;
+    display: flex;
+    row-gap: 5px;
+    flex-direction: column;
+    overflow-y: auto;
+    font-family: 'Montserrat';
     white-space: nowrap;
-    /* Чтобы содержимое не переносилось */
     vertical-align: top;
-    /* Выравнивание содержимого по верхнему краю */
-    background-color: #ffff;
+}
+
+.modalTable tbody tr {
+    display: flex;
+    column-gap: 5px;
 }
 
 .modalTable thead th {
     color: #005475;
+    font-family: 'Montserrat';
     background-color: #DDEBF1;
     position: sticky;
     top: 0;
     z-index: 1;
-    /* Чтобы шапка оставалась видимой при скролле */
+    border-radius: 10px;
+
 }
 
 .row {
     height: 25px;
     padding: 5px;
     display: flex;
-    column-gap: 5px;
-    border: 1px solid #005475;
+    align-items: center;
+    column-gap: 10px;
+    background-color: #f0f3f5;
+    border-radius: 10px;
+
+    & input {
+        background-color: #f0f3f5;
+    }
 }
+
 
 .tableHeader {
     display: flex;
@@ -448,28 +469,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border: solid 5px #005475 !important;
 }
 
-.one {
-    display: flex;
-    flex-direction: row;
-    column-gap: 5px;
-}
-
-.statisticsArrowLeft {
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 20px;
-    height: 25px;
-    background-color: #005475;
-    transition: background-color 0.3s ease-in-out;
-}
-
-.statisticsArrowLeft:hover {
-    background-color: #26a5d8;
-}
-
 .item {
     max-width: 200px;
     overflow: hidden;
@@ -507,6 +506,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: rgb(240, 240, 240);
     z-index: 100;
 }
+
 .modalDelete {
     position: fixed;
     z-index: 2000;
@@ -538,7 +538,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 10px;
 }
 
-.modalRow1{
+.modalRow1 {
     display: flex;
     flex-direction: row;
     min-width: 280px;
@@ -557,8 +557,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: 40px;
     border-radius: 10px;
     background-color: #005475;
-    transition: background-color 0.3s ;
-    &:hover{
+    transition: background-color 0.3s;
+
+    &:hover {
         background-color: #02445e;
     }
 }
@@ -569,29 +570,71 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-radius: 10px;
     background-color: #ffff;
     border: 1px solid #005475;
-    transition: background-color 0.3s ;
-    &:hover{
+    transition: background-color 0.3s;
+
+    &:hover {
         background-color: #eff3f5;
     }
 }
 
-.textBtnYes{
+.textBtnYes {
     font-weight: 400;
     font-family: 'Montserrat';
     color: #ffff;
     font-size: 14px;
 }
 
-.textBtnNo{
+.textBtnNo {
     font-weight: 400;
     font-family: 'Montserrat';
     color: #005475;
     font-size: 14px;
 }
-.text{
+
+.text {
     font-weight: 400;
     font-family: 'Montserrat';
     color: rgb(58, 58, 58);
     font-size: 14px;
-    line-height: 16px; 
+    line-height: 16px;
+}
+
+.textMontserrat {
+    font-family: 'Montserrat';
+}
+
+.tableHeading {
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.tableHintWrapper {
+    margin-bottom: 7px;
+    display: inline-block; /* Обеспечивает, что обертка занимает размер содержимого */
+    position: relative; /* Создаем контекст позиционирования */
+}
+
+.tableHintWrapper::after {
+    display: none; /* Скрыто по умолчанию */
+    content: "Это  значение будет влиять, только на тип графика (ежемесячный или годовой).";
+    position: absolute;
+    bottom: 100%; /* Расположить под элементом */
+    left: 100%;
+    width: 120px; /* Подгоните под нужный размер */
+    padding: 5px;
+    background-color: #696969;
+    color: white;
+    border-radius: 5px;
+    z-index: 10;
+    font-family: "Montserrat";
+    font-size: 12px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.tableHintWrapper:hover::after {
+    display: block; /* Показываем всплывающее сообщение при наведении */
 }

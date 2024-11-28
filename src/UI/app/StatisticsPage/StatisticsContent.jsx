@@ -271,39 +271,40 @@ export default function StatisticsContent() {
 
       // Фильтруем данные и заполняем пропущенные даты
       const filteredData = statisticDatas
-      ?.filter((item) => {
-        // Проверяем, если valueDate существует и валиден
-        const itemDate = item?.valueDate ? new Date(item.valueDate) : null;
-    
-        // Если itemDate не валидная, пропускаем элемент
-        if (isNaN(itemDate?.getTime())) {
-          return false; // Пропускаем невалидные даты
-        }
-    
-        // Проверяем, если startDate и endDate валидные
-        const isValidStartDate = startDate instanceof Date && !isNaN(startDate.getTime());
-        const isValidEndDate = endDate instanceof Date && !isNaN(endDate.getTime());
-    
-        if (!isValidStartDate || !isValidEndDate) {
-          return false; // Пропускаем, если startDate или endDate невалидны
-        }
-    
-        const itemDateStr = itemDate.toISOString().split("T")[0];
-        const startDateStr = startDate.toISOString().split("T")[0];
-        const endDateStr = endDate.toISOString().split("T")[0];
-    
-        // Возвращаем результат фильтрации
-        return (
-          startDateStr <= itemDateStr &&
-          itemDateStr < endDateStr &&
-          item.isCorrelation !== true
-        );
-      })
-      ?.map((item) => ({
-        ...item,
-        valueDate: item.valueDate?.split("T")[0], // Предполагаем, что valueDate - строка с датой
-      }));
-    
+        ?.filter((item) => {
+          // Проверяем, если valueDate существует и валиден
+          const itemDate = item?.valueDate ? new Date(item.valueDate) : null;
+
+          // Если itemDate не валидная, пропускаем элемент
+          if (isNaN(itemDate?.getTime())) {
+            return false; // Пропускаем невалидные даты
+          }
+
+          // Проверяем, если startDate и endDate валидные
+          const isValidStartDate =
+            startDate instanceof Date && !isNaN(startDate.getTime());
+          const isValidEndDate =
+            endDate instanceof Date && !isNaN(endDate.getTime());
+
+          if (!isValidStartDate || !isValidEndDate) {
+            return false; // Пропускаем, если startDate или endDate невалидны
+          }
+
+          const itemDateStr = itemDate.toISOString().split("T")[0];
+          const startDateStr = startDate.toISOString().split("T")[0];
+          const endDateStr = endDate.toISOString().split("T")[0];
+
+          // Возвращаем результат фильтрации
+          return (
+            startDateStr <= itemDateStr &&
+            itemDateStr < endDateStr &&
+            item.isCorrelation !== true
+          );
+        })
+        ?.map((item) => ({
+          ...item,
+          valueDate: item.valueDate?.split("T")[0], // Предполагаем, что valueDate - строка с датой
+        }));
 
       const updatedPoints = [];
       const _updatedPoints = [];
@@ -1600,7 +1601,7 @@ export default function StatisticsContent() {
           />
         </div>
         <div className={styles.editText}>
-          {currentStatistic.id && (
+          {/* {currentStatistic.id && (
             <div className={classes.block1Arrrow}>
               <div className={classes.statisticsArrowLeft}>
                 <img
@@ -1618,7 +1619,7 @@ export default function StatisticsContent() {
                 />
               </div>
             </div>
-          )}
+          )} */}
           <div className={classes.five}>
             <div className={classes.item}>
               <div className={classes.itemName}>
@@ -1726,15 +1727,36 @@ export default function StatisticsContent() {
                       <>
                         <div className={classes.block1}>
                           {statisticId !== "" ? (
-                            <Graphic
-                              data={[...receivedPoints, ...createPoints]}
-                              name={
-                                name !== "null" ? name : currentStatistic?.name
-                              }
-                              setName={setName}
-                              typeGraphic={typeGraphic}
-                              type={type}
-                            ></Graphic>
+                            <>
+                              <Graphic
+                                data={[...receivedPoints, ...createPoints]}
+                                name={
+                                  name !== "null"
+                                    ? name
+                                    : currentStatistic?.name
+                                }
+                                setName={setName}
+                                typeGraphic={typeGraphic}
+                                type={type}
+                              ></Graphic>
+
+                              <div className={classes.blockArrrow}>
+                                <div className={classes.statisticsArrow}>
+                                  <img
+                                    src={statisticsArrowLeft}
+                                    alt="statisticsArrowLeftWhite"
+                                    onClick={handleArrowLeftClick}
+                                  />
+                                </div>
+                                <div className={classes.statisticsArrow}>
+                                  <img
+                                    src={statisticsArrowRight}
+                                    alt="statisticsArrowRightWhite"
+                                    onClick={handleArrowRightClick}
+                                  />
+                                </div>
+                              </div>
+                            </>
                           ) : (
                             <></>
                           )}

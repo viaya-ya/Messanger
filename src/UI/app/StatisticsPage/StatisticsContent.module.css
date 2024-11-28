@@ -165,19 +165,21 @@
     overflow-y: auto;
 }
 
+
+.blockArrrow {
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+    margin-top: 80px;
+    align-self: flex-start;
+}
+
 .block1 {
     flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
 
-}
-
-.block1Arrrow {
-    display: flex;
-    flex-direction: row;
-    column-gap: 10px;
-    margin-right: auto;
 }
 
 .block2 {

@@ -23,7 +23,6 @@ import {
   useGetProjectNewQuery,
   useUpdateProjectMutation,
 } from "../../../BLL/projectApi";
-import CustomSelect from "../../Custom/CustomSelect.jsx";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import MyEditor from "../../Custom/MyEditor";
@@ -31,6 +30,7 @@ import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
+import TableProject from "../../Custom/TableProject/TableProject.jsx";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -41,53 +41,88 @@ export default function ProjectContent() {
   const newProject = () => {
     navigate("new");
   };
-  const [type, setType] = useState("null");
-  const [strategiya, setStrategiya] = useState("null");
+
+  const [organizationId, setOrganizationId] = useState(""); // Сначало выбираем организацию по ней проекты
+  const [selectedProjectId, setSelectedProjectId] = useState(""); // Для выбора проекта
+
+  // Поля которые получаю от Максона
+  const [projectName, setProjectName] = useState();
+  const [type, setType] = useState();
+  const [strategy, setStrategy] = useState("null");
   const [programId, setProgramId] = useState("null");
 
-  const [oldProducts, setOldProducts] = useState([]);
   const [products, setProducts] = useState([]);
-  const [productsCreate, setProductsCreate] = useState([]);
-
-  const [oldTasks, setOldTasks] = useState([]);
+  const [event, setEvent] = useState([]);
+  const [rules, setRules] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [tasksCreate, setTasksCreate] = useState([]);
-
-  const [oldStatistics, setOldStatistics] = useState([]);
   const [statistics, setStatistics] = useState([]);
-  const [statisticsCreate, setStatisticsCreate] = useState([]);
 
-  const [oldCommons, setOldCommons] = useState([]);
-  const [commons, setCommons] = useState([]);
-  const [commonsCreate, setCommonsCreate] = useState([]);
-
-  const [organizationsUpdate, setOrganizationsUpdate] = useState([]);
-  const [selectedProjectId, setSelectedProjectId] = useState("");
-
-  const [manualSuccessReset, setManualSuccessReset] = useState(false);
-  const [manualErrorReset, setManualErrorReset] = useState(false);
-
+  // Все для Editor
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
   const [showEditorState, setShowEditorState] = useState(false);
 
+  // Для создание массивов хуйни
+  const [eventCreate, setEventCreate] = useState([]);
+  const [rulesCreate, setRulesCreate] = useState([]);
+  const [tasksCreate, setTaskCreate] = useState([]);
+  const [statisticsCreate, setStatisticsCreate] = useState([]);
+
+  // Для обработки ошибок
+  const [manualSuccessReset, setManualSuccessReset] = useState(false);
+  const [manualErrorReset, setManualErrorReset] = useState(false);
+
+  // Сортировка данных
+  const [sortStrategies, setSortStrategies] = useState([]);
+  const [sortPrograms, setSortPrograms] = useState([]);
+
+  // Disabled данных
+  const [disabledStrategy, setDisabledStrategy] = useState(false);
+  const [disabledProgramId, setDisabledProgramId] = useState(false);
+  const [disabledTable, setDisabledTable] = useState(false);
+
+  const nameTableRecieved = {
+    Продукт: { array: products, setArray: setProducts },
+    "Организационные мероприятия": { array: event, setArray: setEvent },
+    Правила: { array: rules, setArray: setRules },
+    Обычная: { array: tasks, setArray: setTasks },
+    Статистика: { array: statistics, setArray: setStatistics },
+  };
+
+  const nameTableCreated = {
+    "Организационные мероприятия": {
+      _array: eventCreate,
+      _setArray: setEventCreate,
+    },
+    Правила: { _array: rulesCreate, _setArray: setRulesCreate },
+    Обычная: { _array: tasksCreate, _setArray: setTaskCreate },
+    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate },
+  };
+
   const {
-    data = [],
+    projects = [],
+    archivesProjects = [],
     isErrorGetProject,
     isLoadingGetProject,
-  } = useGetProjectQuery(userId, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      data: data || [],
-      isErrorGetProject: isError,
-      isLoadingGetProject: isLoading,
-    }),
-  });
+  } = useGetProjectQuery(
+    { userId, organizationId },
+    {
+      selectFromResult: ({ data, isLoading, isError }) => ({
+        projects: data?.projects || [],
+        archivesProjects: data?.archivesProjects || [],
+        isErrorGetProject: isError,
+        isLoadingGetProject: isLoading,
+      }),
+      skip: !organizationId,
+    }
+  );
 
+  // Пока что хуйня не все переменные использую
   const {
     workers = [],
     strategies = [],
     organizations = [],
-    programsWithoutProject = [],
+    programs = [],
     isLoadingGetNew,
     isErrorGetNew,
   } = useGetProjectNewQuery(userId, {
@@ -95,11 +130,12 @@ export default function ProjectContent() {
       workers: data?.workers || [],
       strategies: data?.strategies || [],
       organizations: data?.organizations || [],
-      programsWithoutProject: data?.programsWithoutProject || [],
+      programs: data?.programs || [],
       isLoadingGetNew: isLoading,
       isErrorGetNew: isError,
     }),
   });
+  // Конец хуйни
 
   const {
     currentProject = {},
@@ -121,17 +157,97 @@ export default function ProjectContent() {
     }
   );
 
+  const [
+    updateProject,
+    {
+      isLoading: isLoadingProjectMutation,
+      isSuccess: isSuccessProjectMutation,
+      isError: isErrorProjectMutation,
+      error: Error,
+    },
+  ] = useUpdateProjectMutation();
+
+  // Для показа информации о проекте
+  const show = () => {
+    setShowEditorState(!showEditorState);
+  };
+  // Конец показа
+
+  // Обновление html contenta у Editora
   useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
     );
     setHtmlContent(rawContent);
   }, [editorState]);
+  // Конец обновления
+
+// После выбора другой организации обнуляю все переменные
+  useEffect(() => {
+    if(organizationId){
+      setSelectedProjectId("");
+
+      setProducts([]);
+      setEvent([]);
+      setRules([]);
+      setTasks([]);
+      setStatistics([]);
+
+      setEventCreate([]);
+      setRulesCreate([]);
+      setTaskCreate([]);
+      setStatisticsCreate([]);
+
+      setHtmlContent();
+      setEditorState(EditorState.createEmpty());
+
+    }
+  },[organizationId]);
+
+  // Для правильных данный на основе хреновой тучи сортировки массивов (sortStrategies и sortPrograms)
+  useEffect(() => {
+    if (organizationId) {
+      const filteredStrategies = strategies?.filter(
+        (strategy) => strategy?.organization?.id === organizationId
+      );
+      setSortStrategies(filteredStrategies);
+
+      const filteredPrograms = programs?.filter(
+        (program) => program?.organization?.id === organizationId
+      );
+      setSortPrograms(filteredPrograms);
+    }
+  }, [organizationId]);
 
   useEffect(() => {
+    if (programId !== "null") {
+      const obj = programs?.find(
+        (program) => program?.organization?.id === organizationId
+      );
+      setStrategy(obj?.strategy?.id);
+      setDisabledStrategy(true);
+    } else {
+      setDisabledStrategy(false);
+    }
+  }, [programId]);
+
+  // Конец хреновой тучи
+
+  // Начальная инициализация данных при открытии по id
+  useEffect(() => {
+    if (currentProject?.projectName) {
+      setProjectName(currentProject.projectName);
+    }
+
+    if (currentProject?.type) {
+      setType(currentProject.type);
+    }
+
+    if (currentProject?.strategy?.id) {
+      setStrategy(currentProject.strategy.id);
+    }
+
     if (currentProject.content) {
-      console.log("currentProject.content");
-      console.log(currentProject.content);
       const { contentBlocks, entityMap } = convertFromHTML(
         currentProject.content
       );
@@ -144,126 +260,126 @@ export default function ProjectContent() {
     } else {
       setEditorState(EditorState.createEmpty());
     }
-  }, [currentProject.content]);
+  }, [currentProject.id]);
 
   useEffect(() => {
-    console.log("Current targets:", targets);
     if (targets.length > 0) {
-      setProducts(targets.filter((item) => item.type === "Продукт"));
-      setOldProducts(targets.filter((item) => item.type === "Продукт"));
+      setProducts(
+        targets
+          .filter((item) => item.type === "Продукт")
+          .map((item) => ({ ...item }))
+      );
 
-      setTasks(targets.filter((item) => item.type === "Правила"));
-      setOldTasks(targets.filter((item) => item.type === "Правила"));
+      setEvent(
+        targets
+          .filter((item) => item.type === "Организационные мероприятия")
+          .map((item) => ({ ...item }))
+          .sort((a, b) => a.orderNumber - b.orderNumber)
+      );
 
-      setStatistics(targets.filter((item) => item.type === "Статистика"));
-      setOldStatistics(targets.filter((item) => item.type === "Статистика"));
+      setRules(
+        targets
+          .filter((item) => item.type === "Правила")
+          .map((item) => ({ ...item }))
+          .sort((a, b) => a.orderNumber - b.orderNumber)
+      );
 
-      setCommons(targets.filter((item) => item.type === "Обычная"));
-      setOldCommons(targets.filter((item) => item.type === "Обычная"));
+      setTasks(
+        targets
+          .filter((item) => item.type === "Обычная")
+          .sort((a, b) => a.orderNumber - b.orderNumber)
+          .map((item) => ({ ...item }))
+      );
+
+      setStatistics(
+        targets
+          .filter((item) => item.type === "Статистика")
+          .map((item) => ({ ...item }))
+          .sort((a, b) => a.orderNumber - b.orderNumber)
+      );
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
+  // Конец
 
-  const [
-    updateProject,
-    {
-      isLoading: isLoadingProjectMutation,
-      isSuccess: isSuccessProjectMutation,
-      isError: isErrorProjectMutation,
-      error: Error,
-    },
-  ] = useUpdateProjectMutation();
+  // Пустая хуйня
+  const reset = () => {};
+  // конец
 
-  const reset = () => {
-    setType("null");
-    setStrategiya("null");
-    setProgramId("null");
-    ////// Приходящие
-    setProducts([]);
-    setTasks([]);
-    setStatistics([]);
-    setCommons([]);
-    ////// Мои
-    setCommonsCreate([]);
-    setProductsCreate([]);
-    setStatisticsCreate([]);
-    setTasksCreate([]);
-  };
-
-  function compareArrays(oldArray, newArray) {
-    const changes = [];
-
-    newArray.forEach((newItem) => {
-      const oldItem = oldArray.find((item) => item.id === newItem.id);
-
-      if (oldItem) {
-        const itemChanges = {};
-
-        // Сравниваем каждое поле
-        Object.keys(newItem).forEach((key) => {
-          if (newItem[key] !== oldItem[key]) {
-            itemChanges[key] = newItem[key];
-          }
-        });
-
-        // Если есть изменения, добавляем их в результат
-        if (Object.keys(itemChanges).length > 0) {
-          changes.push({ _id: newItem.id, ...itemChanges });
-        }
-      }
-    });
-
-    return changes;
-  }
-
+  //Сохранение изменений
   const saveUpdateProject = async () => {
     const Data = {};
 
     Data.targetUpdateDtos = [];
+    Data.targetCreateDtos = [];
 
     // Проверки на изменения и отсутствие null
-    if (type !== currentProject.type && type !== "null") {
-      Data.type = type;
-    }
-    if (strategiya !== currentProject.strategyId && strategiya !== "null") {
-      Data.strategyId = strategiya;
+    if (strategy !== currentProject.strategyId && strategy !== "null") {
+      Data.strategyId = strategy;
     }
     if (programId !== currentProject.programId && programId !== "null") {
       Data.programId = programId;
     }
     if (htmlContent !== currentProject.content && htmlContent !== null) {
-      Data.content = programId;
+      Data.content = htmlContent;
     }
+
     if (products.length > 0) {
-      Data.targetUpdateDtos.push(...compareArrays(oldProducts, products));
-      console.log(compareArrays(oldProducts, products));
+      Data.targetUpdateDtos = [
+        ...products.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+      ];
+    }
+    if (event.length > 0) {
+      Data.targetUpdateDtos = [
+        ...Data.targetUpdateDtos,
+        ...event.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+      ];
+    }
+    if (rules.length > 0) {
+      Data.targetUpdateDtos = [
+        ...Data.targetUpdateDtos,
+        ...rules.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+      ];
     }
     if (tasks.length > 0) {
-      Data.targetUpdateDtos.push(...compareArrays(oldTasks, tasks));
-      console.log(compareArrays(oldTasks, products));
+      Data.targetUpdateDtos = [
+        ...Data.targetUpdateDtos,
+        ...tasks.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+      ];
     }
     if (statistics.length > 0) {
-      Data.targetUpdateDtos.push(...compareArrays(oldStatistics, statistics));
-      console.log(compareArrays(oldStatistics, products));
-    }
-    if (commons.length > 0) {
-      Data.targetUpdateDtos.push(...compareArrays(oldCommons, commons));
-      console.log(compareArrays(oldCommons, products));
-    }
-    if (Data.targetUpdateDtos.length == 0) {
-      delete Data.targetUpdateDtos;
-    }
-    if (
-      productsCreate.length > 0 ||
-      tasksCreate.length > 0 ||
-      statisticsCreate.length > 0 ||
-      commonsCreate.length > 0
-    ) {
-      Data.targetCreateDtos = [
-        ...productsCreate,
-        ...tasksCreate,
-        ...statisticsCreate,
-        ...commonsCreate,
+      Data.targetUpdateDtos = [
+        ...Data.targetUpdateDtos,
+        ...statistics.map(({ isExpired, id, ...rest }) => ({
+          _id: id,
+          ...rest,
+        })),
       ];
+    }
+
+    if (eventCreate.length > 0) {
+      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }) => rest)];
+    }
+    if (rulesCreate.length > 0) {
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...rulesCreate.map(({ id, ...rest }) => rest),
+      ];
+    }
+    if (tasksCreate.length > 0) {
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...tasksCreate.map(({ id, ...rest }) => rest),
+      ];
+    }
+    if (statisticsCreate.length > 0) {
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...statisticsCreate.map(({ id, ...rest }) => rest),
+      ];
+    }
+
+    if (Data.targetCreateDtos.length === 0) {
+      delete Data.targetCreateDtos;
     }
 
     await updateProject({
@@ -271,7 +387,6 @@ export default function ProjectContent() {
       projectId: selectedProjectId,
       _id: selectedProjectId,
       ...Data,
-      projectToOrganizations: organizationsUpdate,
     })
       .unwrap()
       .then(() => {
@@ -284,16 +399,21 @@ export default function ProjectContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
+  // Конец
 
-  const addProducts = () => {
-    setProductsCreate((prevState) => {
-      const index = products.length + prevState.length + 1; // Генерация index на основе длины массива
+  // Методы для таблиц
+  const add = (name) => {
+    const data = nameTableCreated[name];
+    const { _array, _setArray } = data;
+
+    _setArray((prevState) => {
+      const index = prevState.length + 1; // Генерация index на основе длины массива
 
       return [
         ...prevState,
         {
           id: new Date(),
-          type: "Продукт",
+          type: name,
           orderNumber: index,
           content: "",
           holderUserId: "",
@@ -303,106 +423,24 @@ export default function ProjectContent() {
     });
   };
 
-  const addTasks = () => {
-    setTasksCreate((prevState) => {
-      const index = tasks.length + prevState.length + 1; // Генерация index на основе длины массива
-
-      return [
-        ...prevState,
-        {
-          id: new Date(),
-          type: "Правила",
-          orderNumber: index,
-          content: "",
-          holderUserId: "",
-          deadline: "",
-        },
-      ];
-    });
+  const deleteRow = (name, id) => {
+    const data = nameTableCreated[name];
+    const { _array, _setArray } = data;
+    const updated = _array
+      .filter((item) => item.id !== id)
+      .map((item, index) => ({
+        ...item,
+        orderNumber: index + 1,
+      }));
+    _setArray(updated);
   };
+  // Конец
 
-  const addCommon = () => {
-    setCommonsCreate((prevState) => {
-      const index = commons.length + prevState.length + 1; // Генерация index на основе длины массива
-
-      return [
-        ...prevState,
-        {
-          id: new Date(),
-          type: "Обычная",
-          orderNumber: index,
-          content: "",
-          holderUserId: "",
-          deadline: "",
-        },
-      ];
-    });
-  };
-
-  const addStatistics = () => {
-    setStatisticsCreate((prevState) => {
-      const index = statistics.length + prevState.length + 1; // Генерация index на основе длины массива
-
-      return [
-        ...prevState,
-        {
-          id: new Date(),
-          type: "Статистика",
-          orderNumber: index,
-          content: "",
-          holderUserId: "",
-          deadline: "",
-        },
-      ];
-    });
-  };
-  const deleteRow = (type, id) => {
-    switch (type) {
-      case "Продукт":
-        const updatedProducts = productsCreate
-          .filter((item) => item.id !== id)
-          .map((item, index) => ({
-            ...item,
-            orderNumber: index + 1,
-          }));
-        setProductsCreate(updatedProducts);
-        break;
-
-      case "Правила":
-        const updatedTasks = tasksCreate
-          .filter((item) => item.id !== id)
-          .map((item, index) => ({
-            ...item,
-            orderNumber: index + 1,
-          }));
-        setTasksCreate(updatedTasks);
-        break;
-
-      case "Обычная":
-        const updatedCommons = commonsCreate
-          .filter((item) => item.id !== id)
-          .map((item, index) => ({
-            ...item,
-            orderNumber: index + 1,
-          }));
-        setCommonsCreate(updatedCommons);
-        break;
-      case "Статистика":
-        console.log("Статистика");
-        const updatedStatistics = statisticsCreate
-          .filter((item) => item.id !== id)
-          .map((item, index) => ({
-            ...item,
-            orderNumber: index + 1,
-          }));
-        setStatisticsCreate(updatedStatistics);
-        break;
-    }
-  };
-
-  const show = () => {
-    setShowEditorState(!showEditorState);
-  };
+  const disabledFieldsArchive = () => {
+    setDisabledProgramId(true);
+    setDisabledStrategy(true);
+    setDisabledTable(true);
+  }
 
   return (
     <div className={classes.dialog}>
@@ -432,117 +470,135 @@ export default function ProjectContent() {
         </div>
 
         <div className={classes.editText}>
+
           <div className={classes.item}>
             <div className={classes.itemName}>
-              <span>Выбирите проект</span>
+              <span>
+                Организация <span style={{ color: "red" }}>*</span>
+              </span>
             </div>
             <div className={classes.div}>
               <select
+                name="mySelect"
                 className={classes.select}
-                value={selectedProjectId || ""}
+                value={organizationId}
                 onChange={(e) => {
-                  setSelectedProjectId(e.target.value);
-                  setManualSuccessReset(true);
-                  setManualErrorReset(true);
+                  setOrganizationId(e.target.value);
                 }}
               >
-                <option value="">Выберите опцию</option>
-                {data?.map((item) => {
-                  return <option value={item.id}>{item.projectNumber}</option>;
+                <option value="" disabled>
+                  Выберите организацию
+                </option>
+                {organizations?.map((item) => {
+                  return (
+                    <option key={item.id} value={item.id}>
+                      {item.organizationName}
+                    </option>
+                  );
                 })}
               </select>
             </div>
           </div>
 
-          {Object.keys(currentProject).length > 0 ? (
+          {/* <div className={classes.item}>
+            <div className={classes.itemName}>
+              <span>Тип</span>
+            </div>
+            <div className={classes.div}>
+              <select
+                className={classes.select}
+                value={type}
+                onChange={(e) => {
+                  setType(e.target.value);
+                }}
+              >
+                <option value="null">Выбрать опцию</option>
+                <option value="Проект">Проект</option>
+                <option value="Программа">Программа</option>
+              </select>
+            </div>
+          </div> */}
+
+          {organizationId && (
+            <div className={classes.item}>
+              <div className={classes.itemName}>
+                <span>Выберите проект</span>
+              </div>
+              <div className={classes.div}>
+                <select
+                  className={classes.select}
+                  value={selectedProjectId}
+                  onChange={(e) => {
+                    setSelectedProjectId(e.target.value);
+                    setManualSuccessReset(true);
+                    setManualErrorReset(true);
+
+                    if (archivesProjects.some((item) => item.id === e.target.value)) {
+                      disabledFieldsArchive();
+                    }else{
+                      setDisabledProgramId(false);
+                      setDisabledStrategy(false);
+                      setDisabledTable(false);
+                    }
+                    
+                  }}
+                >
+                  <option value = "" disabled>Выберите проект</option>
+                  {
+                    projects.length !== 0 && <option  value = "Активные" disabled className={classes.activeText}>Активные</option>
+                  }
+                  
+                  {projects?.map((item) => {
+                    return (
+                      <option key={item.id} value={item.id}>
+                        {item.projectName}
+                      </option>
+                    );
+                  })}
+
+                  {
+                     archivesProjects.length !== 0 && <option value = "Завершенные" disabled className={classes.completedText}>Завершенные</option>
+                  }
+                 
+                  {archivesProjects?.map((item) => {
+                    return (
+                      <option key={item.id} value={item.id}>
+                        {item.projectName}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {selectedProjectId && (
             <>
               <div className={classes.item}>
                 <div className={classes.itemName}>
-                  <span>Тип</span>
+                  <span>Программа для проекта</span>
                 </div>
                 <div className={classes.div}>
                   <select
-                    className={classes.select}
-                    value={type == "null" ? currentProject.type : type}
+                    name="mySelect"
+                    value={programId}
                     onChange={(e) => {
-                      setType(e.target.value);
+                      setProgramId(e.target.value);
                     }}
+                    className={classes.select}
+                    disabled={disabledProgramId}
                   >
-                    <option value="null">Выбрать опцию</option>
-                    <option value="Проект">Проект</option>
-                    <option value="Программа">Программа</option>
+                    <option value="null">—</option>
+                    {sortPrograms.map((item) => {
+                      return (
+                        <option key={item.id} value={item.id}>
+                          {item.projectNumber}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
-
-              {currentProject.programId ? (
-                <>
-                  <div className={classes.item}>
-                    <div className={classes.itemName}>
-                      <span>Программа проекта</span>
-                    </div>
-                    <div className={classes.div}>
-                      <input
-                        type="text"
-                        value={currentProject.programNumber}
-                        disabled
-                      />
-                    </div>
-                  </div>
-
-                  <div className={classes.item}>
-                    <div className={classes.itemName}>
-                      <span>Поменять программу для проекта</span>
-                    </div>
-                    <div className={classes.div}>
-                      <select
-                        name="mySelect"
-                        value={programId}
-                        onChange={(e) => {
-                          setProgramId(e.target.value);
-                        }}
-                        className={classes.select}
-                      >
-                        <option value="null">Выберите опцию</option>
-                        {programsWithoutProject.map((item) => {
-                          return (
-                            <option value={item.id}>
-                              {item.projectNumber}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className={classes.item}>
-                    <div className={classes.itemName}>
-                      <span>Программа для проекта</span>
-                    </div>
-                    <div className={classes.div}>
-                      <select
-                        name="mySelect"
-                        value={programId}
-                        onChange={(e) => {
-                          setProgramId(e.target.value);
-                        }}
-                        className={classes.select}
-                      >
-                        <option value="null">Выберите опцию</option>
-                        {programsWithoutProject.map((item) => {
-                          return (
-                            <option value={item.id}>
-                              {item.projectNumber}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </div>
-                </>
-              )}
 
               <div className={classes.item}>
                 <div className={classes.itemName}>
@@ -551,38 +607,28 @@ export default function ProjectContent() {
                 <div className={classes.div}>
                   <select
                     name="mySelect"
-                    value={
-                      strategiya == "null"
-                        ? currentProject?.strategy?.id
-                        : strategiya
-                    }
+                    value={strategy}
                     onChange={(e) => {
-                      setStrategiya(e.target.value);
+                      setStrategy(e.target.value);
                     }}
                     className={classes.select}
+                    disabled={disabledStrategy}
                   >
-                    <option value="null">Выберите опцию</option>
-                    {strategies.map((item) => {
+                    <option value="null">—</option>
+                    {sortStrategies.map((item) => {
                       return (
-                        <option value={item.id}>{item.strategyNumber}</option>
+                        <option key={item.id} value={item.id}>
+                          {item.strategyNumber}
+                        </option>
                       );
                     })}
                   </select>
                 </div>
               </div>
-
-              <div className={classes.item}>
-                <CustomSelect
-                  organizations={organizations}
-                  selectOrganizations={currentProject.projectToOrganizations}
-                  setPolicyToOrganizations={setOrganizationsUpdate}
-                ></CustomSelect>
-              </div>
             </>
-          ) : (
-            <></>
           )}
-          <div className={classes.blockSelect}>
+
+          {/* <div className={classes.blockSelect}>
             <img src={Addlink} alt="Addlink" className={classes.select} />
             <ul className={`${classes.optionNumber}`}>
               <div className={classes.nameList}>
@@ -598,7 +644,7 @@ export default function ProjectContent() {
               <li> Подготовить команду для новго </li>
               <li> Провести открытие нового </li>
             </ul>
-          </div>
+          </div> */}
 
           <div className={classes.blockSelect}>
             <img
@@ -637,7 +683,7 @@ export default function ProjectContent() {
             </ul>
           </div>
 
-          <div className={classes.blockSelect}>
+          {/* <div className={classes.blockSelect}>
             <img src={Select} alt="Select" className={classes.select} />
             <ul className={classes.option}>
               <div className={classes.nameList}>ДЕЙСТВИЯ</div>
@@ -665,7 +711,7 @@ export default function ProjectContent() {
                 <img src={tgBlack} alt="tgBlack" /> Отправить текст в Telegram{" "}
               </li>
             </ul>
-          </div>
+          </div> */}
 
           <div className={classes.actionButton}>
             <div className={classes.iconAdd}>
@@ -717,827 +763,29 @@ export default function ProjectContent() {
                           />
                         ) : (
                           <>
-                            {console.log(products)}
-                            <table className={classes.table}>
-                              <caption>
-                                <div className={classes.nameRow}>
-                                  <div>ПРОДУКТ</div>
-                                  <img
-                                    src={addCircle}
-                                    alt="addCircle"
-                                    onClick={() => addProducts()}
-                                  />
-                                </div>
-                              </caption>
-                              <tbody>
-                                {products.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              products.map((product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    content: e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setProducts(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              products.map((product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    holderUserId:
-                                                      e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setProducts(updatedProducts);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              products.map((product, i) => {
-                                                if (i === index) {
-                                                  const date = new Date(
-                                                    e.target.value
-                                                  );
-                                                  date.setUTCHours(21, 0, 0, 0);
-                                                  return {
-                                                    ...product,
-                                                    deadline:
-                                                      date.toISOString(),
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setProducts(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                                {productsCreate.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              productsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    return {
-                                                      ...product,
-                                                      content: e.target.value,
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setProductsCreate(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              productsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    return {
-                                                      ...product,
-                                                      holderUserId:
-                                                        e.target.value,
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setProductsCreate(updatedProducts);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              productsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    const date = new Date(
-                                                      e.target.value
-                                                    );
-                                                    date.setUTCHours(
-                                                      21,
-                                                      0,
-                                                      0,
-                                                      0
-                                                    );
-                                                    return {
-                                                      ...product,
-                                                      deadline:
-                                                        date.toISOString(),
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setProductsCreate(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <img
-                                          src={deleteGrey}
-                                          alt="deleteGrey"
-                                          onClick={() =>
-                                            deleteRow(item.type, item.id)
-                                          }
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
+                            {Object.keys(nameTableRecieved).map((key) => {
+                              const { array, setArray } =
+                                nameTableRecieved[key];
 
-                            <table className={classes.table}>
-                              <caption>
-                                <div className={classes.nameRow}>
-                                  <div>ПРАВИЛА</div>
-                                  <img
-                                    src={addCircle}
-                                    alt="addCircle"
-                                    onClick={() => addTasks()}
-                                  />
-                                </div>
-                              </caption>
-                              <tbody>
-                                {tasks.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedTasks = tasks.map(
-                                              (task, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...task,
-                                                    content: e.target.value,
-                                                  };
-                                                }
-                                                return task;
-                                              }
-                                            );
-                                            setTasks(updatedTasks);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedTasks = tasks.map(
-                                              (task, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...task,
-                                                    holderUserId:
-                                                      e.target.value,
-                                                  };
-                                                }
-                                                return task;
-                                              }
-                                            );
-                                            setTasks(updatedTasks);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedTasks = tasks.map(
-                                              (task, i) => {
-                                                if (i === index) {
-                                                  const date = new Date(
-                                                    e.target.value
-                                                  );
-                                                  date.setUTCHours(21, 0, 0, 0);
-                                                  return {
-                                                    ...task,
-                                                    deadline:
-                                                      date.toISOString(),
-                                                  };
-                                                }
-                                                return task;
-                                              }
-                                            );
-                                            setTasks(updatedTasks);
-                                          }}
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                                {tasksCreate.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              tasksCreate.map((product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    content: e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setTasksCreate(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              tasksCreate.map((product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    holderUserId:
-                                                      e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setTasksCreate(updatedProducts);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              tasksCreate.map((product, i) => {
-                                                if (i === index) {
-                                                  const date = new Date(
-                                                    e.target.value
-                                                  );
-                                                  date.setUTCHours(21, 0, 0, 0);
-                                                  return {
-                                                    ...product,
-                                                    deadline:
-                                                      date.toISOString(),
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setTasksCreate(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <img
-                                          src={deleteGrey}
-                                          alt="deleteGrey"
-                                          onClick={() =>
-                                            deleteRow(item.type, item.id)
-                                          }
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
+                              const { _array = [], _setArray = () => {} } =
+                                nameTableCreated[key] || {};
 
-                            <table className={classes.table}>
-                              <caption>
-                                <div className={classes.nameRow}>
-                                  <div>ОБЫЧНАЯ</div>
-                                  <img
-                                    src={addCircle}
-                                    alt="addCircle"
-                                    onClick={() => addCommon()}
-                                  />
-                                </div>
-                              </caption>
-                              <tbody>
-                                {commons.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts = commons.map(
-                                              (product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    content: e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              }
-                                            );
-                                            setCommons(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts = commons.map(
-                                              (product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    holderUserId:
-                                                      e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              }
-                                            );
-                                            setCommons(updatedProducts);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts = commons.map(
-                                              (product, i) => {
-                                                if (i === index) {
-                                                  const date = new Date(
-                                                    e.target.value
-                                                  );
-                                                  date.setUTCHours(21, 0, 0, 0);
-                                                  return {
-                                                    ...product,
-                                                    deadline:
-                                                      date.toISOString(),
-                                                  };
-                                                }
-                                                return product;
-                                              }
-                                            );
-                                            setCommons(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                                {commonsCreate.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              commonsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    return {
-                                                      ...product,
-                                                      content: e.target.value,
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setCommonsCreate(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              commonsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    return {
-                                                      ...product,
-                                                      holderUserId:
-                                                        e.target.value,
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setCommonsCreate(updatedProducts);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              commonsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    const date = new Date(
-                                                      e.target.value
-                                                    );
-                                                    date.setUTCHours(
-                                                      21,
-                                                      0,
-                                                      0,
-                                                      0
-                                                    );
-                                                    return {
-                                                      ...product,
-                                                      deadline:
-                                                        date.toISOString(),
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setCommonsCreate(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <img
-                                          src={deleteGrey}
-                                          alt="deleteGrey"
-                                          onClick={() =>
-                                            deleteRow(item.type, item.id)
-                                          }
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-
-                            <table className={classes.table}>
-                              <caption>
-                                <div className={classes.nameRow}>
-                                  <div>СТАТИСТИКА</div>
-                                  <img
-                                    src={addCircle}
-                                    alt="addCircle"
-                                    onClick={() => addStatistics()}
-                                  />
-                                </div>
-                              </caption>
-                              <tbody>
-                                {statistics.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              statistics.map((product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    content: e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setStatistics(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              statistics.map((product, i) => {
-                                                if (i === index) {
-                                                  return {
-                                                    ...product,
-                                                    holderUserId:
-                                                      e.target.value,
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setStatistics(updatedProducts);
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              statistics.map((product, i) => {
-                                                if (i === index) {
-                                                  const date = new Date(
-                                                    e.target.value
-                                                  );
-                                                  date.setUTCHours(21, 0, 0, 0);
-                                                  return {
-                                                    ...product,
-                                                    deadline:
-                                                      date.toISOString(),
-                                                  };
-                                                }
-                                                return product;
-                                              });
-                                            setStatistics(updatedProducts);
-                                          }}
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                                {statisticsCreate.map((item, index) => {
-                                  return (
-                                    <tr key={item.id}>
-                                      <td className={classes.numberTableColumn}>
-                                        {item.orderNumber}
-                                      </td>
-                                      <td className={classes.nameTableColumn}>
-                                        <input
-                                          type="text"
-                                          value={item.content}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              statisticsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    return {
-                                                      ...product,
-                                                      content: e.target.value,
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setStatisticsCreate(
-                                              updatedProducts
-                                            );
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <select
-                                          name="mySelect"
-                                          value={item.holderUserId}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              statisticsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    return {
-                                                      ...product,
-                                                      holderUserId:
-                                                        e.target.value,
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setStatisticsCreate(
-                                              updatedProducts
-                                            );
-                                          }}
-                                          className={classes.select}
-                                        >
-                                          <option value="">
-                                            Выберите опцию
-                                          </option>
-                                          {workers.map((worker) => {
-                                            return (
-                                              <option
-                                                key={worker.id}
-                                                value={worker.id}
-                                              >{`${worker.firstName} ${worker.lastName}`}</option>
-                                            );
-                                          })}
-                                        </select>
-                                      </td>
-                                      <td className={classes.dateTableColumn}>
-                                        <input
-                                          type="date"
-                                          value={item.deadline.slice(0, 10)}
-                                          onChange={(e) => {
-                                            const updatedProducts =
-                                              statisticsCreate.map(
-                                                (product, i) => {
-                                                  if (i === index) {
-                                                    const date = new Date(
-                                                      e.target.value
-                                                    );
-                                                    date.setUTCHours(
-                                                      21,
-                                                      0,
-                                                      0,
-                                                      0
-                                                    );
-                                                    return {
-                                                      ...product,
-                                                      deadline:
-                                                        date.toISOString(),
-                                                    };
-                                                  }
-                                                  return product;
-                                                }
-                                              );
-                                            setStatisticsCreate(
-                                              updatedProducts
-                                            );
-                                          }}
-                                        />
-                                      </td>
-                                      <td className={classes.imageTableColumn}>
-                                        <img
-                                          src={deleteGrey}
-                                          alt="deleteGrey"
-                                          onClick={() =>
-                                            deleteRow(item.type, item.id)
-                                          }
-                                        />
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
+                              return (
+                                <TableProject
+                                  tableKey={key}
+                                  nameTable={key}
+                                  add={add}
+                                  array={array}
+                                  setArray={setArray}
+                                  _array={_array}
+                                  _setArray={_setArray}
+                                  workers={workers}
+                                  deleteRow={deleteRow}
+                                  noDelete={true}
+                                  disabledTable = {disabledTable}
+                                />
+                              );
+                            })}
                           </>
                         )}
 

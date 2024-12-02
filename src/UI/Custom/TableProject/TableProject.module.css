@@ -72,6 +72,11 @@
         width: 76%;
     }
 
+    & .nameProjectToProgramTableColumn {
+        text-align: start;
+        width: 20%;
+    }
+
     & .imageTableColumn {
         min-width: 8%;
     }
@@ -83,6 +88,7 @@
 
     & .deleteTableColumn {
         width: 2%;
+        min-width: 25px;
 
         & :hover {
             background-color: rgb(240, 240, 240);
@@ -93,5 +99,6 @@
 
     & .statusTableColumn {
         width: 2%;
+        min-width: 2%;
     }
 }

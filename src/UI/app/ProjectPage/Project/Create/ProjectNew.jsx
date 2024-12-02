@@ -25,7 +25,7 @@ export default function ProjectNew() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate(`/${userId}/startProject/new`);
+    navigate(`/${userId}/project`);
   };
   const [name, setName] = useState("");
 
@@ -402,7 +402,6 @@ export default function ProjectNew() {
             </ul>
           </div>
 
-      
 
           <div className={classes.iconSave}>
             <img
@@ -454,6 +453,8 @@ export default function ProjectNew() {
                           setArray={setArray}
                           workers={workers}
                           deleteRow={deleteRow}
+
+                          createProject = {true}
                         />
                       );
                     })}

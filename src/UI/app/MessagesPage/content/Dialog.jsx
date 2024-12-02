@@ -30,7 +30,7 @@ export default function Dialog() {
     navigate(`/${userId}/statistics`);
   };
   const project = () => {
-    navigate(`/${userId}/project`);
+    navigate(`/${userId}/startProject`);
   };
 
   const menuItems = [

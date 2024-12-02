@@ -18,12 +18,13 @@ import PostNew from "../../PostPage/PostNew";
 import StrategNew from "../../StrategPage/StrategNew";
 import StatisticsNew from "../../StatisticsPage/StatisticsNew";
 
+import StartContent from "../../ProjectPage/Start/Update/StartContent";
 
-import StartNew from "../../ProjectPage/Start/StartNew";
 
 import ProjectContent from "../../ProjectPage/Project/Update/ProjectContent";
 import ProjectNew from "../../ProjectPage/Project/Create/ProjectNew";
 
+import ProgramContent from "../../ProjectPage/Program/Update/ProgramContent";
 import ProgramNew from "../../ProjectPage/Program/Create/ProgramNew";
 
 export default function Content() {
@@ -53,12 +54,16 @@ export default function Content() {
       {location.pathname === "/" + userId + "/statistics" && <StatisticsContent />}
       {location.pathname.startsWith(`/${userId}/statistics/new`) && <StatisticsNew />}
       
-      {location.pathname === "/" + userId + "/project" && <ProjectContent />}
-      
-      {location.pathname === "/" + userId + "/startProject/new" && <StartNew/>}
 
+
+      {location.pathname === "/" + userId + "/startProject" && <StartContent/>}
+
+      {location.pathname === "/" + userId + "/project" && <ProjectContent />}
       {location.pathname === "/" + userId + "/project/new" && < ProjectNew/>}
+      
       {location.pathname === "/" + userId + "/program/new" && < ProgramNew/>}
+      {location.pathname === "/" + userId + "/program" && < ProgramContent/>}
+      
     </div>
   );
 }

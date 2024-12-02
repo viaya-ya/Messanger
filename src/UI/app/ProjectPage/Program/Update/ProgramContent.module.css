@@ -24,7 +24,7 @@
 }
 
 .pomoshnikSearch {
-    height: 50px;
+    min-height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -70,7 +70,7 @@
 }
 
 .spanPomoshnik::after {
-    content: 'ПРОЕКТЫ';
+    content: 'ПРОГРАММЫ';
     white-space: nowrap;
     position: absolute;
     left: 0;

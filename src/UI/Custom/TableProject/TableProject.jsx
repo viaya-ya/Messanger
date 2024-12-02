@@ -13,29 +13,75 @@ export default function TableProject({
   _setArray,
   workers,
   deleteRow,
-  noDelete,
-  disabledTable
+  disabledTable,
+
+  createProgram,
+  disabledProject,
+  handleCheckBox,
+
+  createProject,
+  updateProject,
 }) {
-  console.log(disabledTable);
+  console.log(nameTable);
   return (
     <table key={tableKey} className={classes.table}>
       <caption>
         <div className={classes.nameRow}>
+          
           <div>
             {(() => {
               const map = {
                 Обычная: "ЗАДАЧА",
                 Статистика: "МЕТРИКА",
               };
-              return map[nameTable] || nameTable.toUpperCase();
+              return createProgram && nameTable === "Обычная"
+                ? "ПРОЕКТЫ"
+                : map[nameTable] || nameTable.toUpperCase();
             })()}
           </div>
-          {nameTable !== "Продукт" && (
-            <img
-              src={addCircle}
-              alt="addCircle"
-              onClick={() => add(nameTable)}
-            />
+
+          {createProgram && (
+            <>
+              {nameTable === "Обычная" ? (
+                <></>
+              ) : (
+                <img
+                  src={addCircle}
+                  alt="addCircle"
+                  onClick={() => add(nameTable)}
+                />
+              )}
+            </>
+          )}
+
+          {createProject && (
+            <>
+              {nameTable !== "Продукт" && (
+                <img
+                  src={addCircle}
+                  alt="addCircle"
+                  onClick={() => add(nameTable)}
+                />
+              )}
+            </>
+          )}
+
+          {updateProject && (
+            <>
+              {disabledTable ? (
+                <></>
+              ) : (
+                <>
+                  {nameTable !== "Продукт" && (
+                    <img
+                      src={addCircle}
+                      alt="addCircle"
+                      onClick={() => add(nameTable)}
+                    />
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       </caption>
@@ -44,6 +90,15 @@ export default function TableProject({
           return (
             <tr key={`${item.id}-${item.orderNumber}`}>
               <td className={classes.numberTableColumn}>{item.orderNumber}</td>
+
+              {/*Имя проекта в программе */}
+              {createProgram && nameTable === "Обычная" && (
+                <>
+                  <td className={classes.nameProjectToProgramTableColumn}>
+                    {item?.nameProject}
+                  </td>
+                </>
+              )}
 
               <td className={classes.nameTableColumn}>
                 <input
@@ -54,11 +109,11 @@ export default function TableProject({
                     updated[item.orderNumber - 1].content = e.target.value;
                     setArray(updated);
                   }}
-                  disabled={item?.isExpired || disabledTable}
+                  disabled={item?.isExpired || disabledTable || disabledProject}
                 />
               </td>
 
-              <td className= {classes.imageTableColumn}>
+              <td className={classes.imageTableColumn}>
                 <select
                   name="mySelect"
                   value={item.holderUserId}
@@ -68,7 +123,7 @@ export default function TableProject({
                     setArray(updated);
                   }}
                   className={classes.select}
-                  disabled={item?.isExpired || disabledTable}
+                  disabled={item?.isExpired || disabledTable || disabledProject}
                 >
                   <option value="">Выберите опцию</option>
                   {workers.map((item) => {
@@ -82,7 +137,11 @@ export default function TableProject({
                 </select>
               </td>
 
-              <td className=  {`${item.isExpired === true ? classes.expired: ''} ${classes.dateTableColumn}`}>
+              <td
+                className={`${item.isExpired === true ? classes.expired : ""} ${
+                  classes.dateTableColumn
+                }`}
+              >
                 <input
                   type="date"
                   value={item.deadline.slice(0, 10)}
@@ -93,12 +152,53 @@ export default function TableProject({
                     updated[item.orderNumber - 1].deadline = date.toISOString();
                     setArray(updated);
                   }}
-                  disabled={item?.isExpired || disabledTable}
-                  className=  {`${item.isExpired === true ? classes.expired: ''}`}
+                  disabled={item?.isExpired || disabledTable || disabledProject}
+                  className={`${
+                    item.isExpired === true ? classes.expired : ""
+                  }`}
                 />
               </td>
 
-              {noDelete ? (
+              {createProgram && (
+                <>
+                  {nameTable === "Обычная" ? (
+                    <td className={classes.deleteTableColumn}>
+                      {nameTable !== "Продукт" && (
+                        <input
+                          type="checkbox"
+                          onChange={() => {
+                            handleCheckBox(item.id);
+                          }}
+                        />
+                      )}
+                    </td>
+                  ) : (
+                    <td className={classes.deleteTableColumn}>
+                      {nameTable !== "Продукт" && (
+                        <img
+                          src={deleteGrey}
+                          alt="deleteGrey"
+                          onClick={() => deleteRow(item.type, item.id)}
+                        />
+                      )}
+                    </td>
+                  )}
+                </>
+              )}
+
+              {createProject && (
+                <td className={classes.deleteTableColumn}>
+                  {nameTable !== "Продукт" && (
+                    <img
+                      src={deleteGrey}
+                      alt="deleteGrey"
+                      onClick={() => deleteRow(item.type, item.id)}
+                    />
+                  )}
+                </td>
+              )}
+
+              {updateProject && (
                 <td className={classes.statusTableColumn}>
                   <select
                     name="mySelect"
@@ -117,21 +217,11 @@ export default function TableProject({
                     <option value="Отменена">Отменена</option>
                   </select>
                 </td>
-              ) : (
-                <td className={classes.deleteTableColumn}>
-                  {nameTable !== "Продукт" && (
-                    <img
-                      src={deleteGrey}
-                      alt="deleteGrey"
-                      onClick={() => deleteRow(item.type, item.id)}
-                    />
-                  )}
-                </td>
               )}
             </tr>
-    
           );
         })}
+
         {_array?.map((item) => {
           return (
             <tr key={`${item.id}-${item.orderNumber}`}>

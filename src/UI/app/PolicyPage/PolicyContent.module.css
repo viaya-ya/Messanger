@@ -900,10 +900,10 @@ textarea::placeholder {
     font-family: 'Montserrat';
 }
 
-input[type="checkbox"] {
+/* input[type="checkbox"] {
     appearance: none;
-    width: 17px;
-    height: 17px;
+    min-width: 17px;
+    min-height: 17px;
     border: 2px solid #DDEBF1;
     border-radius: 4px;
     background-color: white;
@@ -912,8 +912,8 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked {
-    width: 17px;
-    height: 17px;
+    min-width: 17px;
+    min-height: 17px;
     border: 2px solid #005475;
     border-radius: 4px;
     background-color: #DDEBF1;
@@ -928,7 +928,7 @@ input[type="checkbox"]:checked::before {
     left: 50%;
     transform: translate(-50%, -50%);
 
-}
+} */
 
 .activeText {
     color: #005475;

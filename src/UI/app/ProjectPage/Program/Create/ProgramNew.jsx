@@ -7,14 +7,12 @@ import glazikBlack from "../../../../image/glazikBlack.svg";
 import glazikInvisible from "../../../../image/glazikInvisible.svg";
 import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  usePostProjectMutation,
-} from "../../../../../BLL/projectApi.js";
+import { usePostProjectMutation } from "../../../../../BLL/projectApi.js";
 
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
 import MyEditor from "../../../../Custom/MyEditor.jsx";
-import { EditorState,} from "draft-js";
+import { EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
@@ -24,7 +22,7 @@ export default function ProgramNew() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate(`/${userId}/startProject/new`);
+    navigate(`/${userId}/program`);
   };
   const [name, setName] = useState("");
 
@@ -50,6 +48,9 @@ export default function ProgramNew() {
   const [showEditorState, setShowEditorState] = useState(false);
 
   const [sortStrategies, setSortStrategies] = useState([]);
+
+  // Массив выбранных проектов
+  const [arraySelectProjects, setArraySelectProjects] = useState([]);
 
   const nameTable = {
     Продукт: { array: products, setArray: setProducts },
@@ -88,6 +89,49 @@ export default function ProgramNew() {
   ] = usePostProjectMutation();
 
   useEffect(() => {
+    if (organizationId) {
+      const array = strategies?.filter(
+        (item) => item.organization.id === organizationId
+      );
+      setSortStrategies(array);
+
+      const _array = projects?.filter(
+        (item) => item.organization.id === organizationId
+      );
+
+      const filteredArray = _array?.map((project, index) => {
+        const targetWithProductType = project.targets.find(
+          (target) => target.type === "Продукт"
+        );
+
+        if (targetWithProductType) {
+          const worker = workers.find(
+            (worker) => worker.id === targetWithProductType.holderUserId
+          );
+          return {
+            id: project.id,
+            nameProject: project.projectName,
+            orderNumber: index + 1,
+            content: targetWithProductType.content,
+            holderUserId: worker.id,
+            deadline: targetWithProductType.deadline,
+          };
+        }
+
+        return {
+          id: project.id,
+          nameProject: project.projectName,
+          orderNumber: index + 1,
+          content: null,
+          holderUserId: null,
+          deadline: null,
+        };
+      });
+      setTasks(filteredArray);
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
     const rawContent = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
     );
@@ -102,7 +146,6 @@ export default function ProgramNew() {
   const reset = () => {
     setName("");
     setStrategy("null");
-
 
     setProducts([
       {
@@ -126,31 +169,45 @@ export default function ProgramNew() {
     const Data = {};
     Data.targetCreateDtos = [];
 
-  
-      Data.projectName = name;
-      Data.type = "Программа";
-      Data.organizationId = organizationId;
- 
+    Data.projectName = name;
+    Data.type = "Программа";
+    Data.organizationId = organizationId;
+
     if (strategy !== "null") {
       Data.strategyId = strategy;
     }
+
     if (htmlContent !== null) {
       Data.content = htmlContent;
     }
-    if (event.length > 0 ) {
+
+    if (arraySelectProjects.length > 0) {
+      Data.projectIds = arraySelectProjects;
+    }
+    
+    if (event.length > 0) {
       Data.targetCreateDtos = [...event.map(({ id, ...rest }) => rest)];
     }
-    if ( rules.length > 0) {
-      Data.targetCreateDtos = [...Data.targetCreateDtos, ...rules.map(({ id, ...rest }) => rest)];
+
+    if (rules.length > 0) {
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...rules.map(({ id, ...rest }) => rest),
+      ];
     }
+
     if (statistics.length > 0) {
-      Data.targetCreateDtos = [...Data.targetCreateDtos, ...statistics.map(({ id, ...rest }) => rest)];
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...statistics.map(({ id, ...rest }) => rest),
+      ];
     }
+
     Data.targetCreateDtos = [
       ...Data.targetCreateDtos,
-      ...tasks.map(({ id, ...rest }) => rest),
       ...products,
     ];
+
     await postProject({
       userId,
       ...Data,
@@ -197,6 +254,17 @@ export default function ProgramNew() {
     setArray(updated);
   };
 
+  // Для выбранных проектов
+  const handleCheckBox = (id) => {
+    setArraySelectProjects((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+  
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -269,37 +337,42 @@ export default function ProgramNew() {
             </div>
           </div>
 
-          <div className={classes.item}>
-            <div className={classes.itemName}>
-              <span>Выбрать стратегию</span>
+          {organizationId && (
+            <div className={classes.item}>
+              <div className={classes.itemName}>
+                <span>
+                  Выбрать стратегию <span style={{ color: "red" }}>*</span>
+                </span>
+              </div>
+              <div className={classes.div}>
+                <select
+                  name="mySelect"
+                  value={strategy}
+                  onChange={(e) => {
+                    setStrategy(e.target.value);
+                  }}
+                  className={classes.select}
+                >
+                  <option value="null" disabled>
+                    Выберите стратегию
+                  </option>
+                  {sortStrategies.map((item) => {
+                    return (
+                      <option
+                        value={item.id}
+                        className={` ${
+                          item.state === "Активный" ? classes.active : ""
+                        }`}
+                      >
+                        {item.strategyNumber}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
             </div>
-            <div className={classes.div}>
-              <select
-                name="mySelect"
-                value={strategy}
-                onChange={(e) => {
-                  setStrategy(e.target.value);
-                }}
-                className={classes.select}
-              >
-                <option value="null">—</option>
-                {sortStrategies.map((item) => {
-                  return (
-                    <option
-                      value={item.id}
-                      className={` ${
-                        item.state === "Активный" ? classes.active : ""
-                      }`}
-                    >
-                      {item.strategyNumber}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </div>
+          )}
 
-  
           <div className={classes.blockSelect}>
             <img
               src={Listsetting}
@@ -338,7 +411,6 @@ export default function ProgramNew() {
               </li>
             </ul>
           </div>
-
 
           <div className={classes.iconSave}>
             <img
@@ -390,6 +462,10 @@ export default function ProgramNew() {
                           setArray={setArray}
                           workers={workers}
                           deleteRow={deleteRow}
+
+                          createProgram={true}
+                          handleCheckBox={handleCheckBox}
+                          disabledProject = {true}
                         />
                       );
                     })}

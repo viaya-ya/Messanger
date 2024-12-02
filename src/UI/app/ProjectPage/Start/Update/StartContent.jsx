@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from "react";
-import classes from "./StartNew.module.css";
-import icon from "../../../image/iconHeader.svg";
-import iconBack from "../../../image/iconBack.svg";
+import classes from "./StartContent.module.css";
+import icon from "../../../../image/iconHeader.svg";
+import iconBack from "../../../../image/iconBack.svg";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function StartNew() {
+export default function StartContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate(`/${userId}/project`);
+    navigate(`/${userId}/start`);
   };
 
   const [type, setType] = useState("null");
 
   useEffect(() => {
     if(type === "Проект"){
-      navigate(`/${userId}/project/new`);
+      navigate(`/${userId}/project`);
     }
     if(type === "Программа"){
-      navigate(`/${userId}/program/new`);
+      navigate(`/${userId}/program`);
     }
-  }, [type])
+  }, [type]);
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -50,6 +51,7 @@ export default function StartNew() {
         </div>
 
         <div className={classes.editText}>
+
           <div className={classes.item}>
             <div className={classes.itemName}>
               <span>
@@ -72,6 +74,7 @@ export default function StartNew() {
               </select>
             </div>
           </div>
+
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import classes from "./ProjectContent.module.css";
+import classes from "./ProgramContent.module.css";
 import icon from "../../../../image/iconHeader.svg";
 import iconBack from "../../../../image/iconBack.svg";
 import Listsetting from "../../../../image/Listsetting.svg";
@@ -23,15 +23,14 @@ import { convertToRaw } from "draft-js";
 import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 
-export default function ProjectContent() {
+export default function ProgramContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
     navigate(`/${userId}/startProject`);
   };
-
   const newProject = () => {
-    navigate(`/${userId}/project/new`);
+    navigate(`/${userId}/program/new`);
   };
 
   const [organizationId, setOrganizationId] = useState(""); // Сначало выбираем организацию по ней проекты

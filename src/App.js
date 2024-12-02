@@ -154,7 +154,7 @@ function App() {
         ></Route>
 
         <Route
-          path="/:userId/startProject/new"
+          path="/:userId/startProject"
           element={
             <div className="messages">
               <Header></Header>
@@ -188,6 +188,17 @@ function App() {
 
         <Route
           path="/:userId/project"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+        
+        <Route
+          path="/:userId/program"
           element={
             <div className="messages">
               <Header></Header>

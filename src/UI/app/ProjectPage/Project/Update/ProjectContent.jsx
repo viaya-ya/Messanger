@@ -1,36 +1,27 @@
 import React, { useState, useEffect } from "react";
 import classes from "./ProjectContent.module.css";
-import icon from "../../image/iconHeader.svg";
-import iconBack from "../../image/iconBack.svg";
-import Select from "../../image/Select.svg";
-import Addlink from "../../image/Addlink.svg";
-import Listsetting from "../../image/Listsetting.svg";
-import iconGroupBlack from "../../image/iconGroupBlack.svg";
-import glazikBlack from "../../image/glazikBlack.svg";
-import starBlack from "../../image/starBlack.svg";
-import galka from "../../image/galka.svg";
-import tgBlack from "../../image/tgBlack.svg";
-import glazikInvisible from "../../image/glazikInvisible.svg";
-import blackStrategy from "../../image/blackStrategy.svg";
+import icon from "../../../../image/iconHeader.svg";
+import iconBack from "../../../../image/iconBack.svg";
+import Listsetting from "../../../../image/Listsetting.svg";
+import glazikBlack from "../../../../image/glazikBlack.svg";
+import glazikInvisible from "../../../../image/glazikInvisible.svg";
 import { useNavigate, useParams } from "react-router-dom";
-import Blacksavetmp from "../../image/Blacksavetmp.svg";
-import iconAdd from "../../image/iconAdd.svg";
-import addCircle from "../../image/addCircle.svg";
-import deleteGrey from "../../image/deleteGrey.svg";
+import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
+import iconAdd from "../../../../image/iconAdd.svg";
 import {
   useGetProjectIdQuery,
   useGetProjectQuery,
   useGetProjectNewQuery,
   useUpdateProjectMutation,
-} from "../../../BLL/projectApi";
-import HandlerMutation from "../../Custom/HandlerMutation.jsx";
-import HandlerQeury from "../../Custom/HandlerQeury.jsx";
-import MyEditor from "../../Custom/MyEditor";
+} from "../../../../../BLL/projectApi.js";
+import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
+import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
+import MyEditor from "../../../../Custom/MyEditor.jsx";
 import { EditorState, convertFromHTML, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
-import WaveLetters from "../../Custom/WaveLetters.jsx";
-import TableProject from "../../Custom/TableProject/TableProject.jsx";
+import WaveLetters from "../../../../Custom/WaveLetters.jsx";
+import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -39,7 +30,7 @@ export default function ProjectContent() {
     navigate(`/${userId}/start`);
   };
   const newProject = () => {
-    navigate("new");
+    navigate(`/${userId}/startProject/new`);
   };
 
   const [organizationId, setOrganizationId] = useState(""); // Сначало выбираем организацию по ней проекты
@@ -93,10 +84,11 @@ export default function ProjectContent() {
     "Организационные мероприятия": {
       _array: eventCreate,
       _setArray: setEventCreate,
+      lengthReceived: event.length
     },
-    Правила: { _array: rulesCreate, _setArray: setRulesCreate },
-    Обычная: { _array: tasksCreate, _setArray: setTaskCreate },
-    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate },
+    Правила: { _array: rulesCreate, _setArray: setRulesCreate, lengthReceived: rules.length },
+    Обычная: { _array: tasksCreate, _setArray: setTaskCreate, lengthReceived: tasks.length },
+    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate, lengthReceived: statistics.length },
   };
 
   const {
@@ -404,10 +396,10 @@ export default function ProjectContent() {
   // Методы для таблиц
   const add = (name) => {
     const data = nameTableCreated[name];
-    const { _array, _setArray } = data;
+    const { _array, _setArray, lengthReceived } = data;
 
     _setArray((prevState) => {
-      const index = prevState.length + 1; // Генерация index на основе длины массива
+      const index = prevState.length + lengthReceived + 1; // Генерация index на основе длины массива
 
       return [
         ...prevState,
@@ -628,24 +620,6 @@ export default function ProjectContent() {
             </>
           )}
 
-          {/* <div className={classes.blockSelect}>
-            <img src={Addlink} alt="Addlink" className={classes.select} />
-            <ul className={`${classes.optionNumber}`}>
-              <div className={classes.nameList}>
-                СВЯЗЬ ПРОЕКТА С ЗАДАЧЕЙ ПРОГРАММЫ
-              </div>
-              <div className={classes.blackStrategy}>
-                {" "}
-                <img src={blackStrategy} alt="blackStrategy" /> Программа 1{" "}
-              </div>
-              <li> Арендовать помещение под новый </li>
-              <li> Разработать дизайн помещения</li>
-              <li> Разработать меню для нового </li>
-              <li> Подготовить команду для новго </li>
-              <li> Провести открытие нового </li>
-            </ul>
-          </div> */}
-
           <div className={classes.blockSelect}>
             <img
               src={Listsetting}
@@ -682,36 +656,6 @@ export default function ProjectContent() {
               </li>
             </ul>
           </div>
-
-          {/* <div className={classes.blockSelect}>
-            <img src={Select} alt="Select" className={classes.select} />
-            <ul className={classes.option}>
-              <div className={classes.nameList}>ДЕЙСТВИЯ</div>
-              <li>
-                {" "}
-                <img src={iconGroupBlack} alt="iconGroupBlack" /> Пригласить
-                участников в группу{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={glazikBlack} alt="glazikBlack" /> Отправить ссылку для
-                просмотра
-              </li>
-              <li>
-                {" "}
-                <img src={starBlack} alt="starBlack" /> Запустить проект в
-                исполнение{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={galka} alt="galka" /> Завершить проект{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={tgBlack} alt="tgBlack" /> Отправить текст в Telegram{" "}
-              </li>
-            </ul>
-          </div> */}
 
           <div className={classes.actionButton}>
             <div className={classes.iconAdd}>

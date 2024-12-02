@@ -1,41 +1,33 @@
 import React, { useState, useEffect } from "react";
 import classes from "./ProjectNew.module.css";
-import icon from "../../image/iconHeader.svg";
-import iconBack from "../../image/iconBack.svg";
-import Select from "../../image/Select.svg";
-import Addlink from "../../image/Addlink.svg";
-import Listsetting from "../../image/Listsetting.svg";
-import iconGroupBlack from "../../image/iconGroupBlack.svg";
-import glazikBlack from "../../image/glazikBlack.svg";
-import starBlack from "../../image/starBlack.svg";
-import galka from "../../image/galka.svg";
-import tgBlack from "../../image/tgBlack.svg";
-import glazikInvisible from "../../image/glazikInvisible.svg";
-import blackStrategy from "../../image/blackStrategy.svg";
-import Blacksavetmp from "../../image/Blacksavetmp.svg";
-import deleteGrey from "../../image/deleteGrey.svg";
-import addCircle from "../../image/addCircle.svg";
+import icon from "../../../../image/iconHeader.svg";
+import iconBack from "../../../../image/iconBack.svg";
+
+import Listsetting from "../../../../image/Listsetting.svg";
+import glazikBlack from "../../../../image/glazikBlack.svg";
+import glazikInvisible from "../../../../image/glazikInvisible.svg";
+import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetProjectNewQuery,
   usePostProjectMutation,
-} from "../../../BLL/projectApi";
-import HandlerMutation from "../../Custom/HandlerMutation.jsx";
-import HandlerQeury from "../../Custom/HandlerQeury.jsx";
-import MyEditor from "../../Custom/MyEditor";
-import { EditorState, convertFromHTML, ContentState } from "draft-js";
+} from "../../../../../BLL/projectApi.js";
+
+import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
+import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
+import MyEditor from "../../../../Custom/MyEditor.jsx";
+import { EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
-import TableProject from "../../Custom/TableProject/TableProject.jsx";
+import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 
 export default function ProjectNew() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate(`/${userId}/project`);
+    navigate(`/${userId}/startProject/new`);
   };
   const [name, setName] = useState("");
-  const [type, setType] = useState("null");
 
   const [programId, setProgramId] = useState("null");
   const [disabledProgramId, setDisabledProgramId] = useState(true);
@@ -144,7 +136,7 @@ export default function ProjectNew() {
 
   const reset = () => {
     setName("");
-    setType("null");
+
     setStrategy("null");
     setProgramId("null");
 
@@ -172,7 +164,7 @@ export default function ProjectNew() {
 
   
       Data.projectName = name;
-      Data.type = type;
+      Data.type = "Проект";
       Data.organizationId = organizationId;
  
     if (programId !== "null") {
@@ -292,29 +284,6 @@ export default function ProjectNew() {
           <div className={classes.item}>
             <div className={classes.itemName}>
               <span>
-                Тип <span style={{ color: "red" }}>*</span>
-              </span>
-            </div>
-            <div className={classes.div}>
-              <select
-                className={classes.select}
-                value={type}
-                onChange={(e) => {
-                  setType(e.target.value);
-                }}
-              >
-                <option value="null" disabled>
-                  Выбрать тип
-                </option>
-                <option value="Проект">Проект</option>
-                <option value="Программа">Программа</option>
-              </select>
-            </div>
-          </div>
-
-          <div className={classes.item}>
-            <div className={classes.itemName}>
-              <span>
                 Организация <span style={{ color: "red" }}>*</span>
               </span>
             </div>
@@ -392,23 +361,7 @@ export default function ProjectNew() {
             </div>
           </div>
 
-          {/* <div className={classes.blockSelect}>
-            <img src={Addlink} alt="Addlink" className={classes.select} />
-            <ul className={`${classes.optionNumber}`}>
-              <div className={classes.nameList}>
-                СВЯЗЬ ПРОЕКТА С ЗАДАЧЕЙ ПРОГРАММЫ
-              </div>
-              <div className={classes.blackStrategy}>
-                {" "}
-                <img src={blackStrategy} alt="blackStrategy" /> Программа 1{" "}
-              </div>
-              <li> Арендовать помещение под новый </li>
-              <li> Разработать дизайн помещения</li>
-              <li> Разработать меню для нового </li>
-              <li> Подготовить команду для новго </li>
-              <li> Провести открытие нового </li>
-            </ul>
-          </div> */}
+    
 
           <div className={classes.blockSelect}>
             <img
@@ -449,35 +402,7 @@ export default function ProjectNew() {
             </ul>
           </div>
 
-          {/* <div className={classes.blockSelect}>
-            <img src={Select} alt="Select" className={classes.select} />
-            <ul className={classes.option}>
-              <div className={classes.nameList}>ДЕЙСТВИЯ</div>
-              <li>
-                {" "}
-                <img src={iconGroupBlack} alt="iconGroupBlack" /> Пригласить
-                участников в группу{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={glazikBlack} alt="glazikBlack" /> Отправить ссылку для
-                просмотра
-              </li>
-              <li>
-                {" "}
-                <img src={starBlack} alt="starBlack" /> Запустить проект в
-                исполнение{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={galka} alt="galka" /> Завершить проект{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={tgBlack} alt="tgBlack" /> Отправить текст в Telegram{" "}
-              </li>
-            </ul>
-          </div> */}
+      
 
           <div className={classes.iconSave}>
             <img

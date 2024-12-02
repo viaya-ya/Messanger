@@ -9,14 +9,22 @@ import PostContent from "../../PostPage/PostContent";
 import SpeedGoalContent from "../../SpeedGoalPage/SpeedGoalContent";
 import StrategContent from "../../StrategPage/StrategContent";
 import StatisticsContent from "../../StatisticsPage/StatisticsContent";
-import ProjectContent from "../../ProjectPage/ProjectContent";
-import ProjectNew from "../../ProjectPage/ProjectNew";
+
+
 import NewPolicy from "../../PolicyPage/NewPolicy";
 import NewGoal from "../../GoalPage/NewGoal";
 import SpeedGoalNew from "../../SpeedGoalPage/SpeedGoalNew";
 import PostNew from "../../PostPage/PostNew";
 import StrategNew from "../../StrategPage/StrategNew";
 import StatisticsNew from "../../StatisticsPage/StatisticsNew";
+
+
+import StartNew from "../../ProjectPage/Start/StartNew";
+
+import ProjectContent from "../../ProjectPage/Project/Update/ProjectContent";
+import ProjectNew from "../../ProjectPage/Project/Create/ProjectNew";
+
+import ProgramNew from "../../ProjectPage/Program/Create/ProgramNew";
 
 export default function Content() {
   const location = useLocation();
@@ -46,7 +54,11 @@ export default function Content() {
       {location.pathname.startsWith(`/${userId}/statistics/new`) && <StatisticsNew />}
       
       {location.pathname === "/" + userId + "/project" && <ProjectContent />}
+      
+      {location.pathname === "/" + userId + "/startProject/new" && <StartNew/>}
+
       {location.pathname === "/" + userId + "/project/new" && < ProjectNew/>}
+      {location.pathname === "/" + userId + "/program/new" && < ProgramNew/>}
     </div>
   );
 }

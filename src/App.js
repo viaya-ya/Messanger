@@ -41,7 +41,7 @@ function App() {
             </div>
           }
         ></Route>
-        
+
         <Route
           path="/:userId/goal/new"
           element={
@@ -152,8 +152,9 @@ function App() {
             </div>
           }
         ></Route>
+
         <Route
-          path="/:userId/project"
+          path="/:userId/startProject/new"
           element={
             <div className="messages">
               <Header></Header>
@@ -162,8 +163,31 @@ function App() {
             </div>
           }
         ></Route>
+
+        <Route
+          path="/:userId/program/new"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+
         <Route
           path="/:userId/project/new"
+          element={
+            <div className="messages">
+              <Header></Header>
+              <Content></Content>
+              <Block></Block>
+            </div>
+          }
+        ></Route>
+
+        <Route
+          path="/:userId/project"
           element={
             <div className="messages">
               <Header></Header>

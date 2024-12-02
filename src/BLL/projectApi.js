@@ -129,6 +129,22 @@ export const projectApi = createApi({
       invalidatesTags: (result, error, { projectId }) =>
         result ? [{ type: "Project1", id: projectId }] : [],
     }),
+    
+// Программы
+    getProgramNew: build.query({
+      query: (userId = "") => ({
+        url: `${userId}/projects/program/new`,
+      }),
+      transformResponse: (response) => {
+        console.log(response); // Отладка ответа
+        return {
+          workers: response?.workers || [],
+          strategies: response?.strategies || [],
+          organizations: response?.organizations || [],
+          projects: response?.projects || [],
+        };
+      },
+    }),
   }),
 });
 
@@ -138,4 +154,5 @@ export const {
   usePostProjectMutation,
   useGetProjectIdQuery,
   useUpdateProjectMutation,
+  useGetProgramNewQuery
 } = projectApi;

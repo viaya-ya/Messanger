@@ -13,6 +13,7 @@ import {
   useGetProjectQuery,
   useGetProjectNewQuery,
   useUpdateProjectMutation,
+  useGetProgramIdQuery,
 } from "../../../../../BLL/projectApi.js";
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
@@ -38,9 +39,7 @@ export default function ProgramContent() {
 
   // Поля которые получаю от Максона
   const [projectName, setProjectName] = useState();
-  const [type, setType] = useState();
   const [strategy, setStrategy] = useState("null");
-  const [programId, setProgramId] = useState("null");
 
   const [products, setProducts] = useState([]);
   const [event, setEvent] = useState([]);
@@ -65,12 +64,12 @@ export default function ProgramContent() {
 
   // Сортировка данных
   const [sortStrategies, setSortStrategies] = useState([]);
-  const [sortPrograms, setSortPrograms] = useState([]);
 
   // Disabled данных
-  const [disabledStrategy, setDisabledStrategy] = useState(false);
-  const [disabledProgramId, setDisabledProgramId] = useState(false);
   const [disabledTable, setDisabledTable] = useState(false);
+
+  // Массив выбранных проектов
+  const [arraySelectProjects, setArraySelectProjects] = useState([]);
 
   const nameTableRecieved = {
     Продукт: { array: products, setArray: setProducts },
@@ -84,24 +83,32 @@ export default function ProgramContent() {
     "Организационные мероприятия": {
       _array: eventCreate,
       _setArray: setEventCreate,
-      lengthReceived: event.length
     },
-    Правила: { _array: rulesCreate, _setArray: setRulesCreate, lengthReceived: rules.length },
-    Обычная: { _array: tasksCreate, _setArray: setTaskCreate, lengthReceived: tasks.length },
-    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate, lengthReceived: statistics.length },
+    Правила: {
+      _array: rulesCreate,
+      _setArray: setRulesCreate, 
+    },
+    Обычная: {
+      _array: tasksCreate,
+      _setArray: setTaskCreate,
+    },
+    Статистика: {
+      _array: statisticsCreate,
+      _setArray: setStatisticsCreate,
+    },
   };
 
   const {
-    projects = [],
-    archivesProjects = [],
+    programs = [],
+    archivesPrograms = [],
     isErrorGetProject,
     isLoadingGetProject,
   } = useGetProjectQuery(
     { userId, organizationId },
     {
       selectFromResult: ({ data, isLoading, isError }) => ({
-        projects: data?.projects || [],
-        archivesProjects: data?.archivesProjects || [],
+        programs: data?.programs || [],
+        archivesPrograms: data?.archivesPrograms || [],
         isErrorGetProject: isError,
         isLoadingGetProject: isLoading,
       }),
@@ -109,37 +116,19 @@ export default function ProgramContent() {
     }
   );
 
-  // Пока что хуйня не все переменные использую
   const {
-    workers = [],
-    strategies = [],
-    organizations = [],
-    programs = [],
-    isLoadingGetNew,
-    isErrorGetNew,
-  } = useGetProjectNewQuery(userId, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      workers: data?.workers || [],
-      strategies: data?.strategies || [],
-      organizations: data?.organizations || [],
-      programs: data?.programs || [],
-      isLoadingGetNew: isLoading,
-      isErrorGetNew: isError,
-    }),
-  });
-  // Конец хуйни
-
-  const {
-    currentProject = {},
+    currentProgram = {},
+    currentProjects = [],
     targets = [],
     isLoadingGetProjectId,
     isErrorGetProjectId,
     isFetchingGetProjectId,
-  } = useGetProjectIdQuery(
-    { userId, projectId: selectedProjectId },
+  } = useGetProgramIdQuery(
+    { userId, programId: selectedProjectId },
     {
       selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-        currentProject: data?.currentProject || {},
+        currentProgram: data?.currentProgram || {},
+        currentProjects: data?.currentProjects || [],
         targets: data?.targets || [],
         isLoadingGetProjectId: isLoading,
         isErrorGetProjectId: isError,
@@ -148,6 +137,26 @@ export default function ProgramContent() {
       skip: !selectedProjectId,
     }
   );
+
+  // Пока что хуйня не все переменные использую
+  const {
+    workers = [],
+    strategies = [],
+    organizations = [],
+
+    isLoadingGetNew,
+    isErrorGetNew,
+  } = useGetProjectNewQuery(userId, {
+    selectFromResult: ({ data, isLoading, isError }) => ({
+      workers: data?.workers || [],
+      strategies: data?.strategies || [],
+      organizations: data?.organizations || [],
+
+      isLoadingGetNew: isLoading,
+      isErrorGetNew: isError,
+    }),
+  });
+  // Конец хуйни
 
   const [
     updateProject,
@@ -174,9 +183,9 @@ export default function ProgramContent() {
   }, [editorState]);
   // Конец обновления
 
-// После выбора другой организации обнуляю все переменные
+  // После выбора другой организации обнуляю все переменные
   useEffect(() => {
-    if(organizationId){
+    if (organizationId) {
       setSelectedProjectId("");
 
       setProducts([]);
@@ -192,56 +201,33 @@ export default function ProgramContent() {
 
       setHtmlContent();
       setEditorState(EditorState.createEmpty());
-
     }
-  },[organizationId]);
+  }, [organizationId]);
 
-  // Для правильных данный на основе хреновой тучи сортировки массивов (sortStrategies и sortPrograms)
+  // Для правильных данный sortStrategies
   useEffect(() => {
     if (organizationId) {
       const filteredStrategies = strategies?.filter(
         (strategy) => strategy?.organization?.id === organizationId
       );
       setSortStrategies(filteredStrategies);
-
-      const filteredPrograms = programs?.filter(
-        (program) => program?.organization?.id === organizationId
-      );
-      setSortPrograms(filteredPrograms);
     }
   }, [organizationId]);
-
-  useEffect(() => {
-    if (programId !== "null") {
-      const obj = programs?.find(
-        (program) => program?.organization?.id === organizationId
-      );
-      setStrategy(obj?.strategy?.id);
-      setDisabledStrategy(true);
-    } else {
-      setDisabledStrategy(false);
-    }
-  }, [programId]);
-
-  // Конец хреновой тучи
+  // Конец
 
   // Начальная инициализация данных при открытии по id
   useEffect(() => {
-    if (currentProject?.projectName) {
-      setProjectName(currentProject.projectName);
+    if (currentProgram?.projectName) {
+      setProjectName(currentProgram.projectName);
     }
 
-    if (currentProject?.type) {
-      setType(currentProject.type);
+    if (currentProgram?.strategy?.id) {
+      setStrategy(currentProgram.strategy.id);
     }
 
-    if (currentProject?.strategy?.id) {
-      setStrategy(currentProject.strategy.id);
-    }
-
-    if (currentProject.content) {
+    if (currentProgram.content) {
       const { contentBlocks, entityMap } = convertFromHTML(
-        currentProject.content
+        currentProgram.content
       );
       const contentState = ContentState.createFromBlockArray(
         contentBlocks,
@@ -252,7 +238,7 @@ export default function ProgramContent() {
     } else {
       setEditorState(EditorState.createEmpty());
     }
-  }, [currentProject.id]);
+  }, [currentProgram.id]);
 
   useEffect(() => {
     if (targets.length > 0) {
@@ -291,6 +277,41 @@ export default function ProgramContent() {
       );
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
+
+  useEffect(() => {
+    if (currentProjects.length > 0) {
+      const array = currentProjects.map((item, index) => {
+        const targetWithProductType = item.targets.find(
+          (target) => target.type === "Продукт"
+        );
+
+        if (targetWithProductType) {
+          const worker = workers.find(
+            (worker) => worker.id === targetWithProductType.holderUserId
+          );
+          return {
+            id: item.id,
+            nameProject: item.projectName,
+            orderNumber: index + 1,
+            content: targetWithProductType.content,
+            holderUserId: worker.id,
+            deadline: targetWithProductType.deadline,
+          };
+        }
+
+        return {
+          id: item.id,
+          nameProject: item.projectName,
+          orderNumber: index + 1,
+          content: null,
+          holderUserId: null,
+          deadline: null,
+        };
+      });
+      setTasks(array);
+      setArraySelectProjects(array.map(({ id, ...rest }) => id));
+    }
+  }, [currentProjects]);
   // Конец
 
   // Пустая хуйня
@@ -305,13 +326,10 @@ export default function ProgramContent() {
     Data.targetCreateDtos = [];
 
     // Проверки на изменения и отсутствие null
-    if (strategy !== currentProject.strategyId && strategy !== "null") {
+    if (strategy !== currentProgram.strategyId && strategy !== "null") {
       Data.strategyId = strategy;
     }
-    if (programId !== currentProject.programId && programId !== "null") {
-      Data.programId = programId;
-    }
-    if (htmlContent !== currentProject.content && htmlContent !== null) {
+    if (htmlContent !== currentProgram.content && htmlContent !== null) {
       Data.content = htmlContent;
     }
 
@@ -332,12 +350,6 @@ export default function ProgramContent() {
         ...rules.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
       ];
     }
-    if (tasks.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...tasks.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
-      ];
-    }
     if (statistics.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
@@ -348,6 +360,7 @@ export default function ProgramContent() {
       ];
     }
 
+
     if (eventCreate.length > 0) {
       Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }) => rest)];
     }
@@ -355,12 +368,6 @@ export default function ProgramContent() {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
         ...rulesCreate.map(({ id, ...rest }) => rest),
-      ];
-    }
-    if (tasksCreate.length > 0) {
-      Data.targetCreateDtos = [
-        ...Data.targetCreateDtos,
-        ...tasksCreate.map(({ id, ...rest }) => rest),
       ];
     }
     if (statisticsCreate.length > 0) {
@@ -378,6 +385,7 @@ export default function ProgramContent() {
       userId,
       projectId: selectedProjectId,
       _id: selectedProjectId,
+      projectIds: arraySelectProjects,
       ...Data,
     })
       .unwrap()
@@ -396,10 +404,10 @@ export default function ProgramContent() {
   // Методы для таблиц
   const add = (name) => {
     const data = nameTableCreated[name];
-    const { _array, _setArray, lengthReceived } = data;
+    const { _array, _setArray} = data;
 
     _setArray((prevState) => {
-      const index = prevState.length + lengthReceived + 1; // Генерация index на основе длины массива
+      const index = prevState.length + 1; // Генерация index на основе длины массива
 
       return [
         ...prevState,
@@ -429,10 +437,19 @@ export default function ProgramContent() {
   // Конец
 
   const disabledFieldsArchive = () => {
-    setDisabledProgramId(true);
-    setDisabledStrategy(true);
     setDisabledTable(true);
-  }
+  };
+
+  // Для выбранных проектов
+  const handleCheckBox = (id) => {
+    setArraySelectProjects((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
 
   return (
     <div className={classes.dialog}>
@@ -462,7 +479,6 @@ export default function ProgramContent() {
         </div>
 
         <div className={classes.editText}>
-
           <div className={classes.item}>
             <div className={classes.itemName}>
               <span>
@@ -492,29 +508,12 @@ export default function ProgramContent() {
             </div>
           </div>
 
-          {/* <div className={classes.item}>
-            <div className={classes.itemName}>
-              <span>Тип</span>
-            </div>
-            <div className={classes.div}>
-              <select
-                className={classes.select}
-                value={type}
-                onChange={(e) => {
-                  setType(e.target.value);
-                }}
-              >
-                <option value="null">Выбрать опцию</option>
-                <option value="Проект">Проект</option>
-                <option value="Программа">Программа</option>
-              </select>
-            </div>
-          </div> */}
-
           {organizationId && (
             <div className={classes.item}>
               <div className={classes.itemName}>
-                <span>Выберите проект</span>
+                <span>
+                  Выберите программу <span style={{ color: "red" }}>*</span>
+                </span>
               </div>
               <div className={classes.div}>
                 <select
@@ -525,22 +524,31 @@ export default function ProgramContent() {
                     setManualSuccessReset(true);
                     setManualErrorReset(true);
 
-                    if (archivesProjects.some((item) => item.id === e.target.value)) {
+                    if (
+                      archivesPrograms.some(
+                        (item) => item.id === e.target.value
+                      )
+                    ) {
                       disabledFieldsArchive();
-                    }else{
-                      setDisabledProgramId(false);
-                      setDisabledStrategy(false);
+                    } else {
                       setDisabledTable(false);
                     }
-                    
                   }}
                 >
-                  <option value = "" disabled>Выберите проект</option>
-                  {
-                    projects.length !== 0 && <option  value = "Активные" disabled className={classes.activeText}>Активные</option>
-                  }
-                  
-                  {projects?.map((item) => {
+                  <option value="" disabled>
+                    Выберите программу
+                  </option>
+                  {programs.length !== 0 && (
+                    <option
+                      value="Активные"
+                      disabled
+                      className={classes.activeText}
+                    >
+                      Активные
+                    </option>
+                  )}
+
+                  {programs?.map((item) => {
                     return (
                       <option key={item.id} value={item.id}>
                         {item.projectName}
@@ -548,11 +556,17 @@ export default function ProgramContent() {
                     );
                   })}
 
-                  {
-                     archivesProjects.length !== 0 && <option value = "Завершенные" disabled className={classes.completedText}>Завершенные</option>
-                  }
-                 
-                  {archivesProjects?.map((item) => {
+                  {archivesPrograms.length !== 0 && (
+                    <option
+                      value="Завершенные"
+                      disabled
+                      className={classes.completedText}
+                    >
+                      Завершенные
+                    </option>
+                  )}
+
+                  {archivesPrograms?.map((item) => {
                     return (
                       <option key={item.id} value={item.id}>
                         {item.projectName}
@@ -568,33 +582,9 @@ export default function ProgramContent() {
             <>
               <div className={classes.item}>
                 <div className={classes.itemName}>
-                  <span>Программа для проекта</span>
-                </div>
-                <div className={classes.div}>
-                  <select
-                    name="mySelect"
-                    value={programId}
-                    onChange={(e) => {
-                      setProgramId(e.target.value);
-                    }}
-                    className={classes.select}
-                    disabled={disabledProgramId}
-                  >
-                    <option value="null">—</option>
-                    {sortPrograms.map((item) => {
-                      return (
-                        <option key={item.id} value={item.id}>
-                          {item.projectNumber}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </div>
-
-              <div className={classes.item}>
-                <div className={classes.itemName}>
-                  <span>Выбрать стратегию</span>
+                  <span>
+                    Выбрать стратегию <span style={{ color: "red" }}>*</span>
+                  </span>
                 </div>
                 <div className={classes.div}>
                   <select
@@ -604,9 +594,10 @@ export default function ProgramContent() {
                       setStrategy(e.target.value);
                     }}
                     className={classes.select}
-                    disabled={disabledStrategy}
                   >
-                    <option value="null">—</option>
+                    <option value="null" disabled>
+                      Выбрать стратегию
+                    </option>
                     {sortStrategies.map((item) => {
                       return (
                         <option key={item.id} value={item.id}>
@@ -698,7 +689,7 @@ export default function ProgramContent() {
                   ></HandlerQeury>
                 ) : (
                   <>
-                    {currentProject.id ? (
+                    {currentProgram.id ? (
                       <>
                         {showEditorState ? (
                           <MyEditor
@@ -725,9 +716,11 @@ export default function ProgramContent() {
                                   _setArray={_setArray}
                                   workers={workers}
                                   deleteRow={deleteRow}
-                                  disabledTable = {disabledTable}
-                                  
-                                  updateProject = {true}
+                                  disabledTable={disabledTable}
+                                  disabledProject={true}
+                                  handleCheckBox={handleCheckBox}
+                                  arraySelectProjects={arraySelectProjects}
+                                  updateProgramm={true}
                                 />
                               );
                             })}

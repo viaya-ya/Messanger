@@ -7,10 +7,13 @@ export default function TableProject({
   tableKey,
   nameTable,
   add,
+  
   array,
   setArray,
+
   _array,
   _setArray,
+
   workers,
   deleteRow,
   disabledTable,
@@ -20,29 +23,33 @@ export default function TableProject({
   handleCheckBox,
 
   createProject,
+
   updateProject,
+
+  updateProgramm,
+  arraySelectProjects,
 }) {
-  console.log(nameTable);
+
   return (
     <table key={tableKey} className={classes.table}>
       <caption>
         <div className={classes.nameRow}>
-          
           <div>
             {(() => {
               const map = {
                 Обычная: "ЗАДАЧА",
                 Статистика: "МЕТРИКА",
               };
-              return createProgram && nameTable === "Обычная"
+              return (createProgram || updateProgramm) &&
+                nameTable === "Обычная"
                 ? "ПРОЕКТЫ"
                 : map[nameTable] || nameTable.toUpperCase();
             })()}
           </div>
 
-          {createProgram && (
+          {(createProgram || updateProgramm) && (
             <>
-              {nameTable === "Обычная" ? (
+              {(nameTable === "Обычная" || nameTable === "Продукт") ? (
                 <></>
               ) : (
                 <img
@@ -89,10 +96,10 @@ export default function TableProject({
         {array?.map((item) => {
           return (
             <tr key={`${item.id}-${item.orderNumber}`}>
-              <td className={classes.numberTableColumn}>{item.orderNumber}</td>
+              {/* <td className={classes.numberTableColumn}>{item.orderNumber}</td> */}
 
               {/*Имя проекта в программе */}
-              {createProgram && nameTable === "Обычная" && (
+              {(createProgram || updateProgramm) && nameTable === "Обычная" && (
                 <>
                   <td className={classes.nameProjectToProgramTableColumn}>
                     {item?.nameProject}
@@ -109,7 +116,11 @@ export default function TableProject({
                     updated[item.orderNumber - 1].content = e.target.value;
                     setArray(updated);
                   }}
-                  disabled={item?.isExpired || disabledTable || disabledProject}
+                  disabled={
+                    item?.isExpired ||
+                    disabledTable ||
+                    (disabledProject && nameTable === "Обычная")
+                  }
                 />
               </td>
 
@@ -123,7 +134,11 @@ export default function TableProject({
                     setArray(updated);
                   }}
                   className={classes.select}
-                  disabled={item?.isExpired || disabledTable || disabledProject}
+                  disabled={
+                    item?.isExpired ||
+                    disabledTable ||
+                    (disabledProject && nameTable === "Обычная")
+                  }
                 >
                   <option value="">Выберите опцию</option>
                   {workers.map((item) => {
@@ -152,7 +167,11 @@ export default function TableProject({
                     updated[item.orderNumber - 1].deadline = date.toISOString();
                     setArray(updated);
                   }}
-                  disabled={item?.isExpired || disabledTable || disabledProject}
+                  disabled={
+                    item?.isExpired ||
+                    disabledTable ||
+                    (disabledProject && nameTable === "Обычная")
+                  }
                   className={`${
                     item.isExpired === true ? classes.expired : ""
                   }`}
@@ -218,6 +237,47 @@ export default function TableProject({
                   </select>
                 </td>
               )}
+
+              {updateProgramm && (
+                <>
+                  <td className={classes.statusTableColumn}>
+                    <select
+                      name="mySelect"
+                      value={item.targetState}
+                      onChange={(e) => {
+                        const updated = [...array];
+                        updated[item.orderNumber - 1].targetState =
+                          e.target.value;
+                        setArray(updated);
+                      }}
+                      className={classes.select}
+                      disabled={
+                        item?.isExpired ||
+                        disabledTable ||
+                        (disabledProject && nameTable === "Обычная")
+                      }
+                    >
+                      <option value="Активная">Активная</option>
+                      <option value="Завершена">Завершена</option>
+                      <option value="Отменена">Отменена</option>
+                    </select>
+                  </td>
+
+                  {nameTable === "Обычная" && (
+                    <td className={classes.deleteTableColumn}>
+                      {nameTable !== "Продукт" && (
+                        <input
+                          type="checkbox"
+                          checked={arraySelectProjects.includes(item.id)}
+                          onChange={() => {
+                            handleCheckBox(item.id);
+                          }}
+                        />
+                      )}
+                    </td>
+                  )}
+                </>
+              )}
             </tr>
           );
         })}
@@ -225,7 +285,7 @@ export default function TableProject({
         {_array?.map((item) => {
           return (
             <tr key={`${item.id}-${item.orderNumber}`}>
-              <td className={classes.numberTableColumn}>{item.orderNumber}</td>
+              {/* <td className={classes.numberTableColumn}>{item.orderNumber}</td> */}
               <td className={classes.nameTableColumn}>
                 <input
                   type="text"

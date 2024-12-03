@@ -6,7 +6,11 @@ import vk from "../../../image/vk.svg"; // Путь к иконке VK
 import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 //5000
-const socket = io("http://localhost:5000/auth"); // Подключение к сокету
+const socket = io("http://localhost:5000/auth", {
+  cors: {
+    credentials: true
+  },transports : ['websocket']
+}); // Подключение к сокету
 
 export default function Content() {
   const [data, setData] = useState({
@@ -160,8 +164,3 @@ export default function Content() {
   );
 }
 
-
-     {/* <div className={classes.vk}>
-          <QRCode errorLevel="H" value="https://your-backend-url/auth/vk" icon={vk} />
-          <a href="https://your-backend-url/auth/vk" target="_blank" rel="noopener noreferrer" className={classes.link}>Или перейдите по ссылке</a>
-        </div> */}

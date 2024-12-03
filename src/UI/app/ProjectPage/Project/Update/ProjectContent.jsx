@@ -84,12 +84,11 @@ export default function ProjectContent() {
   const nameTableCreated = {
     "Организационные мероприятия": {
       _array: eventCreate,
-      _setArray: setEventCreate,
-      lengthReceived: event.length
+      _setArray: setEventCreate
     },
-    Правила: { _array: rulesCreate, _setArray: setRulesCreate, lengthReceived: rules.length },
-    Обычная: { _array: tasksCreate, _setArray: setTaskCreate, lengthReceived: tasks.length },
-    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate, lengthReceived: statistics.length },
+    Правила: { _array: rulesCreate, _setArray: setRulesCreate},
+    Обычная: { _array: tasksCreate, _setArray: setTaskCreate },
+    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate },
   };
 
   const {
@@ -397,10 +396,10 @@ export default function ProjectContent() {
   // Методы для таблиц
   const add = (name) => {
     const data = nameTableCreated[name];
-    const { _array, _setArray, lengthReceived } = data;
+    const { _array, _setArray } = data;
 
     _setArray((prevState) => {
-      const index = prevState.length + lengthReceived + 1; // Генерация index на основе длины массива
+      const index = prevState.length + 1; // Генерация index на основе длины массива
 
       return [
         ...prevState,

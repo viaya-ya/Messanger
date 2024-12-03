@@ -145,6 +145,22 @@ export const projectApi = createApi({
         };
       },
     }),
+
+    getProgramId: build.query({
+      query: ({ userId, programId }) => ({
+        url: `${userId}/projects/${programId}/program`,
+      }),
+      transformResponse: (response) => {
+        const _targets = response?.program?.targets.map(({targetHolders, dateComplete, createdAt, updatedAt,  ...rest}) => ({ ...rest})).filter((item) => item.targetState !== "Отменена" );
+        return{
+            response: response,
+            currentProgram: response?.program || {},
+            currentProjects: response?.projects || [],
+            targets:_targets || []
+        }
+      },
+      providesTags: (result, error, { programId }) => result ? [{ type: "Project1", id: programId }] : []
+    }),
   }),
 });
 
@@ -154,5 +170,6 @@ export const {
   usePostProjectMutation,
   useGetProjectIdQuery,
   useUpdateProjectMutation,
-  useGetProgramNewQuery
+  useGetProgramNewQuery,
+  useGetProgramIdQuery
 } = projectApi;

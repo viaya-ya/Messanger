@@ -20,13 +20,20 @@ import { EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
 import { convertToRaw } from "draft-js";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
+import { useDispatch } from "react-redux";
+import { setProjectCreatedId, setProjectOrganizationId } from "../../../../../BLL/Project/Slice/projectSlice.js";
 
 export default function ProjectNew() {
+  
   const navigate = useNavigate();
   const { userId } = useParams();
+  
+  const dispatch = useDispatch();
+
   const back = () => {
     navigate(`/${userId}/project`);
   };
+
   const [name, setName] = useState("");
 
   const [programId, setProgramId] = useState("null");
@@ -195,8 +202,11 @@ export default function ProjectNew() {
       ...Data,
     })
       .unwrap()
-      .then(() => {
+      .then((result) => {
+        dispatch(setProjectOrganizationId(organizationId));
+        dispatch(setProjectCreatedId(result.id));
         reset();
+        back();
       })
       .catch((error) => {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
@@ -324,7 +334,7 @@ export default function ProjectNew() {
               >
                 <option value="null">—</option>
                 {sortPrograms.map((item) => {
-                  return <option value={item.id}>{item.projectNumber}</option>;
+                  return <option value={item.id}>{item.projectName}</option>;
                 })}
               </select>
             </div>
@@ -353,7 +363,7 @@ export default function ProjectNew() {
                         item.state === "Активный" ? classes.active : ""
                       }`}
                     >
-                      {item.strategyNumber}
+                      Стратегия №{item.strategyNumber}
                     </option>
                   );
                 })}
@@ -427,7 +437,7 @@ export default function ProjectNew() {
                   Loading={isLoadingProjectMutation}
                   Error={isErrorProjectMutation}
                   Success={isSuccessProjectMutation}
-                  textSuccess={"Успешно создано."}
+                  textSuccess={"Проект создан."}
                   textError={
                     Error?.data?.errors?.[0]?.errors?.[0]
                       ? Error.data.errors[0].errors[0]

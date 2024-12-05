@@ -234,7 +234,7 @@ background-color: rgb(240, 240, 240)
 
 .main {
     position: relative;
-    height: calc(100vh - 120px - 24px - 25px);
+    flex: 1 0 120px; 
     overflow-y: auto;
     background-color: #F0F0F0;
     padding-top: 1%;

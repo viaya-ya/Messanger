@@ -153,7 +153,7 @@
 .main {
     position: relative;
     width: 100%;
-    height: calc(100vh - 120px - 24px - 25px);
+    flex: 1 0 120px; 
     max-height: 80vh;
     background-color: #ffff;
     padding-top: 1%;
@@ -301,22 +301,6 @@
     color: grey;
     text-align: center;
     margin-top: 2px;
-}
-
-input[type="date"] {
-    position: relative;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
-    color: transparent;
-    background: transparent;
 }
 
 .modal {

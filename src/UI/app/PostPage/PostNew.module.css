@@ -170,7 +170,7 @@
 
 .main {
     position: relative;
-    height: calc(100vh - 170px - 24px - 25px);
+    flex: 1 0 120px; 
     flex-grow: 1;
     flex-shrink: 1;
     overflow-y: auto;

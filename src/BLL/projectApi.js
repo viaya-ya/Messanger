@@ -1,79 +1,119 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { url } from "./baseUrl";
 
 export const projectApi = createApi({
   reducerPath: "projectApi",
   tagTypes: ["Project", "Project1"],
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
+  baseQuery: fetchBaseQuery({ baseUrl: url }),
   endpoints: (build) => ({
     getProject: build.query({
       query: ({ userId, organizationId }) => ({
         url: `${userId}/projects/${organizationId}/projects`,
       }),
       transformResponse: (response) => {
-      
         return {
-          projects: response?.filter(item => {
-            if (item.type !== 'Проект' || item.programId !== null) return false;
+          projects:
+            response?.filter((item) => {
+              if (item.type !== "Проект" || item.programId !== null)
+                return false;
 
-            if (Array.isArray(item.targets)) {
-              const hasProductType = item.targets.some(target => target.type === "Продукт" && target.targetState === "Активная" && target.isExpired === false);
-              return hasProductType;
-            }
-            return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
-          }) || [],
+              if (Array.isArray(item.targets)) {
+                const hasProductType = item.targets.some(
+                  (target) =>
+                    target.type === "Продукт" &&
+                    target.targetState === "Активная" &&
+                    target.isExpired === false
+                );
+                return hasProductType;
+              }
+              return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
+            }) || [],
 
-          archivesProjects: response?.filter(item => {
-            if (item.type !== 'Проект' || item.programId !== null) return false;
+          archivesProjects:
+            response?.filter((item) => {
+              if (item.type !== "Проект" || item.programId !== null)
+                return false;
 
-            if (Array.isArray(item.targets)) {
-              const hasProductType = item.targets.some(target => target.type === "Продукт" && (target.targetState === "Завершена" || target.isExpired === true));
-              return hasProductType;
-            }
-            return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
-          }) || [],
+              if (Array.isArray(item.targets)) {
+                const hasProductType = item.targets.some(
+                  (target) =>
+                    target.type === "Продукт" &&
+                    (target.targetState === "Завершена" ||
+                      target.isExpired === true)
+                );
+                return hasProductType;
+              }
+              return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
+            }) || [],
 
-          projectsWithProgram: response?.filter(item => {
-            if (item.type !== 'Проект' || item.programId === null) return false;
+          projectsWithProgram:
+            response?.filter((item) => {
+              if (item.type !== "Проект" || item.programId === null)
+                return false;
 
-            if (Array.isArray(item.targets)) {
-              const hasProductType = item.targets.some(target => target.type === "Продукт" && target.targetState === "Активная" && target.isExpired === false);
-       
-              return hasProductType;
-            }
-            return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
-          }) || [],
+              if (Array.isArray(item.targets)) {
+                const hasProductType = item.targets.some(
+                  (target) =>
+                    target.type === "Продукт" &&
+                    target.targetState === "Активная" &&
+                    target.isExpired === false
+                );
 
-          archivesProjectsWithProgram: response?.filter(item => {
-            if (item.type !== 'Проект' || item.programId === null) return false;
+                return hasProductType;
+              }
+              return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
+            }) || [],
 
-            if (Array.isArray(item.targets)) {
-              const hasProductType = item.targets.some(target => target.type === "Продукт" && (target.targetState === "Завершена" || target.isExpired === true));
-      
-              return hasProductType;
-            }
-            return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
-          }) || [],
+          archivesProjectsWithProgram:
+            response?.filter((item) => {
+              if (item.type !== "Проект" || item.programId === null)
+                return false;
 
-          programs: response?.filter(item => {
-            if (item.type !== 'Программа') return false;
+              if (Array.isArray(item.targets)) {
+                const hasProductType = item.targets.some(
+                  (target) =>
+                    target.type === "Продукт" &&
+                    (target.targetState === "Завершена" ||
+                      target.isExpired === true)
+                );
 
-            if (Array.isArray(item.targets)) {
-              const hasProductType = item.targets.some(target => target.type === "Продукт" && target.targetState === "Активная" && target.isExpired === false);
-              return hasProductType;
-            }
-            return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
-          }) || [],
+                return hasProductType;
+              }
+              return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
+            }) || [],
 
-          archivesPrograms: response?.filter(item => {
-            if (item.type !== 'Программа') return false;
+          programs:
+            response?.filter((item) => {
+              if (item.type !== "Программа") return false;
 
-            if (Array.isArray(item.targets)) {
-              const hasProductType = item.targets.some(target => target.type === "Продукт" && (target.targetState === "Завершена" || target.isExpired === true));
-              return hasProductType;
-            }
-            return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
-          }) || [],
-        }
+              if (Array.isArray(item.targets)) {
+                const hasProductType = item.targets.some(
+                  (target) =>
+                    target.type === "Продукт" &&
+                    target.targetState === "Активная" &&
+                    target.isExpired === false
+                );
+                return hasProductType;
+              }
+              return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
+            }) || [],
+
+          archivesPrograms:
+            response?.filter((item) => {
+              if (item.type !== "Программа") return false;
+
+              if (Array.isArray(item.targets)) {
+                const hasProductType = item.targets.some(
+                  (target) =>
+                    target.type === "Продукт" &&
+                    (target.targetState === "Завершена" ||
+                      target.isExpired === true)
+                );
+                return hasProductType;
+              }
+              return true; // Если targets отсутствует или не массив, возвращаем элемент по умолчанию
+            }) || [],
+        };
       },
       providesTags: (result) =>
         result ? [{ type: "Project", id: "LIST" }] : [],
@@ -94,7 +134,6 @@ export const projectApi = createApi({
         url: `${userId}/projects/new`,
       }),
       transformResponse: (response) => {
-
         return {
           workers: response?.workers || [],
           strategies: response?.strategies || [],
@@ -110,7 +149,17 @@ export const projectApi = createApi({
       }),
       transformResponse: (response) => {
         console.log(response);
-        const _targets = response?.project?.targets.map(({targetHolders, dateComplete, createdAt, updatedAt,  ...rest}) => ({ ...rest})).filter((item) => item.targetState !== "Отменена" );
+        const _targets = response?.project?.targets
+          .map(
+            ({
+              targetHolders,
+              dateComplete,
+              createdAt,
+              updatedAt,
+              ...rest
+            }) => ({ ...rest })
+          )
+          .filter((item) => item.targetState !== "Отменена");
         return {
           currentProject: response?.project || {},
           targets: _targets || [],
@@ -126,11 +175,19 @@ export const projectApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { projectId }) =>
-        result ? [{ type: "Project1", id: projectId }] : [],
+      invalidatesTags: (result, error, { projectId, programId }) => {   
+        return result
+          ? [
+              { type: "Project1", id: projectId },
+              { type: "Project1", id: "LIST" },
+              { type: "Project", id: "LIST" },
+            ]
+          : [];
+      },
     }),
     
-// Программы
+
+    // Программы
     getProgramNew: build.query({
       query: (userId = "") => ({
         url: `${userId}/projects/program/new`,
@@ -138,12 +195,14 @@ export const projectApi = createApi({
       transformResponse: (response) => {
         console.log(response); // Отладка ответа
         return {
+          projects: response?.projects || [],
           workers: response?.workers || [],
           strategies: response?.strategies || [],
           organizations: response?.organizations || [],
-          projects: response?.projects || [],
         };
       },
+      providesTags: (result) =>
+        result ? [{ type: "Project1", id: "LIST" }, { type: "Project", id: "LIST" }] : [],
     }),
 
     getProgramId: build.query({
@@ -151,15 +210,26 @@ export const projectApi = createApi({
         url: `${userId}/projects/${programId}/program`,
       }),
       transformResponse: (response) => {
-        const _targets = response?.program?.targets.map(({targetHolders, dateComplete, createdAt, updatedAt,  ...rest}) => ({ ...rest})).filter((item) => item.targetState !== "Отменена" );
-        return{
-            response: response,
-            currentProgram: response?.program || {},
-            currentProjects: response?.projects || [],
-            targets:_targets || []
-        }
+        const _targets = response?.program?.targets
+          .map(
+            ({
+              targetHolders,
+              dateComplete,
+              createdAt,
+              updatedAt,
+              ...rest
+            }) => ({ ...rest })
+          )
+          .filter((item) => item.targetState !== "Отменена");
+        return {
+          response: response,
+          currentProgram: response?.program || {},
+          currentProjects: response?.projects || [],
+          targets: _targets || [],
+        };
       },
-      providesTags: (result, error, { programId }) => result ? [{ type: "Project1", id: programId }] : []
+      providesTags: (result, error, { programId }) =>
+        result ? [{ type: "Project1", id: programId }] : [],
     }),
   }),
 });
@@ -171,5 +241,5 @@ export const {
   useGetProjectIdQuery,
   useUpdateProjectMutation,
   useGetProgramNewQuery,
-  useGetProgramIdQuery
+  useGetProgramIdQuery,
 } = projectApi;

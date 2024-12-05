@@ -9,11 +9,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
 import iconAdd from "../../../../image/iconAdd.svg";
 import {
-  useGetProjectIdQuery,
   useGetProjectQuery,
-  useGetProjectNewQuery,
   useUpdateProjectMutation,
   useGetProgramIdQuery,
+  useGetProgramNewQuery,
 } from "../../../../../BLL/projectApi.js";
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
@@ -23,6 +22,8 @@ import draftToHtml from "draftjs-to-html"; // Импортируем конве�
 import { convertToRaw } from "draft-js";
 import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
+import Modal from "../../../../Custom/Modal/Modal.jsx";
+import { useSelector } from "react-redux";
 
 export default function ProgramContent() {
   const navigate = useNavigate();
@@ -68,8 +69,15 @@ export default function ProgramContent() {
   // Disabled данных
   const [disabledTable, setDisabledTable] = useState(false);
 
-  // Массив выбранных проектов
+  // Массив выбранных проектов которые присутвутствуют в выбранной программе по id
   const [arraySelectProjects, setArraySelectProjects] = useState([]);
+  const [openModalProject, setOpenModalProject] = useState(false);
+
+  //Проекты для добавления к программе
+  //Для отображения в модальном окне данные
+  const [projectsToAddProgram, setProjectsToAddProgram] = useState([]);
+  //Для отправки на сервер данные
+  const [selectProjectsModalId, setSelectProjectsModalId] = useState([]);
 
   const nameTableRecieved = {
     Продукт: { array: products, setArray: setProducts },
@@ -86,7 +94,7 @@ export default function ProgramContent() {
     },
     Правила: {
       _array: rulesCreate,
-      _setArray: setRulesCreate, 
+      _setArray: setRulesCreate,
     },
     Обычная: {
       _array: tasksCreate,
@@ -138,25 +146,24 @@ export default function ProgramContent() {
     }
   );
 
-  // Пока что хуйня не все переменные использую
+  //Для добавления проектов в программу
   const {
+    projects = [],
     workers = [],
     strategies = [],
     organizations = [],
-
-    isLoadingGetNew,
-    isErrorGetNew,
-  } = useGetProjectNewQuery(userId, {
+    isLoadingGetProgram,
+    isErrorGetProgram,
+  } = useGetProgramNewQuery(userId, {
     selectFromResult: ({ data, isLoading, isError }) => ({
+      projects: data?.projects || [],
       workers: data?.workers || [],
       strategies: data?.strategies || [],
       organizations: data?.organizations || [],
-
-      isLoadingGetNew: isLoading,
-      isErrorGetNew: isError,
+      isLoadingGetProgram: isLoading,
+      isErrorGetProgram: isError,
     }),
   });
-  // Конец хуйни
 
   const [
     updateProject,
@@ -168,11 +175,63 @@ export default function ProgramContent() {
     },
   ] = useUpdateProjectMutation();
 
+  const programCreatedId = useSelector(
+    (state) => state.program.programCreatedId
+  );
+  const organizationProgramId = useSelector(
+    (state) => state.program.organizationProgramId
+  );
+
+  useEffect(() => {
+    if (organizationProgramId) {
+      setOrganizationId(organizationProgramId);
+    }
+  }, []);
+
   // Для показа информации о проекте
   const show = () => {
     setShowEditorState(!showEditorState);
   };
-  // Конец показа
+
+  //Проекты для добавления к программе
+  useEffect(() => {
+    if (projects.length > 0 && organizationId) {
+      const _array = projects?.filter(
+        (item) => item?.organization?.id === organizationId
+      );
+
+      const array = _array.map((item, index) => {
+        const targetWithProductType = item.targets.find(
+          (target) => target.type === "Продукт"
+        );
+
+        if (targetWithProductType) {
+          const worker = workers.find(
+            (worker) => worker.id === targetWithProductType?.holderUserId
+          );
+          return {
+            id: item?.id,
+            nameProject: item?.projectName,
+            orderNumber: index + 1,
+            content: targetWithProductType?.content,
+            holderUserId: worker?.id || "",
+            deadline: targetWithProductType?.deadline || "",
+          };
+        }
+        return {
+          id: item?.id,
+          nameProject: item?.projectName,
+          orderNumber: index + 1,
+          content: "",
+          holderUserId: "",
+          deadline: "",
+        };
+      });
+      setProjectsToAddProgram(array);
+    } else {
+      setProjectsToAddProgram([]);
+    }
+  }, [organizationId, projects, workers, isLoadingProjectMutation]);
 
   // Обновление html contenta у Editora
   useEffect(() => {
@@ -181,7 +240,6 @@ export default function ProgramContent() {
     );
     setHtmlContent(rawContent);
   }, [editorState]);
-  // Конец обновления
 
   // После выбора другой организации обнуляю все переменные
   useEffect(() => {
@@ -211,9 +269,11 @@ export default function ProgramContent() {
         (strategy) => strategy?.organization?.id === organizationId
       );
       setSortStrategies(filteredStrategies);
+      if (programCreatedId) {
+        setSelectedProjectId(programCreatedId); // для того чтобы открывалась созданная программа
+      }
     }
   }, [organizationId]);
-  // Конец
 
   // Начальная инициализация данных при открытии по id
   useEffect(() => {
@@ -245,20 +305,20 @@ export default function ProgramContent() {
       setProducts(
         targets
           .filter((item) => item.type === "Продукт")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
       );
 
       setEvent(
         targets
           .filter((item) => item.type === "Организационные мероприятия")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
       setRules(
         targets
           .filter((item) => item.type === "Правила")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
@@ -266,64 +326,72 @@ export default function ProgramContent() {
         targets
           .filter((item) => item.type === "Обычная")
           .sort((a, b) => a.orderNumber - b.orderNumber)
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
       );
 
       setStatistics(
         targets
           .filter((item) => item.type === "Статистика")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
 
   useEffect(() => {
-    if (currentProjects.length > 0) {
-      const array = currentProjects.map((item, index) => {
+    if (currentProjects?.length > 0) {
+      const array = currentProjects?.map((item, index) => {
         const targetWithProductType = item.targets.find(
           (target) => target.type === "Продукт"
         );
 
         if (targetWithProductType) {
-          const worker = workers.find(
-            (worker) => worker.id === targetWithProductType.holderUserId
+          const worker = workers?.find(
+            (worker) => worker.id === targetWithProductType?.holderUserId
           );
           return {
-            id: item.id,
-            nameProject: item.projectName,
+            id: item?.id,
+            nameProject: item?.projectName,
             orderNumber: index + 1,
-            content: targetWithProductType.content,
-            holderUserId: worker.id,
-            deadline: targetWithProductType.deadline,
+            content: targetWithProductType?.content,
+            holderUserId: worker?.id,
+            deadline: targetWithProductType?.deadline,
           };
         }
-
         return {
-          id: item.id,
-          nameProject: item.projectName,
+          id: item?.id,
+          nameProject: item?.projectName,
           orderNumber: index + 1,
-          content: null,
-          holderUserId: null,
-          deadline: null,
+          content: "",
+          holderUserId: "",
+          deadline: "",
         };
       });
       setTasks(array);
-      setArraySelectProjects(array.map(({ id, ...rest }) => id));
+      setArraySelectProjects(array?.map(({ id, ...rest }) => id));
     }
   }, [currentProjects]);
-  // Конец
 
-  // Пустая хуйня
-  const reset = () => {};
-  // конец
+  // Обнуление переменных при удачном завершении обновления
+  const reset = () => {
+    setEventCreate([]);
+    setRulesCreate([]);
+    setTaskCreate([]);
+    setStatisticsCreate([]);
+
+    setProjectsToAddProgram([]);
+    setSelectProjectsModalId([]);
+  };
 
   //Сохранение изменений
   const saveUpdateProject = async () => {
+    const projectIds = arraySelectProjects;
+
     const Data = {};
 
     Data.targetUpdateDtos = [];
     Data.targetCreateDtos = [];
+    Data.type = "Программа";
 
     // Проверки на изменения и отсутствие null
     if (strategy !== currentProgram.strategyId && strategy !== "null") {
@@ -333,33 +401,93 @@ export default function ProgramContent() {
       Data.content = htmlContent;
     }
 
+    if (selectProjectsModalId.length > 0) {
+      projectIds.push(...selectProjectsModalId);
+    }
+
     if (products.length > 0) {
       Data.targetUpdateDtos = [
-        ...products.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...products.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (event.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...event.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...event.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (rules.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...rules.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...rules.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (statistics.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...statistics.map(({ isExpired, id, ...rest }) => ({
-          _id: id,
-          ...rest,
-        })),
+        ...statistics.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
-
 
     if (eventCreate.length > 0) {
       Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }) => rest)];
@@ -385,7 +513,7 @@ export default function ProgramContent() {
       userId,
       projectId: selectedProjectId,
       _id: selectedProjectId,
-      projectIds: arraySelectProjects,
+      projectIds: projectIds,
       ...Data,
     })
       .unwrap()
@@ -399,12 +527,11 @@ export default function ProgramContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
-  // Конец
 
   // Методы для таблиц
   const add = (name) => {
     const data = nameTableCreated[name];
-    const { _array, _setArray} = data;
+    const { _array, _setArray } = data;
 
     _setArray((prevState) => {
       const index = prevState.length + 1; // Генерация index на основе длины массива
@@ -434,7 +561,6 @@ export default function ProgramContent() {
       }));
     _setArray(updated);
   };
-  // Конец
 
   const disabledFieldsArchive = () => {
     setDisabledTable(true);
@@ -443,6 +569,16 @@ export default function ProgramContent() {
   // Для выбранных проектов
   const handleCheckBox = (id) => {
     setArraySelectProjects((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  const handleCheckBoxModal = (id) => {
+    setSelectProjectsModalId((prev) => {
       if (prev.includes(id)) {
         return prev.filter((item) => item !== id);
       } else {
@@ -600,8 +736,14 @@ export default function ProgramContent() {
                     </option>
                     {sortStrategies.map((item) => {
                       return (
-                        <option key={item.id} value={item.id}>
-                          {item.strategyNumber}
+                        <option
+                          key={item.id}
+                          value={item.id}
+                          className={` ${
+                            item.state === "Активный" ? classes.active : ""
+                          }`}
+                        >
+                          Стратегия №{item.strategyNumber}
                         </option>
                       );
                     })}
@@ -670,18 +812,20 @@ export default function ProgramContent() {
       </div>
 
       <div className={classes.main}>
-        {isErrorGetProject ? (
+        {isErrorGetProject || isErrorGetProgram ? (
           <>
-            <HandlerQeury Error={isErrorGetProject}></HandlerQeury>
+            <HandlerQeury Error={isErrorGetProject || isErrorGetProgram}></HandlerQeury>
           </>
         ) : (
           <>
+
+          <HandlerQeury Loading={isLoadingGetProject || isLoadingGetProgram}></HandlerQeury>
+
             {isErrorGetProjectId ? (
               <HandlerQeury Error={isErrorGetProjectId}></HandlerQeury>
             ) : (
               <>
-                <HandlerQeury Loading={isLoadingGetProject}></HandlerQeury>
-
+                
                 {isLoadingGetProjectId || isFetchingGetProjectId ? (
                   <HandlerQeury
                     Loading={isLoadingGetProjectId}
@@ -721,18 +865,28 @@ export default function ProgramContent() {
                                   handleCheckBox={handleCheckBox}
                                   arraySelectProjects={arraySelectProjects}
                                   updateProgramm={true}
+                                  openModal={setOpenModalProject}
                                 />
                               );
                             })}
+
+                            {openModalProject && (
+                              <Modal
+                                array={projectsToAddProgram}
+                                exitModal={setOpenModalProject}
+                                handleCheckBoxModal={handleCheckBoxModal}
+                                selectProjectsModalId={selectProjectsModalId}
+                              ></Modal>
+                            )}
                           </>
                         )}
 
                         <HandlerMutation
                           Loading={isLoadingProjectMutation}
-                          Error={isErrorProjectMutation && !manualErrorReset} // Учитываем ручной сброс
+                          Error={isErrorProjectMutation && !manualErrorReset}
                           Success={
                             isSuccessProjectMutation && !manualSuccessReset
-                          } // Учитываем ручной сброс
+                          }
                           textSuccess={"Обновлена"}
                           textError={
                             Error?.data?.errors?.[0]?.errors?.[0]
@@ -744,7 +898,7 @@ export default function ProgramContent() {
                     ) : (
                       <>
                         <WaveLetters
-                          letters={"Выберите пост или проект"}
+                          letters={"Выберите программу"}
                         ></WaveLetters>
                       </>
                     )}

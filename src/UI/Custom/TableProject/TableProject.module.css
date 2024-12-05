@@ -70,11 +70,13 @@
     & .nameTableColumn {
         text-align: start;
         width: 76%;
+        padding-left: 5px;
     }
 
     & .nameProjectToProgramTableColumn {
         text-align: start;
         width: 20%;
+        padding-left: 5px;
     }
 
     & .imageTableColumn {
@@ -83,7 +85,7 @@
 
     & .dateTableColumn {
         width: 8%;
-
+        padding-left: 5px;
     }
 
     & .deleteTableColumn {

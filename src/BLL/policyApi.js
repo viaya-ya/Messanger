@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {url} from "./baseUrl"
 
 export const policyApi = createApi({
   reducerPath: "policyApi",
   tagTypes: ["Policy"],
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/" }),
+  baseQuery: fetchBaseQuery({ baseUrl: url }),
   endpoints: (build) => ({
     getPolicies: build.query({
       query: (userId = "") => ({

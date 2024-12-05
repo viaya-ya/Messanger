@@ -7,7 +7,7 @@ export default function TableProject({
   tableKey,
   nameTable,
   add,
-  
+
   array,
   setArray,
 
@@ -28,8 +28,8 @@ export default function TableProject({
 
   updateProgramm,
   arraySelectProjects,
+  openModal
 }) {
-
   return (
     <table key={tableKey} className={classes.table}>
       <caption>
@@ -47,18 +47,20 @@ export default function TableProject({
             })()}
           </div>
 
-          {(createProgram || updateProgramm) && (
-            <>
-              {(nameTable === "Обычная" || nameTable === "Продукт") ? (
-                <></>
-              ) : (
-                <img
-                  src={addCircle}
-                  alt="addCircle"
-                  onClick={() => add(nameTable)}
-                />
-              )}
-            </>
+          {createProgram && nameTable !== "Обычная" && nameTable !== "Продукт" && (
+            <img
+              src={addCircle}
+              alt="addCircle"
+              onClick={() => add(nameTable)}
+            />
+          )}
+
+          {updateProgramm && nameTable !== "Продукт" && (
+            <img
+              src={addCircle}
+              alt={"addCircle"}
+              onClick={nameTable === "Обычная" ?  () => openModal(true) :  () => add(nameTable) }
+            />
           )}
 
           {createProject && (
@@ -73,23 +75,14 @@ export default function TableProject({
             </>
           )}
 
-          {updateProject && (
-            <>
-              {disabledTable ? (
-                <></>
-              ) : (
-                <>
-                  {nameTable !== "Продукт" && (
-                    <img
-                      src={addCircle}
-                      alt="addCircle"
-                      onClick={() => add(nameTable)}
-                    />
-                  )}
-                </>
-              )}
-            </>
+          {updateProject && !disabledTable && nameTable !== "Продукт" && (
+            <img
+              src={addCircle}
+              alt="addCircle"
+              onClick={() => add(nameTable)}
+            />
           )}
+
         </div>
       </caption>
       <tbody>
@@ -348,3 +341,36 @@ export default function TableProject({
     </table>
   );
 }
+
+
+   {/* {createProgram && (
+            <>
+              {nameTable === "Обычная" || nameTable === "Продукт" ? (
+                <></>
+              ) : (
+                <img
+                  src={addCircle}
+                  alt="addCircle"
+                  onClick={() => add(nameTable)}
+                />
+              )}
+            </>
+          )} */}
+
+{/* {updateProject && (
+            <>
+              {disabledTable ? (
+                <></>
+              ) : (
+                <>
+                  {nameTable !== "Продукт" && (
+                    <img
+                      src={addCircle}
+                      alt="addCircle"
+                      onClick={() => add(nameTable)}
+                    />
+                  )}
+                </>
+              )}
+            </>
+          )} */}

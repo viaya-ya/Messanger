@@ -14,6 +14,10 @@ import policyReducer from "./policySlice";
 import statisticReducer from "./statisticsSlice";
 
 
+import projectReducer from "./Project/Slice/projectSlice";
+import programReducer from "./Program/Slice/programSlice";
+
+
 export const store = configureStore({
     reducer: {
         [policyApi.reducerPath]: policyApi.reducer,
@@ -29,6 +33,8 @@ export const store = configureStore({
         post: postReducer,
         policy: policyReducer,
         statistic: statisticReducer,
+        project: projectReducer,
+        program: programReducer,
     },
     middleware: (getDefaultMiddlware) => getDefaultMiddlware()
                                                                 .concat(policyApi.middleware)

@@ -29,7 +29,7 @@ export default function PostContent() {
     navigate(`/${userId}/start`);
   };
   const newPost = () => {
-    navigate("new");
+    navigate(`/${userId}/posts/new`);
   };
 
   const createdId = useSelector((state) => state.post.postCreatedId);
@@ -499,6 +499,7 @@ useEffect(() => {
 
   // Переход к созданию статистики
   const  goToStatisticsNew = () => {
+    saveUpdatePost(); // сохранить перед тем как  перейти к созданию статистики
     navigate(`/${userId}/statistics/new/${selectedPostId}`);
   };
 

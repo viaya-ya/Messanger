@@ -5,8 +5,11 @@ import telegram from "../../../image/telegram.svg"; // Путь к иконке 
 import vk from "../../../image/vk.svg"; // Путь к иконке VK
 import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+
+import {url} from "../../../../BLL/baseUrl"
+
 //5000
-const socket = io("http://localhost:5000/auth", {
+const socket = io(`${url}/auth`, {
   cors: {
     credentials: true
   },transports : ['websocket']
@@ -51,7 +54,7 @@ export default function Content() {
       });
 
     // Запрос к серверу для получения токена
-    fetch("http://localhost:5000/", {
+    fetch(url, {
       method: "GET",
       headers: {
         "User-Agent": userAgent, // Отправляем User-Agent в заголовке

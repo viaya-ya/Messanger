@@ -302,11 +302,7 @@
 }
 
 .main {
-    position: relative;
-    height: calc(100vh - 170px - 24px - 25px);
-    flex-grow: 1;
-    flex-shrink: 1;
-    height: 10vh; 
+    flex: 1 0 120px; 
     overflow-y: auto;
     background-color: #B4B4B4;
     padding-top: 1%;

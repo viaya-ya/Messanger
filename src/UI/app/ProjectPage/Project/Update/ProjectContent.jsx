@@ -22,6 +22,7 @@ import draftToHtml from "draftjs-to-html"; // Импортируем конве�
 import { convertToRaw } from "draft-js";
 import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
+import { useSelector } from "react-redux";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -84,9 +85,9 @@ export default function ProjectContent() {
   const nameTableCreated = {
     "Организационные мероприятия": {
       _array: eventCreate,
-      _setArray: setEventCreate
+      _setArray: setEventCreate,
     },
-    Правила: { _array: rulesCreate, _setArray: setRulesCreate},
+    Правила: { _array: rulesCreate, _setArray: setRulesCreate },
     Обычная: { _array: tasksCreate, _setArray: setTaskCreate },
     Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate },
   };
@@ -94,6 +95,9 @@ export default function ProjectContent() {
   const {
     projects = [],
     archivesProjects = [],
+
+    projectsWithProgram = [],
+    archivesProjectsWithProgram = [],
     isErrorGetProject,
     isLoadingGetProject,
   } = useGetProjectQuery(
@@ -102,6 +106,10 @@ export default function ProjectContent() {
       selectFromResult: ({ data, isLoading, isError }) => ({
         projects: data?.projects || [],
         archivesProjects: data?.archivesProjects || [],
+
+        projectsWithProgram: data?.projectsWithProgram || [],
+        archivesProjectsWithProgram: data?.archivesProjectsWithProgram || [],
+
         isErrorGetProject: isError,
         isLoadingGetProject: isLoading,
       }),
@@ -159,6 +167,19 @@ export default function ProjectContent() {
     },
   ] = useUpdateProjectMutation();
 
+
+
+  // После создания нового проекта он открывается
+  const projectCreatedId = useSelector(state => state.project.projectCreatedId);
+  const organizationProjectId = useSelector(state => state.project.organizationProjectId);
+
+  useEffect(() => {
+    if(organizationProjectId){
+      setOrganizationId(organizationProjectId);
+    }
+  },[]);
+
+
   // Для показа информации о проекте
   const show = () => {
     setShowEditorState(!showEditorState);
@@ -174,42 +195,83 @@ export default function ProjectContent() {
   }, [editorState]);
   // Конец обновления
 
-// После выбора другой организации обнуляю все переменные
+  // После выбора другой организации обнуляю все переменные
+  // useEffect(() => {
+  //   if (organizationId) {
+  //     setSelectedProjectId("");
+
+  //     setProducts([]);
+  //     setEvent([]);
+  //     setRules([]);
+  //     setTasks([]);
+  //     setStatistics([]);
+
+  //     setEventCreate([]);
+  //     setRulesCreate([]);
+  //     setTaskCreate([]);
+  //     setStatisticsCreate([]);
+
+  //     setHtmlContent();
+  //     setEditorState(EditorState.createEmpty());
+  //   }
+  // }, [organizationId]);
+
+  // Для правильных данный на основе хреновой тучи сортировки массивов (sortStrategies и sortPrograms)
+  // useEffect(() => {
+  //   if (organizationId) {
+  //     const filteredStrategies = strategies?.filter(
+  //       (strategy) => strategy?.organization?.id === organizationId
+  //     );
+  //     setSortStrategies(filteredStrategies);
+
+  //     const filteredPrograms = programs?.filter(
+  //       (program) => program?.organization?.id === organizationId
+  //     );
+  //     setSortPrograms(filteredPrograms);
+  //     setSelectedProjectId(projectCreatedId);//Для открытия созданного нового проекта
+  //   }
+  // }, [organizationId]);
+
   useEffect(() => {
-    if(organizationId){
-      setSelectedProjectId("");
+    if (organizationId) {
+      // Сброс переменных
+      setSelectedProjectId(""); // Сначала сбросить проект
+      
+      setStrategy("null");
+      setProgramId("null");
 
       setProducts([]);
       setEvent([]);
       setRules([]);
       setTasks([]);
       setStatistics([]);
-
+  
       setEventCreate([]);
       setRulesCreate([]);
       setTaskCreate([]);
       setStatisticsCreate([]);
-
+  
       setHtmlContent();
       setEditorState(EditorState.createEmpty());
-
-    }
-  },[organizationId]);
-
-  // Для правильных данный на основе хреновой тучи сортировки массивов (sortStrategies и sortPrograms)
-  useEffect(() => {
-    if (organizationId) {
+  
+      // Фильтрация массивов
       const filteredStrategies = strategies?.filter(
         (strategy) => strategy?.organization?.id === organizationId
       );
       setSortStrategies(filteredStrategies);
-
+  
       const filteredPrograms = programs?.filter(
         (program) => program?.organization?.id === organizationId
       );
       setSortPrograms(filteredPrograms);
+  
+      // Установить новый проект
+      if(projectCreatedId){
+         setSelectedProjectId(projectCreatedId);
+      }
+      // Для открытия созданного нового проекта
     }
-  }, [organizationId]);
+  }, [organizationId, strategies, programs, projectCreatedId]);
 
   useEffect(() => {
     if (programId !== "null") {
@@ -222,8 +284,7 @@ export default function ProjectContent() {
       setDisabledStrategy(false);
     }
   }, [programId]);
-
-  // Конец хреновой тучи
+  
 
   // Начальная инициализация данных при открытии по id
   useEffect(() => {
@@ -237,6 +298,14 @@ export default function ProjectContent() {
 
     if (currentProject?.strategy?.id) {
       setStrategy(currentProject.strategy.id);
+    } else {
+      setStrategy("null");
+    }
+
+    if (currentProject?.programId) {
+      setProgramId(currentProject?.programId);
+    } else {
+      setProgramId("null");
     }
 
     if (currentProject.content) {
@@ -259,20 +328,20 @@ export default function ProjectContent() {
       setProducts(
         targets
           .filter((item) => item.type === "Продукт")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
       );
 
       setEvent(
         targets
           .filter((item) => item.type === "Организационные мероприятия")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
       setRules(
         targets
           .filter((item) => item.type === "Правила")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
@@ -280,71 +349,151 @@ export default function ProjectContent() {
         targets
           .filter((item) => item.type === "Обычная")
           .sort((a, b) => a.orderNumber - b.orderNumber)
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
       );
 
       setStatistics(
         targets
           .filter((item) => item.type === "Статистика")
-          .map((item) => ({ ...item }))
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
-  // Конец
 
-  // Пустая хуйня
-  const reset = () => {};
-  // конец
 
-  //Сохранение изменений
+// Сброс данных
+  const reset = () => {
+    setEventCreate([]);
+    setRulesCreate([]);
+    setTaskCreate([]);
+    setStatisticsCreate([]);
+  };
+  
+
+  // Сохранение изменений
   const saveUpdateProject = async () => {
     const Data = {};
 
     Data.targetUpdateDtos = [];
     Data.targetCreateDtos = [];
+    Data.type = "Проект";
 
     // Проверки на изменения и отсутствие null
-    if (strategy !== currentProject.strategyId && strategy !== "null") {
-      Data.strategyId = strategy;
+    if (strategy !== currentProject.strategyId) {
+      Data.strategyId = strategy === "null" ? null : strategy;
     }
-    if (programId !== currentProject.programId && programId !== "null") {
-      Data.programId = programId;
+
+    if (programId !== currentProject.programId) {
+      Data.programId = programId === "null" ? null : programId;
     }
+
     if (htmlContent !== currentProject.content && htmlContent !== null) {
       Data.content = htmlContent;
     }
 
     if (products.length > 0) {
       Data.targetUpdateDtos = [
-        ...products.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...products.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (event.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...event.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...event.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (rules.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...rules.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...rules.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (tasks.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...tasks.map(({ isExpired, id, ...rest }) => ({ _id: id, ...rest })),
+        ...tasks.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
     if (statistics.length > 0) {
       Data.targetUpdateDtos = [
         ...Data.targetUpdateDtos,
-        ...statistics.map(({ isExpired, id, ...rest }) => ({
-          _id: id,
-          ...rest,
-        })),
+        ...statistics.map(
+          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
+            if (holderUserId === holderUserIdchange) {
+              return {
+                _id: id,
+                ...rest,
+              };
+            } else {
+              return {
+                _id: id,
+                ...rest,
+                holderUserId,
+              };
+            }
+          }
+        ),
       ];
     }
 
@@ -391,7 +540,7 @@ export default function ProjectContent() {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
       });
   };
-  // Конец
+
 
   // Методы для таблиц
   const add = (name) => {
@@ -426,13 +575,13 @@ export default function ProjectContent() {
       }));
     _setArray(updated);
   };
-  // Конец
+
 
   const disabledFieldsArchive = () => {
     setDisabledProgramId(true);
     setDisabledStrategy(true);
     setDisabledTable(true);
-  }
+  };
 
   return (
     <div className={classes.dialog}>
@@ -462,7 +611,6 @@ export default function ProjectContent() {
         </div>
 
         <div className={classes.editText}>
-
           <div className={classes.item}>
             <div className={classes.itemName}>
               <span>
@@ -492,25 +640,6 @@ export default function ProjectContent() {
             </div>
           </div>
 
-          {/* <div className={classes.item}>
-            <div className={classes.itemName}>
-              <span>Тип</span>
-            </div>
-            <div className={classes.div}>
-              <select
-                className={classes.select}
-                value={type}
-                onChange={(e) => {
-                  setType(e.target.value);
-                }}
-              >
-                <option value="null">Выбрать опцию</option>
-                <option value="Проект">Проект</option>
-                <option value="Программа">Программа</option>
-              </select>
-            </div>
-          </div> */}
-
           {organizationId && (
             <div className={classes.item}>
               <div className={classes.itemName}>
@@ -525,21 +654,32 @@ export default function ProjectContent() {
                     setManualSuccessReset(true);
                     setManualErrorReset(true);
 
-                    if (archivesProjects.some((item) => item.id === e.target.value)) {
+                    if (
+                      archivesProjects.some(
+                        (item) => item.id === e.target.value
+                      )
+                    ) {
                       disabledFieldsArchive();
-                    }else{
+                    } else {
                       setDisabledProgramId(false);
                       setDisabledStrategy(false);
                       setDisabledTable(false);
                     }
-                    
                   }}
                 >
-                  <option value = "" disabled>Выберите проект</option>
-                  {
-                    projects.length !== 0 && <option  value = "Активные" disabled className={classes.activeText}>Активные</option>
-                  }
-                  
+                  <option value="" disabled>
+                    Выберите проект
+                  </option>
+                  {projects.length !== 0 && (
+                    <option
+                      value="Активные"
+                      disabled
+                      className={classes.activeText}
+                    >
+                      Активные
+                    </option>
+                  )}
+
                   {projects?.map((item) => {
                     return (
                       <option key={item.id} value={item.id}>
@@ -548,11 +688,53 @@ export default function ProjectContent() {
                     );
                   })}
 
-                  {
-                     archivesProjects.length !== 0 && <option value = "Завершенные" disabled className={classes.completedText}>Завершенные</option>
-                  }
-                 
+                  {archivesProjects.length !== 0 && (
+                    <option
+                      value="Завершенные"
+                      disabled
+                      className={classes.completedText}
+                    >
+                      Завершенные
+                    </option>
+                  )}
+
                   {archivesProjects?.map((item) => {
+                    return (
+                      <option key={item.id} value={item.id}>
+                        {item.projectName}
+                      </option>
+                    );
+                  })}
+
+                  {projectsWithProgram.length !== 0 && (
+                    <option
+                      value="Проекты с программами"
+                      disabled
+                      className={classes.activeText}
+                    >
+                      Проекты с программами
+                    </option>
+                  )}
+
+                  {projectsWithProgram?.map((item) => {
+                    return (
+                      <option key={item.id} value={item.id}>
+                        {item.projectName}
+                      </option>
+                    );
+                  })}
+
+                  {archivesProjectsWithProgram.length !== 0 && (
+                    <option
+                      value="Архивные проекты с программами"
+                      disabled
+                      className={classes.completedText}
+                    >
+                      Архивные проекты с программами
+                    </option>
+                  )}
+
+                  {archivesProjectsWithProgram?.map((item) => {
                     return (
                       <option key={item.id} value={item.id}>
                         {item.projectName}
@@ -584,7 +766,7 @@ export default function ProjectContent() {
                     {sortPrograms.map((item) => {
                       return (
                         <option key={item.id} value={item.id}>
-                          {item.projectNumber}
+                          {item.projectName}
                         </option>
                       );
                     })}
@@ -610,7 +792,7 @@ export default function ProjectContent() {
                     {sortStrategies.map((item) => {
                       return (
                         <option key={item.id} value={item.id}>
-                          {item.strategyNumber}
+                          Стратегия №{item.strategyNumber}
                         </option>
                       );
                     })}
@@ -679,18 +861,19 @@ export default function ProjectContent() {
       </div>
 
       <div className={classes.main}>
-        {isErrorGetProject ? (
+        {isErrorGetProject || isErrorGetNew ? (
           <>
-            <HandlerQeury Error={isErrorGetProject}></HandlerQeury>
+            <HandlerQeury Error={isErrorGetProject || isErrorGetNew}></HandlerQeury>
           </>
         ) : (
           <>
+
+        <HandlerQeury Loading={isLoadingGetProject || isLoadingGetNew}></HandlerQeury>
+
             {isErrorGetProjectId ? (
               <HandlerQeury Error={isErrorGetProjectId}></HandlerQeury>
             ) : (
               <>
-                <HandlerQeury Loading={isLoadingGetProject}></HandlerQeury>
-
                 {isLoadingGetProjectId || isFetchingGetProjectId ? (
                   <HandlerQeury
                     Loading={isLoadingGetProjectId}
@@ -725,9 +908,8 @@ export default function ProjectContent() {
                                   _setArray={_setArray}
                                   workers={workers}
                                   deleteRow={deleteRow}
-                                  disabledTable = {disabledTable}
-                                  
-                                  updateProject = {true}
+                                  disabledTable={disabledTable}
+                                  updateProject={true}
                                 />
                               );
                             })}
@@ -740,7 +922,7 @@ export default function ProjectContent() {
                           Success={
                             isSuccessProjectMutation && !manualSuccessReset
                           } // Учитываем ручной сброс
-                          textSuccess={"Обновлена"}
+                          textSuccess={"Проект обновлен"}
                           textError={
                             Error?.data?.errors?.[0]?.errors?.[0]
                               ? Error.data.errors[0].errors[0]
@@ -750,9 +932,7 @@ export default function ProjectContent() {
                       </>
                     ) : (
                       <>
-                        <WaveLetters
-                          letters={"Выберите пост или проект"}
-                        ></WaveLetters>
+                        <WaveLetters letters={"Выберите проект"}></WaveLetters>
                       </>
                     )}
                   </>

@@ -333,9 +333,7 @@
 }
 
 .main {
-    position: relative;
-    flex: 1; 
-    height: auto;
+    flex: 1 0 120px; 
     width: 100%;
     overflow-y: auto;
     background-color: #B4B4B4;

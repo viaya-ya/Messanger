@@ -10,7 +10,7 @@
     width: 100%;
     display: grid;
     grid-template-columns: 50px 1fr;
-    grid-template-rows: 24px 1fr;
+    grid-template-rows: 0px 1fr; /* Было 24px*/
     grid-template-areas:
     "header header"
     "block content";

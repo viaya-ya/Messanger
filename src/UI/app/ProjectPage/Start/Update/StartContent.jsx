@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import classes from "./StartContent.module.css";
 import icon from "../../../../image/iconHeader.svg";
 import iconBack from "../../../../image/iconBack.svg";
-
+import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function StartContent() {
@@ -15,10 +15,10 @@ export default function StartContent() {
   const [type, setType] = useState("null");
 
   useEffect(() => {
-    if(type === "Проект"){
+    if (type === "Проект") {
       navigate(`/${userId}/project`);
     }
-    if(type === "Программа"){
+    if (type === "Программа") {
       navigate(`/${userId}/program`);
     }
   }, [type]);
@@ -51,7 +51,6 @@ export default function StartContent() {
         </div>
 
         <div className={classes.editText}>
-
           <div className={classes.item}>
             <div className={classes.itemName}>
               <span>
@@ -74,11 +73,11 @@ export default function StartContent() {
               </select>
             </div>
           </div>
-
         </div>
       </div>
 
       <div className={classes.main}>
+        <WaveLetters letters={"Выберите программу или проект"}></WaveLetters>
       </div>
     </div>
   );

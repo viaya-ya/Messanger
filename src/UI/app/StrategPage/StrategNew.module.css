@@ -221,10 +221,8 @@ background-color: rgb(240, 240, 240)
 
 .main {
     position: relative;
-    height: calc(100vh - 120px - 24px - 25px);
+    flex: 1 0 120px; 
     overflow-y: auto;
-    /* scrollbar-width: thin;
-    scrollbar-color: #005475 #FFFFFF; */
     background-color: #F0F0F0;
     padding-top: 1%;
     padding-bottom: 1%;

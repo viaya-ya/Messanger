@@ -170,7 +170,6 @@ export default function StatisticsContent() {
     }),
   });
 
-  console.error(organizations);
   // Для открытия созданной статистики
   useEffect(() => {
     const obj = statistics.find((item) => item.id === createdStatiscticId);

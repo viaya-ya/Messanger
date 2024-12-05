@@ -17,6 +17,9 @@ import draftToHtml from "draftjs-to-html"; // Импортируем конве�
 import { convertToRaw } from "draft-js";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useGetProgramNewQuery } from "../../../../../BLL/projectApi.js";
+import { dispatch } from "d3";
+import { useDispatch } from "react-redux";
+import { setProgramCreatedId, setProgramOrganizationId } from "../../../../../BLL/Program/Slice/programSlice.js";
 
 export default function ProgramNew() {
   const navigate = useNavigate();
@@ -59,6 +62,8 @@ export default function ProgramNew() {
     Обычная: { array: tasks, setArray: setTasks },
     Статистика: { array: statistics, setArray: setStatistics },
   };
+
+  const dispatch = useDispatch();
 
   const {
     workers = [],
@@ -184,7 +189,7 @@ export default function ProgramNew() {
     if (arraySelectProjects.length > 0) {
       Data.projectIds = arraySelectProjects;
     }
-    
+
     if (event.length > 0) {
       Data.targetCreateDtos = [...event.map(({ id, ...rest }) => rest)];
     }
@@ -203,18 +208,18 @@ export default function ProgramNew() {
       ];
     }
 
-    Data.targetCreateDtos = [
-      ...Data.targetCreateDtos,
-      ...products,
-    ];
+    Data.targetCreateDtos = [...Data.targetCreateDtos, ...products];
 
     await postProject({
       userId,
       ...Data,
     })
       .unwrap()
-      .then(() => {
+      .then((result) => {
         reset();
+        dispatch(setProgramCreatedId(result.id));
+        dispatch(setProgramOrganizationId(organizationId));
+        back();
       })
       .catch((error) => {
         console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
@@ -264,7 +269,7 @@ export default function ProgramNew() {
       }
     });
   };
-  
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -364,7 +369,7 @@ export default function ProgramNew() {
                           item.state === "Активный" ? classes.active : ""
                         }`}
                       >
-                        {item.strategyNumber}
+                        Стратегия № {item.strategyNumber}
                       </option>
                     );
                   })}
@@ -436,7 +441,7 @@ export default function ProgramNew() {
                   Loading={isLoadingProjectMutation}
                   Error={isErrorProjectMutation}
                   Success={isSuccessProjectMutation}
-                  textSuccess={"Успешно создано."}
+                  textSuccess={"Программа создана."}
                   textError={
                     Error?.data?.errors?.[0]?.errors?.[0]
                       ? Error.data.errors[0].errors[0]
@@ -462,10 +467,9 @@ export default function ProgramNew() {
                           setArray={setArray}
                           workers={workers}
                           deleteRow={deleteRow}
-
                           createProgram={true}
                           handleCheckBox={handleCheckBox}
-                          disabledProject = {true}
+                          disabledProject={true}
                         />
                       );
                     })}

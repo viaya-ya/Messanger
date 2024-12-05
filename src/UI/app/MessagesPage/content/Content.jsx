@@ -29,7 +29,7 @@ import ProgramNew from "../../ProjectPage/Program/Create/ProgramNew";
 
 export default function Content() {
   const location = useLocation();
-  const { userId } = useParams();
+  const { userId, paramPostID } = useParams();
   return (
     <div className={classes.content}>
       <Contact></Contact>
@@ -41,9 +41,16 @@ export default function Content() {
       {location.pathname === "/" + userId + "/policy" && <PolicyContent />}
       {location.pathname === "/" + userId + "/policy/new" && <NewPolicy />}
 
-      {/* {location.pathname === "/" + userId +"/posts" && <PostContent />} */}
-      {location.pathname.startsWith(`/${userId}/posts`) && <PostContent />}
+
+      
+      {/* {location.pathname === "/" + userId + "/posts" && <PostContent />}
+      {location.pathname.startsWith(`/${userId}/posts/new`) && <PostNew />} */}
+
+
+      {location.pathname === `/${userId}/posts${paramPostID ? `/${paramPostID}` : ""}` && <PostContent />}
       {location.pathname === "/" + userId + "/posts/new" && <PostNew />}
+
+
 
       {location.pathname ===  "/" + userId +"/speedgoal" && <SpeedGoalContent />}
       {location.pathname === "/" + userId + "/speedgoal/new" && <SpeedGoalNew />}

@@ -2022,7 +2022,7 @@ export default function StatisticsContent() {
                                   description || currentStatistic.description
                                 }
                                 onChange={(e) => setDescription(e.target.value)}
-                                className={classes.textMontserrat}
+                                className={`${classes.textMontserrat} ${classes.row2__textarea}`}
                               ></textarea>
                             </div>
                           ) : (

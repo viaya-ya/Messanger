@@ -162,6 +162,7 @@
 }
 
 .block3 {
+    height: 100%;
     width: 99%;
     display: flex;
     flex-direction: column;
@@ -169,37 +170,40 @@
     overflow-y: auto;
     border-top: solid 3px #B4B4B4;
     min-height: 200px;
-
-    & .row1 {
-        width: 99%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        column-gap: 5px;
-
-        & .element {
-            font-family: "Montserrat";
-            width: 30%;
-            max-width: 30%;
-            height: 25px;
-            border-bottom: solid 1px #B4B4B4;
-        }
-    }
-
-    & .row2 {
-        min-height: 85%;
-
-        & textarea {
-            width: 99%;
-            min-height: 100%;
-            padding: 15px;
-            resize: none;
-            overflow-y: auto;
-        }
-    }
-
 }
 
+.row1 {
+    width: 99%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    column-gap: 5px;
+}
+
+.element {
+    font-family: "Montserrat";
+    width: 23%;
+    max-width: 23%;
+    height: 25px;
+    border-bottom: solid 1px #B4B4B4;
+}
+
+.row2 {
+    height: 85%;
+    min-height: 85%;
+    width: 99%;
+    min-width: 99%;
+}
+
+ .row2__textarea {
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+    min-height: 100%;
+    padding: 15px;
+    resize: none;
+    overflow-y: auto;
+}
 
 .deletePoint {
     width: 30px;
@@ -251,20 +255,6 @@
     }
 }
 
-.element:hover span {
-    color: #005475;
-}
-
-.element svg {
-    transition: fill 0.3s ease;
-    /* Добавляем анимацию для цвета SVG */
-}
-
-.element:hover svg path {
-    fill: #005475;
-    /* Меняем цвет SVG при наведении */
-}
-
 .addPoint {
     width: 30px;
     height: 50px;
@@ -273,18 +263,12 @@
     &:hover {
         cursor: pointer;
         background-color: #8a8989;
-
-        &:svg path {
-            fill: #005475;
-        }
-
     }
 
     & img {
         margin-top: 10px;
     }
 }
-
 
 .textGrey {
     color: grey;

@@ -86,12 +86,20 @@ const Graphic = ({ data, name, setName, typeGraphic, type }) => {
         )
       )
       .range([margin.left, width - margin.right])
-      .padding(0.5);
+      .padding(0);
+
 
     // Если type === "Обратная", то ось Y будет инвертирована, а верхний предел будет больше
     const y = type === "Обратная"
-      ? d3.scaleLinear().domain([0, upperLimit]).nice().range([margin.top, height - margin.bottom])
-      : d3.scaleLinear().domain([minValue, upperLimit]).nice().range([height - margin.bottom, margin.top]);
+    ? d3.scaleLinear()
+        .domain([0, upperLimit]) // Начинаем с 0 для обратного типа
+        .nice()
+        .range([margin.top, height - margin.bottom])
+    : d3.scaleLinear()
+        .domain([0, upperLimit]) // Начинаем с 0 для обычного типа
+        .nice()
+        .range([height - margin.bottom, margin.top]);
+  
 
     const line = d3
       .line()

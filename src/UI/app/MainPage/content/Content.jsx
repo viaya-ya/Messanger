@@ -7,9 +7,9 @@ import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 import {url} from "../../../../BLL/baseUrl"
+// "https://24academy.ru/auth"
 
-//5000
-const socket = io("http://localhost:5000/auth", {
+const socket = io("https://localhost:5000/auth", {
   cors: {
     credentials: true
   },transports : ['websocket']
@@ -101,7 +101,7 @@ export default function Content() {
   //     socket.disconnect(); // Закрываем соединение при размонтировании компонента
   //   };
   // }, []); 
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {

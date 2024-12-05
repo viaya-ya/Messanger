@@ -24,7 +24,9 @@ export default function StatisticsNew() {
   const navigate = useNavigate();
   const { userId, paramPostID } = useParams();
   const back = () => {
-    paramPostID ? navigate(`/${userId}/posts/${paramPostID}`) : navigate(`/${userId}/statistics`);
+    paramPostID
+      ? navigate(`/${userId}/posts/${paramPostID}`)
+      : navigate(`/${userId}/statistics`);
   };
 
   const [type, setType] = useState("");
@@ -76,8 +78,8 @@ export default function StatisticsNew() {
       error: Error,
     },
   ] = usePostStatisticsMutation();
-  
-// Для создания статистики через страницу пост
+
+  // Для создания статистики через страницу пост
   useEffect(() => {
     if (paramPostID) {
       const obj = posts.find((item) => item.id === paramPostID);
@@ -85,7 +87,7 @@ export default function StatisticsNew() {
       setPostId(paramPostID);
     }
   }, []);
-// Конец
+  // Конец
 
   useEffect(() => {
     if (organization !== "") {
@@ -338,24 +340,6 @@ export default function StatisticsNew() {
                       })}
                     </select>
 
-                    {/* <select
-                      name=""
-                      id=""
-                      value={day}
-                      onChange={(e) => setDay(e.target.value)}
-                      className={classes.element}
-                    >
-                      <option value="" disabled>
-                        Отчетный день
-                      </option>
-                      <option value={1}>Пн</option>
-                      <option value={2}>Вт</option>
-                      <option value={3}>Ср</option>
-                      <option value={4}>Чт</option>
-                      <option value={5}>Пт</option>
-                      <option value={6}>Сб</option>
-                      <option value={0}>Вс</option>
-                    </select> */}
                   </div>
                   <div className={classes.row2}>
                     <textarea

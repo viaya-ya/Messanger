@@ -9,7 +9,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import {url} from "../../../../BLL/baseUrl"
 
 //5000
-const socket = io(`${url}/auth`, {
+const socket = io("http://localhost:5000/auth", {
   cors: {
     credentials: true
   },transports : ['websocket']
@@ -54,7 +54,7 @@ export default function Content() {
       });
 
     // Запрос к серверу для получения токена
-    fetch(url, {
+    fetch(`${url}?fingerprint=${fingerprint}&ip=${ip}`, {
       method: "GET",
       headers: {
         "User-Agent": userAgent, // Отправляем User-Agent в заголовке
@@ -62,6 +62,9 @@ export default function Content() {
     })
       .then((response) => response.json()) // Обрабатываем ответ как JSON
       .then((data) => {
+        if(data.isLogged){
+          window.location.href = `#/${data.userId}/start`;
+        }
         console.log("Ответ от /", data);
         console.log("tokenForTG", data.tokenForTG);
         setTokenForTG(data.tokenForTG);

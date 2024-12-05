@@ -1569,7 +1569,6 @@ export default function StatisticsContent() {
       });
   };
 
-  console.log("12345678");
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>

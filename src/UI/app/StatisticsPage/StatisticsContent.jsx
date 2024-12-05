@@ -253,8 +253,6 @@ export default function StatisticsContent() {
 
       startDate.setDate(dayNow.getDate() - dayDifference);
 
-      console.log(startDate);
-
       // Вычисляем конечную дату (b = startDate + 7 дней)
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 7);
@@ -495,6 +493,7 @@ export default function StatisticsContent() {
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "13") {
+ 
       const today = new Date();
       const end = new Date(today);
       const start = new Date();
@@ -506,12 +505,14 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+      while (currentDate.getDay() !== selectedDayOfWeek) {
+        console.log("1111111111111");
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
       // Цикл по неделям
       while (currentDate <= end) {
+        console.log("22222222222222222222");
         const nextDate = new Date(currentDate);
         nextDate.setDate(currentDate.getDate() + 7);
 
@@ -578,7 +579,7 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+      while (currentDate.getDay() !== selectedDayOfWeek ) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -650,7 +651,7 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+      while (currentDate.getDay() !== selectedDayOfWeek) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -1255,7 +1256,7 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+      while (currentDate.getDay() !== selectedDayOfWeek) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -1330,7 +1331,7 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+      while (currentDate.getDay() !== selectedDayOfWeek) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -1405,7 +1406,7 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek - 1) {
+      while (currentDate.getDay() !== selectedDayOfWeek) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -1568,6 +1569,7 @@ export default function StatisticsContent() {
       });
   };
 
+  console.log("12345678");
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>

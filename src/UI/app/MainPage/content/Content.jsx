@@ -7,9 +7,10 @@ import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 import {url} from "../../../../BLL/baseUrl"
+// "http://localhost:5000/auth"
 // "https://24academy.ru/auth"
 
-const socket = io("https://localhost:5000/auth", {
+const socket = io("https://24academy.ru/auth", {
   cors: {
     credentials: true
   },transports : ['websocket']

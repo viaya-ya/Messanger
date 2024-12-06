@@ -348,3 +348,19 @@
 .active{
     color: #005475;
 }
+
+.textMontserrat{
+    color: #005475;
+    font-family: "Montserrat";
+    font-weight: 600;
+}
+.noProjects{
+    display: flex;
+    column-gap: 10px;
+}
+
+.createProgramm{
+    width: 18px;
+    height: 18px;
+    background-color: #B4B4B4;
+}

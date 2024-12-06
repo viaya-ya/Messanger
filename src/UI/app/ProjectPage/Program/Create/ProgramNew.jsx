@@ -6,6 +6,9 @@ import Listsetting from "../../../../image/Listsetting.svg";
 import glazikBlack from "../../../../image/glazikBlack.svg";
 import glazikInvisible from "../../../../image/glazikInvisible.svg";
 import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
+import iconAddProjectBlue from "../../../../image/iconAddProjectBlue.svg";
+
+
 import { useNavigate, useParams } from "react-router-dom";
 import { usePostProjectMutation } from "../../../../../BLL/projectApi.js";
 
@@ -19,7 +22,10 @@ import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useGetProgramNewQuery } from "../../../../../BLL/projectApi.js";
 import { dispatch } from "d3";
 import { useDispatch } from "react-redux";
-import { setProgramCreatedId, setProgramOrganizationId } from "../../../../../BLL/Program/Slice/programSlice.js";
+import {
+  setProgramCreatedId,
+  setProgramOrganizationId,
+} from "../../../../../BLL/Program/Slice/programSlice.js";
 
 export default function ProgramNew() {
   const navigate = useNavigate();
@@ -270,6 +276,10 @@ export default function ProgramNew() {
     });
   };
 
+  const goToCreateProject = () => {
+    navigate(`/${userId}/project/new`);
+  };
+
   return (
     <div className={classes.dialog}>
       <div className={classes.header}>
@@ -456,23 +466,38 @@ export default function ProgramNew() {
                   />
                 ) : (
                   <>
-                    {Object.keys(nameTable).map((key) => {
-                      const { array, setArray } = nameTable[key]; // Деструктурируем данные
-                      return (
-                        <TableProject
-                          key={key}
-                          nameTable={key}
-                          add={add}
-                          array={array}
-                          setArray={setArray}
-                          workers={workers}
-                          deleteRow={deleteRow}
-                          createProgram={true}
-                          handleCheckBox={handleCheckBox}
-                          disabledProject={true}
-                        />
-                      );
-                    })}
+                    {tasks.length > 0 ? (
+                      <>
+                        {Object.keys(nameTable).map((key) => {
+                          const { array, setArray } = nameTable[key]; // Деструктурируем данные
+                          return (
+                            <TableProject
+                              key={key}
+                              nameTable={key}
+                              add={add}
+                              deleteRow={deleteRow}
+                              array={array}
+                              setArray={setArray}
+                              workers={workers}
+                              createProgram={true}
+                              handleCheckBox={handleCheckBox}
+                              disabledProject={true}
+                            />
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <div className={classes.noProjects}>
+                          <span className={classes.textMontserrat}>
+                            Нету проектов для создания программ
+                          </span>
+                          <button onClick={() => goToCreateProject()} className={classes.createProgramm}>
+                           <img src={iconAddProjectBlue} alt="iconAddProjectBlue" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
               </>

@@ -11,6 +11,7 @@ export const speedGoalApi = createApi({
         url: `${userId}/objectives`,
       }),
       transformResponse: (response) => {
+        console.log(response);
         const sortedStrategies = response
           ?.flatMap((objective) => objective.strategy)
           .sort((a, b) => {

@@ -24,6 +24,7 @@ import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import Modal from "../../../../Custom/Modal/Modal.jsx";
 import { useSelector } from "react-redux";
+import Lupa from "../../../../Custom/Lupa/Lupa.jsx";
 
 export default function ProgramContent() {
   const navigate = useNavigate();
@@ -51,7 +52,21 @@ export default function ProgramContent() {
   // Все для Editor
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
-  const [showEditorState, setShowEditorState] = useState(false);
+
+  const [showEvent, setShowEvent] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [showInformation, setShowInformation] = useState(false);
+
+  const showTable = {
+    "Организационные мероприятия": {
+      isShow: showEvent,
+      setIsShow: setShowEvent,
+    },
+    Правила: { isShow: showRules, setIsShow: setShowRules },
+    Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+  };
 
   // Для создание массивов хуйни
   const [eventCreate, setEventCreate] = useState([]);
@@ -79,15 +94,32 @@ export default function ProgramContent() {
   //Для отправки на сервер данные
   const [selectProjectsModalId, setSelectProjectsModalId] = useState([]);
 
+  //Лупа
+  const [isOpenSearch, setIsOpenSearch] = useState(false);
+
   const nameTableRecieved = {
-    Продукт: { array: products, setArray: setProducts },
-    "Организационные мероприятия": { array: event, setArray: setEvent },
-    Правила: { array: rules, setArray: setRules },
-    Обычная: { array: tasks, setArray: setTasks },
-    Статистика: { array: statistics, setArray: setStatistics },
+    Продукт: { array: products, setArray: setProducts, isShow: true },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
+
+    "Организационные мероприятия": {
+      array: event,
+      setArray: setEvent,
+      isShow: showEvent,
+    },
+    Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Статистика: {
+      array: statistics,
+      setArray: setStatistics,
+      isShow: showStatistics,
+    },
   };
 
   const nameTableCreated = {
+    Обычная: {
+      _array: tasksCreate,
+      _setArray: setTaskCreate,
+    },
+
     "Организационные мероприятия": {
       _array: eventCreate,
       _setArray: setEventCreate,
@@ -95,10 +127,6 @@ export default function ProgramContent() {
     Правила: {
       _array: rulesCreate,
       _setArray: setRulesCreate,
-    },
-    Обычная: {
-      _array: tasksCreate,
-      _setArray: setTaskCreate,
     },
     Статистика: {
       _array: statisticsCreate,
@@ -187,11 +215,6 @@ export default function ProgramContent() {
       setOrganizationId(organizationProgramId);
     }
   }, []);
-
-  // Для показа информации о проекте
-  const show = () => {
-    setShowEditorState(!showEditorState);
-  };
 
   //Проекты для добавления к программе
   useEffect(() => {
@@ -394,6 +417,11 @@ export default function ProgramContent() {
     Data.type = "Программа";
 
     // Проверки на изменения и отсутствие null
+
+    if (projectName !== currentProgram.projectName) {
+      Data.projectName = projectName;
+    }
+
     if (strategy !== currentProgram.strategyId && strategy !== "null") {
       Data.strategyId = strategy;
     }
@@ -562,10 +590,6 @@ export default function ProgramContent() {
     _setArray(updated);
   };
 
-  const disabledFieldsArchive = () => {
-    setDisabledTable(true);
-  };
-
   // Для выбранных проектов
   const handleCheckBox = (id) => {
     setArraySelectProjects((prev) => {
@@ -578,14 +602,30 @@ export default function ProgramContent() {
   };
 
   const handleCheckBoxModal = (id) => {
-    setSelectProjectsModalId((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((item) => item !== id);
-      } else {
-        return [...prev, id];
-      }
+    setSelectProjectsModalId((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+
+    setTaskCreate((prev) => {
+      const project = projectsToAddProgram.find((item) => item.id === id);
+      return prev.some((item) => item.id === id)
+        ? prev.filter((item) => item.id !== id)
+        : [...prev, project];
     });
   };
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      setManualSuccessReset(true);
+      setManualErrorReset(true);
+
+      if (archivesPrograms.some((item) => item.id === selectedProjectId)) {
+        setDisabledTable(true);
+      } else {
+        setDisabledTable(false);
+      }
+    }
+  }, [selectedProjectId]);
 
   return (
     <div className={classes.dialog}>
@@ -652,7 +692,23 @@ export default function ProgramContent() {
                 </span>
               </div>
               <div className={classes.div}>
-                <select
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={(e) => {
+                    setProjectName(e.target.value);
+                  }}
+                  className={classes.select}
+                />
+                <Lupa
+                  setIsOpenSearch={setIsOpenSearch}
+                  isOpenSearch={isOpenSearch}
+                  select={setSelectedProjectId}
+                  programs={programs}
+                  archivesPrograms={archivesPrograms}
+                ></Lupa>
+
+                {/* <select
                   className={classes.select}
                   value={selectedProjectId}
                   onChange={(e) => {
@@ -709,7 +765,7 @@ export default function ProgramContent() {
                       </option>
                     );
                   })}
-                </select>
+                </select> */}
               </div>
             </div>
           )}
@@ -761,32 +817,28 @@ export default function ProgramContent() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li onClick={() => show()}>
-                {showEditorState ? (
-                  <img src={glazikBlack} alt="glazikBlack" />
-                ) : (
-                  <img src={glazikInvisible} alt="glazikInvisible" />
-                )}
-                Информация
-              </li>
               <li>
-                <img src={glazikInvisible} alt="glazikInvisible" />
+                <img src={glazikBlack} alt="glazikBlack" />
                 Продукт
               </li>
               <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" />{" "}
-                Организационные мероприятия
+                <img src={glazikBlack} alt="glazikBlack" /> Задача
               </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Правила и
-                ограничения{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Задачи{" "}
-              </li>
+
+              {Object.keys(showTable).map((key) => {
+                const { isShow, setIsShow } = showTable[key];
+                return (
+                  <li onClick={() => setIsShow(!isShow)}>
+                    {isShow ? (
+                      <img src={glazikBlack} alt="glazikBlack" />
+                    ) : (
+                      <img src={glazikInvisible} alt="glazikInvisible" />
+                    )}
+
+                    {key}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -814,18 +866,20 @@ export default function ProgramContent() {
       <div className={classes.main}>
         {isErrorGetProject || isErrorGetProgram ? (
           <>
-            <HandlerQeury Error={isErrorGetProject || isErrorGetProgram}></HandlerQeury>
+            <HandlerQeury
+              Error={isErrorGetProject || isErrorGetProgram}
+            ></HandlerQeury>
           </>
         ) : (
           <>
-
-          <HandlerQeury Loading={isLoadingGetProject || isLoadingGetProgram}></HandlerQeury>
+            <HandlerQeury
+              Loading={isLoadingGetProject || isLoadingGetProgram}
+            ></HandlerQeury>
 
             {isErrorGetProjectId ? (
               <HandlerQeury Error={isErrorGetProjectId}></HandlerQeury>
             ) : (
               <>
-                
                 {isLoadingGetProjectId || isFetchingGetProjectId ? (
                   <HandlerQeury
                     Loading={isLoadingGetProjectId}
@@ -835,50 +889,50 @@ export default function ProgramContent() {
                   <>
                     {currentProgram.id ? (
                       <>
-                        {showEditorState ? (
+                        {Object.keys(nameTableRecieved).map((key) => {
+                          const { array, setArray, isShow } =
+                            nameTableRecieved[key];
+
+                          const { _array = [], _setArray = () => {} } =
+                            nameTableCreated[key] || {};
+
+                          return (
+                            isShow && (
+                              <TableProject
+                                tableKey={key}
+                                nameTable={key}
+                                add={add}
+                                array={array}
+                                setArray={setArray}
+                                _array={_array}
+                                _setArray={_setArray}
+                                workers={workers}
+                                deleteRow={deleteRow}
+                                disabledTable={disabledTable}
+                                disabledProject={true}
+                                handleCheckBox={handleCheckBox}
+                                arraySelectProjects={arraySelectProjects}
+                                updateProgramm={true}
+                                openModal={setOpenModalProject}
+                              />
+                            )
+                          );
+                        })}
+
+                        {showInformation && (
                           <MyEditor
                             editorState={editorState}
                             setEditorState={setEditorState}
                           />
-                        ) : (
-                          <>
-                            {Object.keys(nameTableRecieved).map((key) => {
-                              const { array, setArray } =
-                                nameTableRecieved[key];
+                        )}
 
-                              const { _array = [], _setArray = () => {} } =
-                                nameTableCreated[key] || {};
-
-                              return (
-                                <TableProject
-                                  tableKey={key}
-                                  nameTable={key}
-                                  add={add}
-                                  array={array}
-                                  setArray={setArray}
-                                  _array={_array}
-                                  _setArray={_setArray}
-                                  workers={workers}
-                                  deleteRow={deleteRow}
-                                  disabledTable={disabledTable}
-                                  disabledProject={true}
-                                  handleCheckBox={handleCheckBox}
-                                  arraySelectProjects={arraySelectProjects}
-                                  updateProgramm={true}
-                                  openModal={setOpenModalProject}
-                                />
-                              );
-                            })}
-
-                            {openModalProject && (
-                              <Modal
-                                array={projectsToAddProgram}
-                                exitModal={setOpenModalProject}
-                                handleCheckBoxModal={handleCheckBoxModal}
-                                selectProjectsModalId={selectProjectsModalId}
-                              ></Modal>
-                            )}
-                          </>
+                        {openModalProject && (
+                          <Modal
+                            array={projectsToAddProgram}
+                            exitModal={setOpenModalProject}
+                            handleCheckBoxModal={handleCheckBoxModal}
+                            selectProjectsModalId={selectProjectsModalId}
+                          ></Modal>
                         )}
 
                         <HandlerMutation

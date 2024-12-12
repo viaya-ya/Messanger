@@ -8,7 +8,6 @@ import glazikInvisible from "../../../../image/glazikInvisible.svg";
 import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
 import iconAddProjectBlue from "../../../../image/iconAddProjectBlue.svg";
 
-
 import { useNavigate, useParams } from "react-router-dom";
 import { usePostProjectMutation } from "../../../../../BLL/projectApi.js";
 
@@ -54,7 +53,21 @@ export default function ProgramNew() {
   const [organizationId, setOrganizationId] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
-  const [showEditorState, setShowEditorState] = useState(false);
+
+  const [showEvent, setShowEvent] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [showInformation, setShowInformation] = useState(false);
+
+  const showTable = {
+    "Организационные мероприятия": {
+      isShow: showEvent,
+      setIsShow: setShowEvent,
+    },
+    Правила: { isShow: showRules, setIsShow: setShowRules },
+    Статистика: { isShow: showStatistics, setIsShow: setShowStatistics },
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+  };
 
   const [sortStrategies, setSortStrategies] = useState([]);
 
@@ -62,11 +75,11 @@ export default function ProgramNew() {
   const [arraySelectProjects, setArraySelectProjects] = useState([]);
 
   const nameTable = {
-    Продукт: { array: products, setArray: setProducts },
-    "Организационные мероприятия": { array: event, setArray: setEvent },
-    Правила: { array: rules, setArray: setRules },
-    Обычная: { array: tasks, setArray: setTasks },
-    Статистика: { array: statistics, setArray: setStatistics },
+    Продукт: { array: products, setArray: setProducts, isShow: true  },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true  },
+    "Организационные мероприятия": { array: event, setArray: setEvent, isShow: showEvent  },
+    Правила: { array: rules, setArray: setRules, isShow: showRules  },
+    Статистика: { array: statistics, setArray: setStatistics, isShow: showStatistics  },
   };
 
   const dispatch = useDispatch();
@@ -149,10 +162,6 @@ export default function ProgramNew() {
     setHtmlContent(rawContent);
     console.log(rawContent);
   }, [editorState]);
-
-  const show = () => {
-    setShowEditorState(!showEditorState);
-  };
 
   const reset = () => {
     setName("");
@@ -396,34 +405,28 @@ export default function ProgramNew() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li onClick={() => show()}>
-                {showEditorState ? (
-                  <img src={glazikBlack} alt="glazikBlack" />
-                ) : (
-                  <img src={glazikInvisible} alt="glazikInvisible" />
-                )}
-                Информация
-              </li>
               <li>
-                <img src={glazikInvisible} alt="glazikInvisible" />
+                <img src={glazikBlack} alt="glazikBlack" />
                 Продукт
               </li>
               <li>
-                <img src={glazikInvisible} alt="glazikInvisible" /> Показатели
+                <img src={glazikBlack} alt="glazikBlack" /> Задача
               </li>
-              <li>
-                <img src={glazikInvisible} alt="glazikInvisible" />{" "}
-                Организационные мероприятия
-              </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Правила и
-                ограничения{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Задачи{" "}
-              </li>
+
+              {Object.keys(showTable).map((key) => {
+                const { isShow, setIsShow } = showTable[key];
+                return (
+                  <li onClick={() => setIsShow(!isShow)}>
+                    {isShow ? (
+                      <img src={glazikBlack} alt="glazikBlack" />
+                    ) : (
+                      <img src={glazikInvisible} alt="glazikInvisible" />
+                    )}
+
+                    {key}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -459,45 +462,51 @@ export default function ProgramNew() {
                   }
                 ></HandlerMutation>
 
-                {showEditorState ? (
-                  <MyEditor
-                    editorState={editorState}
-                    setEditorState={setEditorState}
-                  />
+                {tasks.length > 0 ? (
+                  <>
+                    {Object.keys(nameTable).map((key) => {
+                      const { array, setArray, isShow } = nameTable[key]; // Деструктурируем данные
+                      return (
+                        isShow && (
+                          <TableProject
+                            key={key}
+                            nameTable={key}
+                            add={add}
+                            deleteRow={deleteRow}
+                            array={array}
+                            setArray={setArray}
+                            workers={workers}
+                            createProgram={true}
+                            handleCheckBox={handleCheckBox}
+                            disabledProject={true}
+                          />
+                        )
+                      );
+                    })}
+
+                    {showInformation && (
+                      <MyEditor
+                        editorState={editorState}
+                        setEditorState={setEditorState}
+                      />
+                    )}
+                  </>
                 ) : (
                   <>
-                    {tasks.length > 0 ? (
-                      <>
-                        {Object.keys(nameTable).map((key) => {
-                          const { array, setArray } = nameTable[key]; // Деструктурируем данные
-                          return (
-                            <TableProject
-                              key={key}
-                              nameTable={key}
-                              add={add}
-                              deleteRow={deleteRow}
-                              array={array}
-                              setArray={setArray}
-                              workers={workers}
-                              createProgram={true}
-                              handleCheckBox={handleCheckBox}
-                              disabledProject={true}
-                            />
-                          );
-                        })}
-                      </>
-                    ) : (
-                      <>
-                        <div className={classes.noProjects}>
-                          <span className={classes.textMontserrat}>
-                            Нету проектов для создания программ
-                          </span>
-                          <button onClick={() => goToCreateProject()} className={classes.createProgramm}>
-                           <img src={iconAddProjectBlue} alt="iconAddProjectBlue" />
-                          </button>
-                        </div>
-                      </>
-                    )}
+                    <div className={classes.noProjects}>
+                      <span className={classes.textMontserrat}>
+                        Нету проектов для создания программ
+                      </span>
+                      <button
+                        onClick={() => goToCreateProject()}
+                        className={classes.createProgramm}
+                      >
+                        <img
+                          src={iconAddProjectBlue}
+                          alt="iconAddProjectBlue"
+                        />
+                      </button>
+                    </div>
                   </>
                 )}
               </>

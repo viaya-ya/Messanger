@@ -23,6 +23,7 @@ import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import styles from "../../Custom/CommonStyles.module.css";
 import { useDispatch } from "react-redux";
 import { setPolicyCreatedId } from "../../../BLL/policySlice.js";
+import Mdxeditor from "../../Custom/Mdxeditor/Mdxeditor.jsx";
 
 export default function NewPolicy() {
   const navigate = useNavigate();
@@ -31,14 +32,15 @@ export default function NewPolicy() {
   };
 
   const { userId } = useParams();
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
+  const [editorState, setEditorState] = useState("");
+  // const [htmlContent, setHtmlContent] = useState();
   const [policyName, setPolicyName] = useState("Политика");
   const [type, setType] = useState("Директива");
   const [state, setState] = useState("Черновик");
   const [organizationId, setOrganizationId] = useState("");
 
   const dispatch = useDispatch();
+  
   const {
     organizations = [],
     isLoadingNewPolicies,
@@ -61,13 +63,12 @@ export default function NewPolicy() {
     },
   ] = usePostPoliciesMutation();
 
-  useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-    console.log(rawContent);
-  }, [editorState]);
+  // useEffect(() => {
+  //   const rawContent = draftToHtml(
+  //     convertToRaw(editorState.getCurrentContent())
+  //   );
+  //   setHtmlContent(rawContent);
+  // }, [editorState]);
 
   const successCreatePolicy = (id) => {
     dispatch(setPolicyCreatedId(id));
@@ -79,7 +80,7 @@ export default function NewPolicy() {
     setType("Директива");
     setState("Черновик");
     setOrganizationId("");
-    setEditorState(EditorState.createEmpty());
+    // setEditorState(EditorState.createEmpty());
   };
 
   const savePolicy = async () => {
@@ -95,7 +96,8 @@ export default function NewPolicy() {
     await postPolicy({
       userId,
       policyName: policyName,
-      content: htmlContent,
+      // content: htmlContent,
+      content: editorState,
       ...Data,
       organizationId: organizationId,
     })
@@ -266,11 +268,17 @@ export default function NewPolicy() {
               <HandlerQeury Loading={isLoadingNewPolicies}></HandlerQeury>
             ) : (
               <>
-                <MyEditor
+              <Mdxeditor
+               editorState={editorState}
+               setEditorState={setEditorState}
+              ></Mdxeditor>
+
+                {/* <MyEditor
                   editorState={editorState}
                   setEditorState={setEditorState}
                   policyContent={true}
-                />
+                /> */}
+
                 <HandlerMutation
                   Loading={isLoadingPostPoliciesMutation}
                   Error={isErrorPostPoliciesMutation}

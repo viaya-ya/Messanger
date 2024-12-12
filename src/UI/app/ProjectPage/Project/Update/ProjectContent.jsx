@@ -23,6 +23,7 @@ import { convertToRaw } from "draft-js";
 import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useSelector } from "react-redux";
+import Lupa from "../../../../Custom/Lupa/Lupa.jsx";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -53,7 +54,21 @@ export default function ProjectContent() {
   // Все для Editor
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
-  const [showEditorState, setShowEditorState] = useState(false);
+
+  const [showEvent, setShowEvent] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [showInformation, setShowInformation] = useState(false);
+
+  const showTable = {
+    "Организационные мероприятия": {
+      isShow: showEvent,
+      setIsShow: setShowEvent,
+    },
+    Правила: { isShow: showRules, setIsShow: setShowRules },
+    Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+  };
 
   // Для создание массивов хуйни
   const [eventCreate, setEventCreate] = useState([]);
@@ -75,22 +90,44 @@ export default function ProjectContent() {
   const [disabledTable, setDisabledTable] = useState(false);
 
   const nameTableRecieved = {
-    Продукт: { array: products, setArray: setProducts },
-    "Организационные мероприятия": { array: event, setArray: setEvent },
-    Правила: { array: rules, setArray: setRules },
-    Обычная: { array: tasks, setArray: setTasks },
-    Статистика: { array: statistics, setArray: setStatistics },
+    Продукт: { array: products, setArray: setProducts, isShow: true },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
+
+    "Организационные мероприятия": {
+      array: event,
+      setArray: setEvent,
+      isShow: showEvent,
+    },
+    Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Статистика: {
+      array: statistics,
+      setArray: setStatistics,
+      isShow: showStatistics,
+    },
   };
 
   const nameTableCreated = {
+    Обычная: {
+      _array: tasksCreate,
+      _setArray: setTaskCreate,
+    },
+
     "Организационные мероприятия": {
       _array: eventCreate,
       _setArray: setEventCreate,
     },
-    Правила: { _array: rulesCreate, _setArray: setRulesCreate },
-    Обычная: { _array: tasksCreate, _setArray: setTaskCreate },
-    Статистика: { _array: statisticsCreate, _setArray: setStatisticsCreate },
+    Правила: {
+      _array: rulesCreate,
+      _setArray: setRulesCreate,
+    },
+    Статистика: {
+      _array: statisticsCreate,
+      _setArray: setStatisticsCreate,
+    },
   };
+
+  //Лупа
+  const [isOpenSearch, setIsOpenSearch] = useState(false);
 
   const {
     projects = [],
@@ -167,24 +204,19 @@ export default function ProjectContent() {
     },
   ] = useUpdateProjectMutation();
 
-
-
   // После создания нового проекта он открывается
-  const projectCreatedId = useSelector(state => state.project.projectCreatedId);
-  const organizationProjectId = useSelector(state => state.project.organizationProjectId);
+  const projectCreatedId = useSelector(
+    (state) => state.project.projectCreatedId
+  );
+  const organizationProjectId = useSelector(
+    (state) => state.project.organizationProjectId
+  );
 
   useEffect(() => {
-    if(organizationProjectId){
+    if (organizationProjectId) {
       setOrganizationId(organizationProjectId);
     }
-  },[]);
-
-
-  // Для показа информации о проекте
-  const show = () => {
-    setShowEditorState(!showEditorState);
-  };
-  // Конец показа
+  }, []);
 
   // Обновление html contenta у Editora
   useEffect(() => {
@@ -193,50 +225,12 @@ export default function ProjectContent() {
     );
     setHtmlContent(rawContent);
   }, [editorState]);
-  // Конец обновления
-
-  // После выбора другой организации обнуляю все переменные
-  // useEffect(() => {
-  //   if (organizationId) {
-  //     setSelectedProjectId("");
-
-  //     setProducts([]);
-  //     setEvent([]);
-  //     setRules([]);
-  //     setTasks([]);
-  //     setStatistics([]);
-
-  //     setEventCreate([]);
-  //     setRulesCreate([]);
-  //     setTaskCreate([]);
-  //     setStatisticsCreate([]);
-
-  //     setHtmlContent();
-  //     setEditorState(EditorState.createEmpty());
-  //   }
-  // }, [organizationId]);
-
-  // Для правильных данный на основе хреновой тучи сортировки массивов (sortStrategies и sortPrograms)
-  // useEffect(() => {
-  //   if (organizationId) {
-  //     const filteredStrategies = strategies?.filter(
-  //       (strategy) => strategy?.organization?.id === organizationId
-  //     );
-  //     setSortStrategies(filteredStrategies);
-
-  //     const filteredPrograms = programs?.filter(
-  //       (program) => program?.organization?.id === organizationId
-  //     );
-  //     setSortPrograms(filteredPrograms);
-  //     setSelectedProjectId(projectCreatedId);//Для открытия созданного нового проекта
-  //   }
-  // }, [organizationId]);
 
   useEffect(() => {
     if (organizationId) {
       // Сброс переменных
       setSelectedProjectId(""); // Сначала сбросить проект
-      
+
       setStrategy("null");
       setProgramId("null");
 
@@ -245,29 +239,29 @@ export default function ProjectContent() {
       setRules([]);
       setTasks([]);
       setStatistics([]);
-  
+
       setEventCreate([]);
       setRulesCreate([]);
       setTaskCreate([]);
       setStatisticsCreate([]);
-  
+
       setHtmlContent();
       setEditorState(EditorState.createEmpty());
-  
+
       // Фильтрация массивов
       const filteredStrategies = strategies?.filter(
         (strategy) => strategy?.organization?.id === organizationId
       );
       setSortStrategies(filteredStrategies);
-  
+
       const filteredPrograms = programs?.filter(
         (program) => program?.organization?.id === organizationId
       );
       setSortPrograms(filteredPrograms);
-  
+
       // Установить новый проект
-      if(projectCreatedId){
-         setSelectedProjectId(projectCreatedId);
+      if (projectCreatedId) {
+        setSelectedProjectId(projectCreatedId);
       }
       // Для открытия созданного нового проекта
     }
@@ -284,7 +278,6 @@ export default function ProjectContent() {
       setDisabledStrategy(false);
     }
   }, [programId]);
-  
 
   // Начальная инициализация данных при открытии по id
   useEffect(() => {
@@ -329,6 +322,7 @@ export default function ProjectContent() {
         targets
           .filter((item) => item.type === "Продукт")
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
+          .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
       setEvent(
@@ -348,8 +342,8 @@ export default function ProjectContent() {
       setTasks(
         targets
           .filter((item) => item.type === "Обычная")
-          .sort((a, b) => a.orderNumber - b.orderNumber)
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
+          .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
       setStatistics(
@@ -361,15 +355,13 @@ export default function ProjectContent() {
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
 
-
-// Сброс данных
+  // Сброс данных
   const reset = () => {
     setEventCreate([]);
     setRulesCreate([]);
     setTaskCreate([]);
     setStatisticsCreate([]);
   };
-  
 
   // Сохранение изменений
   const saveUpdateProject = async () => {
@@ -380,6 +372,11 @@ export default function ProjectContent() {
     Data.type = "Проект";
 
     // Проверки на изменения и отсутствие null
+
+    if (projectName !== currentProject.projectName) {
+      Data.projectName = projectName;
+    }
+
     if (strategy !== currentProject.strategyId) {
       Data.strategyId = strategy === "null" ? null : strategy;
     }
@@ -395,48 +392,6 @@ export default function ProjectContent() {
     if (products.length > 0) {
       Data.targetUpdateDtos = [
         ...products.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
-    }
-    if (event.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...event.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
-    }
-    if (rules.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...rules.map(
           ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
             if (holderUserId === holderUserIdchange) {
               return {
@@ -475,47 +430,70 @@ export default function ProjectContent() {
         ),
       ];
     }
+    if (event.length > 0) {
+      const array = event.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
+    }
+    if (rules.length > 0) {
+      const array = rules.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
+    }
     if (statistics.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...statistics.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
+      const array = statistics.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
     }
 
     if (eventCreate.length > 0) {
-      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }) => rest)];
+      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: event.length + index + 1}))];
     }
     if (rulesCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...rulesCreate.map(({ id, ...rest }) => rest),
+        ...rulesCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: rules.length + index + 1})),
       ];
     }
     if (tasksCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...tasksCreate.map(({ id, ...rest }) => rest),
+        ...tasksCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: tasks.length + index + 1})),
       ];
     }
     if (statisticsCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...statisticsCreate.map(({ id, ...rest }) => rest),
+        ...statisticsCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: statistics.length + index + 1})),
       ];
     }
 
@@ -541,15 +519,13 @@ export default function ProjectContent() {
       });
   };
 
-
   // Методы для таблиц
   const add = (name) => {
     const data = nameTableCreated[name];
     const { _array, _setArray } = data;
-
+  
     _setArray((prevState) => {
-      const index = prevState.length + 1; // Генерация index на основе длины массива
-
+      const index = prevState.length + 1;
       return [
         ...prevState,
         {
@@ -576,12 +552,24 @@ export default function ProjectContent() {
     _setArray(updated);
   };
 
-
-  const disabledFieldsArchive = () => {
-    setDisabledProgramId(true);
-    setDisabledStrategy(true);
-    setDisabledTable(true);
+  const disabledFieldsArchive = (state) => {
+    setDisabledProgramId(state);
+    setDisabledStrategy(state);
+    setDisabledTable(state);
   };
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      setManualSuccessReset(true);
+      setManualErrorReset(true);
+
+      if (archivesProjects.some((item) => item.id === selectedProjectId)) {
+        disabledFieldsArchive(true);
+      } else {
+        disabledFieldsArchive(false);
+      }
+    }
+  }, [selectedProjectId]);
 
   return (
     <div className={classes.dialog}>
@@ -645,7 +633,28 @@ export default function ProjectContent() {
               <div className={classes.itemName}>
                 <span>Выберите проект</span>
               </div>
+
               <div className={classes.div}>
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={(e) => {
+                    setProjectName(e.target.value);
+                  }}
+                  className={classes.select}
+                />
+                <Lupa
+                  setIsOpenSearch={setIsOpenSearch}
+                  isOpenSearch={isOpenSearch}
+                  select={setSelectedProjectId}
+                  projects={projects}
+                  archivesProjects={archivesProjects}
+                  projectsWithProgram={projectsWithProgram}
+                  archivesProjectsWithProgram={archivesProjectsWithProgram}
+                ></Lupa>
+              </div>
+
+              {/* <div className={classes.div}>
                 <select
                   className={classes.select}
                   value={selectedProjectId}
@@ -742,7 +751,7 @@ export default function ProjectContent() {
                     );
                   })}
                 </select>
-              </div>
+              </div> */}
             </div>
           )}
 
@@ -810,32 +819,28 @@ export default function ProjectContent() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li onClick={() => show()}>
-                {showEditorState ? (
-                  <img src={glazikBlack} alt="glazikBlack" />
-                ) : (
-                  <img src={glazikInvisible} alt="glazikInvisible" />
-                )}
-                Информация
-              </li>
               <li>
-                <img src={glazikInvisible} alt="glazikInvisible" />
+                <img src={glazikBlack} alt="glazikBlack" />
                 Продукт
               </li>
               <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" />{" "}
-                Организационные мероприятия
+                <img src={glazikBlack} alt="glazikBlack" /> Задача
               </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Правила и
-                ограничения{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Задачи{" "}
-              </li>
+
+              {Object.keys(showTable).map((key) => {
+                const { isShow, setIsShow } = showTable[key];
+                return (
+                  <li onClick={() => setIsShow(!isShow)}>
+                    {isShow ? (
+                      <img src={glazikBlack} alt="glazikBlack" />
+                    ) : (
+                      <img src={glazikInvisible} alt="glazikInvisible" />
+                    )}
+
+                    {key}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -863,12 +868,15 @@ export default function ProjectContent() {
       <div className={classes.main}>
         {isErrorGetProject || isErrorGetNew ? (
           <>
-            <HandlerQeury Error={isErrorGetProject || isErrorGetNew}></HandlerQeury>
+            <HandlerQeury
+              Error={isErrorGetProject || isErrorGetNew}
+            ></HandlerQeury>
           </>
         ) : (
           <>
-
-        <HandlerQeury Loading={isLoadingGetProject || isLoadingGetNew}></HandlerQeury>
+            <HandlerQeury
+              Loading={isLoadingGetProject || isLoadingGetNew}
+            ></HandlerQeury>
 
             {isErrorGetProjectId ? (
               <HandlerQeury Error={isErrorGetProjectId}></HandlerQeury>
@@ -883,37 +891,37 @@ export default function ProjectContent() {
                   <>
                     {currentProject.id ? (
                       <>
-                        {showEditorState ? (
+                        {Object.keys(nameTableRecieved).map((key) => {
+                          const { array, setArray, isShow } =
+                            nameTableRecieved[key];
+
+                          const { _array = [], _setArray = () => {} } =
+                            nameTableCreated[key] || {};
+
+                          return (
+                            isShow && (
+                              <TableProject
+                                tableKey={key}
+                                nameTable={key}
+                                add={add}
+                                array={array}
+                                setArray={setArray}
+                                _array={_array}
+                                _setArray={_setArray}
+                                workers={workers}
+                                deleteRow={deleteRow}
+                                disabledTable={disabledTable}
+                                updateProject={true}
+                              />
+                            )
+                          );
+                        })}
+
+                        {showInformation && (
                           <MyEditor
                             editorState={editorState}
                             setEditorState={setEditorState}
                           />
-                        ) : (
-                          <>
-                            {Object.keys(nameTableRecieved).map((key) => {
-                              const { array, setArray } =
-                                nameTableRecieved[key];
-
-                              const { _array = [], _setArray = () => {} } =
-                                nameTableCreated[key] || {};
-
-                              return (
-                                <TableProject
-                                  tableKey={key}
-                                  nameTable={key}
-                                  add={add}
-                                  array={array}
-                                  setArray={setArray}
-                                  _array={_array}
-                                  _setArray={_setArray}
-                                  workers={workers}
-                                  deleteRow={deleteRow}
-                                  disabledTable={disabledTable}
-                                  updateProject={true}
-                                />
-                              );
-                            })}
-                          </>
                         )}
 
                         <HandlerMutation

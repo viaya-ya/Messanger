@@ -20,14 +20,12 @@ import { convertToRaw } from "draft-js";
 import MyEditor from "../../Custom/MyEditor";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 
 export default function SpeedGoalContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => navigate(`/${userId}/start`);
-  // const newSpeedGoal = () => navigate("new");
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [nameStrateg, setNameStrateg] = useState("");
@@ -42,7 +40,6 @@ export default function SpeedGoalContent() {
   const [htmlContent, setHtmlContent] = useState([]);
   const [htmlSituation, setHtmlSituation] = useState([]);
   const [htmlRootCause, setHtmlRootCause] = useState([]);
-
 
   const {
     activeAndDraftStrategies = [],
@@ -161,20 +158,6 @@ export default function SpeedGoalContent() {
     }
   }, [currentSpeedGoal]);
 
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === "Enter" && event.ctrlKey) {
-        addEditor();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, []);
-
   const saveUpdateSpeedGoal = async () => {
     await updateSpeedGoal({
       userId,
@@ -194,31 +177,6 @@ export default function SpeedGoalContent() {
         setManualErrorReset(false);
         console.error("Error:", JSON.stringify(error, null, 2));
       });
-  };
-
-  const addEditor = () => {
-    switch (activeIndex) {
-      case 0:
-        setContentEditors((prevEditors) => [
-          ...prevEditors,
-          EditorState.createEmpty(),
-        ]);
-        break;
-      case 1:
-        setSituationEditors((prevEditors) => [
-          ...prevEditors,
-          EditorState.createEmpty(),
-        ]);
-        break;
-      case 2:
-        setRootCauseEditors((prevEditors) => [
-          ...prevEditors,
-          EditorState.createEmpty(),
-        ]);
-        break;
-      default:
-        break;
-    }
   };
 
   const handleEditorChange = (index, newState, type) => {
@@ -241,71 +199,6 @@ export default function SpeedGoalContent() {
         setRootCauseEditors((prevEditors) => {
           const updated = [...prevEditors];
           updated[index] = newState;
-          return updated;
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const onDragEnd = (result, type) => {
-    const { source, destination } = result;
-
-    if (!destination) {
-      return;
-    }
-
-    switch (type) {
-      case "content":
-        const contentState = contentEditors.map((state) => {
-          return EditorState.createWithContent(state.getCurrentContent());
-        });
-        const [contentItem] = contentState.splice(source.index, 1);
-        contentState.splice(destination.index, 0, contentItem);
-        setContentEditors(contentState);
-        break;
-      case "situation":
-        const situationState = situationEditors.map((state) => {
-          return EditorState.createWithContent(state.getCurrentContent());
-        });
-        const [situationItem] = situationState.splice(source.index, 1);
-        situationState.splice(destination.index, 0, situationItem);
-        setSituationEditors(situationState);
-        break;
-      case "rootCause":
-        const rootCauseState = rootCauseEditors.map((state) => {
-          return EditorState.createWithContent(state.getCurrentContent());
-        });
-        const [rootCauseItem] = rootCauseState.splice(source.index, 1);
-        rootCauseState.splice(destination.index, 0, rootCauseItem);
-        setRootCauseEditors(rootCauseState);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const deleteEditor = (index, type) => {
-    switch (type) {
-      case "content":
-        setContentEditors((prevEditors) => {
-          const updated = [...prevEditors];
-          updated.splice(index, 1); // Remove the editor at the specified index
-          return updated;
-        });
-        break;
-      case "situation":
-        setSituationEditors((prevEditors) => {
-          const updated = [...prevEditors];
-          updated.splice(index, 1); // Remove the editor at the specified index
-          return updated;
-        });
-        break;
-      case "rootCause":
-        setRootCauseEditors((prevEditors) => {
-          const updated = [...prevEditors];
-          updated.splice(index, 1); // Remove the editor at the specified index
           return updated;
         });
         break;
@@ -375,12 +268,12 @@ export default function SpeedGoalContent() {
                 getSpeedGoalId(e.target.value);
               }}
               className={`${classes.select} ${
-               currentSpeedGoal?.strategy?.state === "Активный"
-                     ? classes.activeSelect
-                     : currentSpeedGoal?.strategy?.state === "Завершено"
-                     ? classes.completed
-                     : classes.draft
-                 }`}
+                currentSpeedGoal?.strategy?.state === "Активный"
+                  ? classes.activeSelect
+                  : currentSpeedGoal?.strategy?.state === "Завершено"
+                  ? classes.completed
+                  : classes.draft
+              }`}
             >
               <option value="" disabled>
                 Выберите стратегию
@@ -390,14 +283,20 @@ export default function SpeedGoalContent() {
                   key={index}
                   value={item?.id}
                   className={`${
-                    item.state === "Активный" ? classes.activeSelect : classes.draft
+                    item.state === "Активный"
+                      ? classes.activeSelect
+                      : classes.draft
                   }`}
                 >
                   Стратегия №{item?.strategyNumber}
                 </option>
               ))}
               {archiveStrategies?.map((item, index) => (
-                <option key={index} value={item?.id}  className={`${classes.completed} `}>
+                <option
+                  key={index}
+                  value={item?.id}
+                  className={`${classes.completed} `}
+                >
                   Стратегия №{item?.strategyNumber}
                 </option>
               ))}
@@ -457,166 +356,47 @@ export default function SpeedGoalContent() {
             {currentSpeedGoal.id ? (
               <>
                 {activeIndex === 0 && (
-                  <DragDropContext
-                    onDragEnd={(result) => onDragEnd(result, "content")}
-                  >
-                    <Droppable droppableId="editorList">
-                      {(provided) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                          className={classes.droppableContainer}
-                        >
-                          {contentEditors.map((item, index) => (
-                            <Draggable
-                              key={index}
-                              draggableId={`content-item-${index}`}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={classes.editorContainer}
-                                >
-                                  <MyEditor
-                                    key={index}
-                                    editorState={item}
-                                    setEditorState={(newState) =>
-                                      handleEditorChange(
-                                        index,
-                                        newState,
-                                        "content"
-                                      )
-                                    }
-                                  />
-                                  <img
-                                    src={deleteImage}
-                                    alt="deleteImage"
-                                    className={classes.deleteIcon}
-                                    onClick={() =>
-                                      deleteEditor(index, "content")
-                                    } // Передаём тип content
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
+                  <>
+                    {contentEditors.map((item, index) => (
+                      <MyEditor
+                        key={index}
+                        editorState={item}
+                        setEditorState={(newState) =>
+                          handleEditorChange(index, newState, "content")
+                        }
+                      />
+                    ))}
+                  </>
                 )}
 
                 {activeIndex === 1 && (
-                  <DragDropContext
-                    onDragEnd={(result) => onDragEnd(result, "situation")}
-                  >
-                    <Droppable droppableId="editorList">
-                      {(provided) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                          className={classes.droppableContainer}
-                        >
-                          {situationEditors.map((item, index) => (
-                            <Draggable
-                              key={index}
-                              draggableId={`situation-item-${index}`}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={classes.editorContainer}
-                                >
-                                  <MyEditor
-                                    key={index}
-                                    editorState={item}
-                                    setEditorState={(newState) =>
-                                      handleEditorChange(
-                                        index,
-                                        newState,
-                                        "situation"
-                                      )
-                                    }
-                                  />
-                                  <img
-                                    src={deleteImage}
-                                    alt="deleteImage"
-                                    className={classes.deleteIcon}
-                                    onClick={() =>
-                                      deleteEditor(index, "situation")
-                                    } // Передаём тип content
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
+                  <>
+                    {situationEditors.map((item, index) => (
+                      <MyEditor
+                        key={index}
+                        editorState={item}
+                        setEditorState={(newState) =>
+                          handleEditorChange(index, newState, "situation")
+                        }
+                      />
+                    ))}
+                  </>
                 )}
 
                 {activeIndex === 2 && (
-                  <DragDropContext
-                    onDragEnd={(result) => onDragEnd(result, "rootCause")}
-                  >
-                    <Droppable droppableId="editorList">
-                      {(provided) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                          className={classes.droppableContainer}
-                        >
-                          {rootCauseEditors.map((item, index) => (
-                            <Draggable
-                              key={index}
-                              draggableId={`rootCause-item-${index}`}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={classes.editorContainer}
-                                >
-                                  <MyEditor
-                                    key={index}
-                                    editorState={item}
-                                    setEditorState={(newState) =>
-                                      handleEditorChange(
-                                        index,
-                                        newState,
-                                        "rootCause"
-                                      )
-                                    }
-                                  />
-                                  <img
-                                    src={deleteImage}
-                                    alt="deleteImage"
-                                    className={classes.deleteIcon}
-                                    onClick={() =>
-                                      deleteEditor(index, "rootCause")
-                                    } // Передаём тип content
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
+                   <>
+                   {rootCauseEditors.map((item, index) => (
+                     <MyEditor
+                       key={index}
+                       editorState={item}
+                       setEditorState={(newState) =>
+                        handleEditorChange(index, newState, "rootCause")
+                       }
+                     />
+                   ))}
+                 </>
                 )}
+
                 <HandlerMutation
                   Loading={isLoadingUpdateSpeedGoalMutation}
                   Error={isErrorUpdateSpeedGoalMutation && !manualErrorReset}
@@ -630,31 +410,6 @@ export default function SpeedGoalContent() {
                       : Error?.data?.message
                   }
                 />
-                {Object.keys(currentSpeedGoal).length > 0 && (
-                  <button className={classes.add} onClick={addEditor}>
-                    <svg
-                      width="19.998047"
-                      height="20.000000"
-                      viewBox="0 0 19.998 20"
-                      fill="none"
-                    >
-                      <defs />
-                      <path
-                        id="Vector"
-                        d="M10 20C4.47 19.99 0 15.52 0 10L0 9.8C0.1 4.3 4.63 -0.08 10.13 0C15.62 0.07 20.03 4.56 19.99 10.06C19.96 15.56 15.49 19.99 10 20ZM5 9L5 11L9 11L9 15L11 15L11 11L15 11L15 9L11 9L11 5L9 5L9 9L5 9Z"
-                        fill="#B4B4B4"
-                        fill-opacity="1.000000"
-                        fill-rule="nonzero"
-                      />
-                    </svg>
-
-                    <div>
-                      <span className={classes.nameButton}>
-                        Добавить еще одну цель (Ctrl+Enter)
-                      </span>
-                    </div>
-                  </button>
-                )}
               </>
             ) : (
               <>

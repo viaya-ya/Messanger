@@ -101,6 +101,7 @@ export const policyApi = createApi({
       }),
       // Обновляем теги, чтобы перезагрузить getPoliciesId
       invalidatesTags: (result, error, { policyId }) => [
+        { type: "Policy", id: "LIST" },
         { type: "Policy", id: policyId },
       ],
     }),

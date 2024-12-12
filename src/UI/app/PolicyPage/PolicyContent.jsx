@@ -36,6 +36,7 @@ import {
 import styles from "../../Custom/CommonStyles.module.css";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import { useSelector } from "react-redux";
+import Mdxeditor from "../../Custom/Mdxeditor/Mdxeditor.jsx";
 
 export default function PolicyContent() {
   const navigate = useNavigate();
@@ -47,8 +48,10 @@ export default function PolicyContent() {
   };
   const { userId } = useParams();
   const policyCreatedId = useSelector((state) => state.policy.policyCreatedId);
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
+
+  const [editorState, setEditorState] = useState("");
+
+
   const [isOpenSearch, setIsOpenSearch] = useState(false);
   const [selectedPolicyId, setSelectedPolicyId] = useState(null);
   const [policyName, setPolicyName] = useState(null);
@@ -228,26 +231,19 @@ export default function PolicyContent() {
   }, []);
 
   useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-    // console.log(rawContent);
-  }, [editorState]);
-
-  useEffect(() => {
-    if (currentPolicy.content) {
-      const { contentBlocks, entityMap } = convertFromHTML(
-        currentPolicy.content
-      );
-      const contentState = ContentState.createFromBlockArray(
-        contentBlocks,
-        entityMap
-      );
-      const oldEditorState = EditorState.createWithContent(contentState);
-      setEditorState(oldEditorState);
+    if(currentPolicy.policyName){
+      setPolicyName(currentPolicy.policyName);
     }
-  }, [currentPolicy.content]);
+    if(currentPolicy.type){
+      setType(currentPolicy.type);
+    }
+    if(currentPolicy.state){
+      setState(currentPolicy.state);
+    }
+    if (currentPolicy.content && currentPolicy.content !== editorState) {
+      setEditorState(currentPolicy.content); 
+    }
+  }, [currentPolicy.id]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -262,11 +258,6 @@ export default function PolicyContent() {
     };
   }, []);
 
-  const reset = () => {
-    setType(null);
-    setState(null);
-  };
-
   const saveUpdatePolicy = async () => {
     const Data = {};
 
@@ -279,8 +270,8 @@ export default function PolicyContent() {
     if (type !== null && currentPolicy.type !== type) {
       Data.type = type;
     }
-    if (htmlContent !== null && currentPolicy.content !== htmlContent) {
-      Data.content = htmlContent;
+    if (editorState !== null && currentPolicy.content !== editorState) {
+      Data.content = editorState;
     }
     if (
       organizationId !== "" &&
@@ -293,14 +284,11 @@ export default function PolicyContent() {
       policyId: selectedPolicyId,
       _id: userId,
       ...Data,
-      // policyToOrganizations: policyToOrganizations,
     })
       .unwrap()
       .then(() => {
-        // После успешного обновления сбрасываем флаги
-        reset();
         setManualSuccessReset(false);
-        setManualErrorReset(false);
+        setManualErrorReset(false);          
       })
       .catch((error) => {
         setManualErrorReset(false);
@@ -615,7 +603,8 @@ export default function PolicyContent() {
             <div className={classes.div}>
               <input
                 type="text"
-                value={policyName ? policyName : currentPolicy.policyName}
+                // value={policyName ? policyName : currentPolicy.policyName}
+                value={policyName}
                 onChange={(e) => setPolicyName(e.target.value)}
                 title="Название политики"
                 className={classes.textMontserrat14}
@@ -837,8 +826,7 @@ export default function PolicyContent() {
                           </div>
                           <ul className={classes.listULElement}>
                             {item.policyToPolicyDirectories?.map((element) => {
-                             
-                             const isInstruction =
+                              const isInstruction =
                                 element.policy.type === "Инструкция";
 
                               let instructionHeader = null;
@@ -914,7 +902,8 @@ export default function PolicyContent() {
                   <select
                     className={classes.select}
                     name="type"
-                    value={type || currentPolicy.type}
+                    // value={type || currentPolicy.type}
+                    value={type}
                     onChange={(e) => setType(e.target.value)}
                   >
                     <option value="Директива">Директива</option>
@@ -931,7 +920,8 @@ export default function PolicyContent() {
                   <select
                     className={classes.select}
                     name="state"
-                    value={state || currentPolicy.state}
+                    // value={state || currentPolicy.state}
+                    value={state}
                     onChange={(e) => setState(e.target.value)}
                   >
                     <option value="Черновик">Черновик</option>
@@ -967,12 +957,6 @@ export default function PolicyContent() {
                   </select>
                 </div>
               </div>
-
-              {/* <CustomSelect
-                organizations={organizations}
-                selectOrganizations={currentPolicy.policyToOrganizations}
-                setPolicyToOrganizations={setPolicyToOrganizations}
-              ></CustomSelect> */}
             </>
           ) : (
             <></>
@@ -1052,14 +1036,13 @@ export default function PolicyContent() {
                   <>
                     {currentPolicy.content ? (
                       <>
-                        <MyEditor
+                        <Mdxeditor
                           key={currentPolicy.id}
-                          editorState={editorState}
+                          editorState={currentPolicy.content}
                           setEditorState={setEditorState}
                           userId={userId}
                           policyId={selectedPolicyId}
-                          policyContent={true}
-                        />
+                        ></Mdxeditor>
 
                         <HandlerMutation
                           Loading={isLoadingUpdatePoliciesMutation}

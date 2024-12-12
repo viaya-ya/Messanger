@@ -10,7 +10,7 @@ import {url} from "../../../../BLL/baseUrl"
 // "http://localhost:5000/auth"
 // "https://24academy.ru/auth"
 
-const socket = io("https://24academy.ru/auth", {
+const socket = io( "http://localhost:5000/auth", {
   cors: {
     credentials: true
   },transports : ['websocket']
@@ -31,77 +31,6 @@ export default function Content() {
 
   const a = {_ip: "", _fingerprint: ""};
 
-  // useEffect(() => {
-  //   // Получение IP-адреса
-  //   fetch("https://api.ipify.org?format=json")
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       console.log("IP-адрес:", data.ip);
-  //       a._ip = data.ip;
-  //       setIp(data.ip);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Ошибка при получении IP-адреса:", error);
-  //     });
-
-  //   // Инициализация FingerprintJS
-  //   const fpPromise = FingerprintJS.load();
-  //   fpPromise
-  //     .then((fp) => fp.get())
-  //     .then((result) => {
-  //       const visitorId = result.visitorId;
-  //       console.log("Fingerprint ID:", visitorId);
-  //       a._fingerprint = visitorId;
-  //       setFingerprint(visitorId); // Сохраняем Fingerprint
-  //     })
-  //     .catch((error) => {
-  //       console.error("Ошибка при получении Fingerprint:", error);
-  //     });
-
-  //     console.log("1111111111111111111");
-  //     console.log(a._ip);
-  //     console.log("2222222222222222222");
-  //     console.log(a._fingerprint);
-
-  //   // Запрос к серверу для получения токена
-  //   fetch(`${url}?fingerprint=${a._fingerprint}&ip=${a._ip}`, {
-  //     method: "GET",
-  //     headers: {
-  //       "User-Agent": userAgent, // Отправляем User-Agent в заголовке
-  //     },
-  //   })
-  //     .then((response) => response.json()) // Обрабатываем ответ как JSON
-  //     .then((data) => {
-  //       if(data.isLogged){
-  //         window.location.href = `#/${data.userId}/start`;
-  //       }
-  //       console.log("Ответ от /", data);
-  //       console.log("tokenForTG", data.tokenForTG);
-  //       setTokenForTG(data.tokenForTG);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Ошибка при запросе /:", error);
-  //     });
-
-  //   // Подключение сокета и получение socketId
-  //   console.log("Попытка подключения к сокету...");
-  //   socket.on("connect", () => {
-  //     console.log("Сокет подключен, socket.id:", socket.id);
-  //     setSocketId(socket.id); // Сохраняем socket.id
-  //   });
-
-  //   socket.on("disconnect", () => {
-  //     console.log("Сокет отключен.");
-  //   });
-
-  //   // Очистка при размонтировании компонента
-  //   return () => {
-  //     console.log("Отключаем сокет...");
-  //     socket.off("connect");
-  //     socket.off("disconnect");
-  //     socket.disconnect(); // Закрываем соединение при размонтировании компонента
-  //   };
-  // }, []); 
   
   useEffect(() => {
     const fetchData = async () => {
@@ -198,7 +127,7 @@ export default function Content() {
 
   // Перенаправление на другую страницу при наличии userId
   useEffect(() => {
-    if (data.userId) {
+    if (data.userId !== "false") {
       window.location.href = `#/${data.userId}/start`;
     }
   }, [data]);

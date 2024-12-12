@@ -21,13 +21,15 @@ import draftToHtml from "draftjs-to-html"; // Импортируем конве�
 import { convertToRaw } from "draft-js";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useDispatch } from "react-redux";
-import { setProjectCreatedId, setProjectOrganizationId } from "../../../../../BLL/Project/Slice/projectSlice.js";
+import {
+  setProjectCreatedId,
+  setProjectOrganizationId,
+} from "../../../../../BLL/Project/Slice/projectSlice.js";
 
 export default function ProjectNew() {
-  
   const navigate = useNavigate();
   const { userId } = useParams();
-  
+
   const dispatch = useDispatch();
 
   const back = () => {
@@ -53,23 +55,52 @@ export default function ProjectNew() {
   ]);
   const [event, setEvent] = useState([]);
   const [rules, setRules] = useState([]);
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([
+    {
+      type: "Обычная",
+      orderNumber: 1,
+      content: "",
+      holderUserId: "",
+      deadline: "",
+    },
+  ]);
   const [statistics, setStatistics] = useState([]);
 
   const [organizationId, setOrganizationId] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [htmlContent, setHtmlContent] = useState();
-  const [showEditorState, setShowEditorState] = useState(false);
 
+  const [showEvent, setShowEvent] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [showInformation, setShowInformation] = useState(false);
+
+  const showTable = {
+    "Организационные мероприятия": {
+      isShow: showEvent,
+      setIsShow: setShowEvent,
+    },
+    Правила: { isShow: showRules, setIsShow: setShowRules },
+    Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+  };
   const [sortStrategies, setSortStrategies] = useState([]);
   const [sortPrograms, setSortPrograms] = useState([]);
 
   const nameTable = {
-    Продукт: { array: products, setArray: setProducts },
-    "Организационные мероприятия": { array: event, setArray: setEvent },
-    Правила: { array: rules, setArray: setRules },
-    Обычная: { array: tasks, setArray: setTasks },
-    Статистика: { array: statistics, setArray: setStatistics },
+    Продукт: { array: products, setArray: setProducts, isShow: true },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
+    "Организационные мероприятия": {
+      array: event,
+      setArray: setEvent,
+      isShow: showEvent,
+    },
+    Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Статистика: {
+      array: statistics,
+      setArray: setStatistics,
+      isShow: showStatistics,
+    },
   };
 
   const {
@@ -137,10 +168,6 @@ export default function ProjectNew() {
     }
   }, [programId]);
 
-  const show = () => {
-    setShowEditorState(!showEditorState);
-  };
-
   const reset = () => {
     setName("");
 
@@ -156,9 +183,17 @@ export default function ProjectNew() {
         deadline: "",
       },
     ]);
+    setTasks([
+      {
+        type: "Обычная",
+        orderNumber: 1,
+        content: "",
+        holderUserId: "",
+        deadline: "",
+      },
+    ]);
     setEvent([]);
     setRules([]);
-    setTasks([]);
     setStatistics([]);
 
     setHtmlContent(null);
@@ -169,11 +204,10 @@ export default function ProjectNew() {
     const Data = {};
     Data.targetCreateDtos = [];
 
-  
-      Data.projectName = name;
-      Data.type = "Проект";
-      Data.organizationId = organizationId;
- 
+    Data.projectName = name;
+    Data.type = "Проект";
+    Data.organizationId = organizationId;
+
     if (programId !== "null") {
       Data.programId = programId;
     }
@@ -183,14 +217,20 @@ export default function ProjectNew() {
     if (htmlContent !== null) {
       Data.content = htmlContent;
     }
-    if (event.length > 0 ) {
+    if (event.length > 0) {
       Data.targetCreateDtos = [...event.map(({ id, ...rest }) => rest)];
     }
-    if ( rules.length > 0) {
-      Data.targetCreateDtos = [...Data.targetCreateDtos, ...rules.map(({ id, ...rest }) => rest)];
+    if (rules.length > 0) {
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...rules.map(({ id, ...rest }) => rest),
+      ];
     }
     if (statistics.length > 0) {
-      Data.targetCreateDtos = [...Data.targetCreateDtos, ...statistics.map(({ id, ...rest }) => rest)];
+      Data.targetCreateDtos = [
+        ...Data.targetCreateDtos,
+        ...statistics.map(({ id, ...rest }) => rest),
+      ];
     }
     Data.targetCreateDtos = [
       ...Data.targetCreateDtos,
@@ -371,8 +411,6 @@ export default function ProjectNew() {
             </div>
           </div>
 
-    
-
           <div className={classes.blockSelect}>
             <img
               src={Listsetting}
@@ -381,37 +419,30 @@ export default function ProjectNew() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li onClick={() => show()}>
-                {showEditorState ? (
-                  <img src={glazikBlack} alt="glazikBlack" />
-                ) : (
-                  <img src={glazikInvisible} alt="glazikInvisible" />
-                )}
-                Информация
-              </li>
               <li>
-                <img src={glazikInvisible} alt="glazikInvisible" />
+                <img src={glazikBlack} alt="glazikBlack" />
                 Продукт
               </li>
               <li>
-                <img src={glazikInvisible} alt="glazikInvisible" /> Показатели
+                <img src={glazikBlack} alt="glazikBlack" /> Задача
               </li>
-              <li>
-                <img src={glazikInvisible} alt="glazikInvisible" />{" "}
-                Организационные мероприятия
-              </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Правила и
-                ограничения{" "}
-              </li>
-              <li>
-                {" "}
-                <img src={glazikInvisible} alt="glazikInvisible" /> Задачи{" "}
-              </li>
+
+              {Object.keys(showTable).map((key) => {
+                const { isShow, setIsShow } = showTable[key];
+                return (
+                  <li onClick={() => setIsShow(!isShow)}>
+                    {isShow ? (
+                      <img src={glazikBlack} alt="glazikBlack" />
+                    ) : (
+                      <img src={glazikInvisible} alt="glazikInvisible" />
+                    )}
+
+                    {key}
+                  </li>
+                );
+              })}
             </ul>
           </div>
-
 
           <div className={classes.iconSave}>
             <img
@@ -445,16 +476,11 @@ export default function ProjectNew() {
                   }
                 ></HandlerMutation>
 
-                {showEditorState ? (
-                  <MyEditor
-                    editorState={editorState}
-                    setEditorState={setEditorState}
-                  />
-                ) : (
-                  <>
-                    {Object.keys(nameTable).map((key) => {
-                      const { array, setArray } = nameTable[key]; // Деструктурируем данные
-                      return (
+         
+                  {Object.keys(nameTable).map((key) => {
+                    const { array, setArray, isShow } = nameTable[key]; // Деструктурируем данные
+                    return (
+                      isShow && (
                         <TableProject
                           key={key}
                           nameTable={key}
@@ -463,12 +489,18 @@ export default function ProjectNew() {
                           setArray={setArray}
                           workers={workers}
                           deleteRow={deleteRow}
-
-                          createProject = {true}
+                          createProject={true}
                         />
-                      );
-                    })}
-                  </>
+                      )
+                    );
+                  })}
+          
+
+                {showInformation && (
+                  <MyEditor
+                    editorState={editorState}
+                    setEditorState={setEditorState}
+                  />
                 )}
               </>
             )}

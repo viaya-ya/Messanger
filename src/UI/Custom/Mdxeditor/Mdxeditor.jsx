@@ -62,6 +62,7 @@ export default function Mdxeditor({ editorState, setEditorState, userId, policyI
     }
   };
 
+
   return (
     <div className={classes.wrapper}>
       <div className={classes.editorContainer}>

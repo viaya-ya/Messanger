@@ -11,7 +11,8 @@
   width: 100%;
   height: 100%;
   overflow: auto; /* Применяем прокрутку только для редактора */
-  /* padding: 5px; */
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .toolbar-custom {

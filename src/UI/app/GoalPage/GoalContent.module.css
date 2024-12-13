@@ -284,7 +284,7 @@
 .deleteIcon {
     position: absolute;
     /* Позиционируем элемент абсолютно */
-    top: -25px;
+    top: -10px;
     /* Расстояние от верхней части контейнера */
     right: -30px;
     /* Расстояние от правой части контейнера */
@@ -294,7 +294,7 @@
 
 .add {
     height: 50px;
-    width: 350px;
+    width: 400px;
     background-color: #ffff;
     border-radius: 10px;
     display: flex;

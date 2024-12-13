@@ -192,6 +192,7 @@
 }
 
 .productTeaxtaera:before {
+    top:10px;
     content: 'Продукт поста *';
     position: absolute;
     color: black;
@@ -209,6 +210,7 @@
 }
 
 .destinyTeaxtaera:before {
+    top:10px;
     content: 'Предназначение поста *';
     position: absolute;
     color: black;
@@ -222,7 +224,7 @@
     width: 50%;
     min-height: 10vh;
     background-color: #FFFFFF;
-    padding: 2%;
+    padding: 25px;
     resize: none;
     font-family: "Montserrat";
     font-size: 12px;
@@ -239,7 +241,7 @@ textarea::placeholder {
 
 .post {
     height: 5vh;
-    width: 50%;
+    width: 30%;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;

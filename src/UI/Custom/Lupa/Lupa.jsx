@@ -67,7 +67,7 @@ export default function Lupa({
 
           {archivesProjects?.map((item) => {
             return (
-              <li key={item.id} value={item.id} className={classes.li}>
+              <li key={item.id} value={item.id} className={classes.li} onClick={() => select(item.id)}>
                 {item.projectName}
               </li>
             );

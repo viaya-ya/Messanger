@@ -216,7 +216,8 @@
 }
 
 .productTeaxtaera:before {
-    content: 'Продукт поста';
+    top:10px;
+    content: 'Продукт поста *';
     position: absolute;
     color: black;
     font-weight: 600;
@@ -234,7 +235,8 @@
 }
 
 .destinyTeaxtaera:before {
-    content: 'Предназначение поста';
+    top:10px;
+    content: 'Предназначение поста *';
     position: absolute;
     color: black;
     font-weight: 600;
@@ -247,7 +249,7 @@
     width: 50%;
     min-height: 10vh;
     background-color: #FFFFFF;
-    padding: 2%;
+    padding: 25px;
     resize: none;
     font-family: "Montserrat";
     font-size: 12px;

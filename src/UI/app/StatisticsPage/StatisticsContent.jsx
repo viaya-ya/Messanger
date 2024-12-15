@@ -1492,6 +1492,8 @@ export default function StatisticsContent() {
         case 6:
           setShowReportDay("Суббота");
           break;
+          default:
+            break;
       }
     } else {
       switch (day) {
@@ -1516,6 +1518,8 @@ export default function StatisticsContent() {
         case 6:
           setShowReportDayComes("Суббота");
           break;
+          default:
+            break;
       }
     }
   };

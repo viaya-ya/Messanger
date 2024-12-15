@@ -154,7 +154,7 @@ export default function ProjectContent() {
     }
   );
 
-  // Пока что хуйня не все переменные использую
+  
   const {
     workers = [],
     strategies = [],
@@ -172,7 +172,7 @@ export default function ProjectContent() {
       isErrorGetNew: isError,
     }),
   });
-  // Конец хуйни
+
 
   const {
     currentProject = {},
@@ -377,11 +377,11 @@ export default function ProjectContent() {
       Data.projectName = projectName;
     }
 
-    if (strategy !== currentProject.strategyId) {
+    if (!(currentProject.strategy?.id === undefined && strategy === "null")) {
       Data.strategyId = strategy === "null" ? null : strategy;
     }
 
-    if (programId !== currentProject.programId) {
+    if (!(currentProject.programId === null && programId === "null")) {
       Data.programId = programId === "null" ? null : programId;
     }
 
@@ -410,26 +410,21 @@ export default function ProjectContent() {
       ];
     }
     if (tasks.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...tasks.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
+      const array = tasks.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
     }
+
     if (event.length > 0) {
       const array = event.map(
         (
@@ -563,7 +558,7 @@ export default function ProjectContent() {
       setManualSuccessReset(true);
       setManualErrorReset(true);
 
-      if (archivesProjects.some((item) => item.id === selectedProjectId)) {
+      if (archivesProjects.some((item) => item.id === selectedProjectId) || archivesProjectsWithProgram.some((item) => item.id === selectedProjectId)) {
         disabledFieldsArchive(true);
       } else {
         disabledFieldsArchive(false);
@@ -642,6 +637,7 @@ export default function ProjectContent() {
                     setProjectName(e.target.value);
                   }}
                   className={classes.select}
+                  disabled={disabledTable}
                 />
                 <Lupa
                   setIsOpenSearch={setIsOpenSearch}
@@ -653,105 +649,6 @@ export default function ProjectContent() {
                   archivesProjectsWithProgram={archivesProjectsWithProgram}
                 ></Lupa>
               </div>
-
-              {/* <div className={classes.div}>
-                <select
-                  className={classes.select}
-                  value={selectedProjectId}
-                  onChange={(e) => {
-                    setSelectedProjectId(e.target.value);
-                    setManualSuccessReset(true);
-                    setManualErrorReset(true);
-
-                    if (
-                      archivesProjects.some(
-                        (item) => item.id === e.target.value
-                      )
-                    ) {
-                      disabledFieldsArchive();
-                    } else {
-                      setDisabledProgramId(false);
-                      setDisabledStrategy(false);
-                      setDisabledTable(false);
-                    }
-                  }}
-                >
-                  <option value="" disabled>
-                    Выберите проект
-                  </option>
-                  {projects.length !== 0 && (
-                    <option
-                      value="Активные"
-                      disabled
-                      className={classes.activeText}
-                    >
-                      Активные
-                    </option>
-                  )}
-
-                  {projects?.map((item) => {
-                    return (
-                      <option key={item.id} value={item.id}>
-                        {item.projectName}
-                      </option>
-                    );
-                  })}
-
-                  {archivesProjects.length !== 0 && (
-                    <option
-                      value="Завершенные"
-                      disabled
-                      className={classes.completedText}
-                    >
-                      Завершенные
-                    </option>
-                  )}
-
-                  {archivesProjects?.map((item) => {
-                    return (
-                      <option key={item.id} value={item.id}>
-                        {item.projectName}
-                      </option>
-                    );
-                  })}
-
-                  {projectsWithProgram.length !== 0 && (
-                    <option
-                      value="Проекты с программами"
-                      disabled
-                      className={classes.activeText}
-                    >
-                      Проекты с программами
-                    </option>
-                  )}
-
-                  {projectsWithProgram?.map((item) => {
-                    return (
-                      <option key={item.id} value={item.id}>
-                        {item.projectName}
-                      </option>
-                    );
-                  })}
-
-                  {archivesProjectsWithProgram.length !== 0 && (
-                    <option
-                      value="Архивные проекты с программами"
-                      disabled
-                      className={classes.completedText}
-                    >
-                      Архивные проекты с программами
-                    </option>
-                  )}
-
-                  {archivesProjectsWithProgram?.map((item) => {
-                    return (
-                      <option key={item.id} value={item.id}>
-                        {item.projectName}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div> */}
             </div>
           )}
 
@@ -921,6 +818,7 @@ export default function ProjectContent() {
                           <MyEditor
                             editorState={editorState}
                             setEditorState={setEditorState}
+                            readOnly = {disabledTable}
                           />
                         )}
 

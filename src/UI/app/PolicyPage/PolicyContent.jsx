@@ -51,7 +51,6 @@ export default function PolicyContent() {
 
   const [editorState, setEditorState] = useState("");
 
-
   const [isOpenSearch, setIsOpenSearch] = useState(false);
   const [selectedPolicyId, setSelectedPolicyId] = useState(null);
   const [policyName, setPolicyName] = useState(null);
@@ -231,17 +230,17 @@ export default function PolicyContent() {
   }, []);
 
   useEffect(() => {
-    if(currentPolicy.policyName){
+    if (currentPolicy.policyName) {
       setPolicyName(currentPolicy.policyName);
     }
-    if(currentPolicy.type){
+    if (currentPolicy.type) {
       setType(currentPolicy.type);
     }
-    if(currentPolicy.state){
+    if (currentPolicy.state) {
       setState(currentPolicy.state);
     }
     if (currentPolicy.content && currentPolicy.content !== editorState) {
-      setEditorState(currentPolicy.content); 
+      setEditorState(currentPolicy.content);
     }
   }, [currentPolicy.id]);
 
@@ -288,7 +287,7 @@ export default function PolicyContent() {
       .unwrap()
       .then(() => {
         setManualSuccessReset(false);
-        setManualErrorReset(false);          
+        setManualErrorReset(false);
       })
       .catch((error) => {
         setManualErrorReset(false);
@@ -646,7 +645,10 @@ export default function PolicyContent() {
                             {directivesActive?.map((item) => (
                               <li
                                 key={item.id}
-                                onClick={() => getPolicyId(item.id)}
+                                onClick={() => {
+                                  getPolicyId(item.id);
+                                  setIsOpenSearch(false);
+                                }}
                                 className={classes.textMontserrat}
                               >
                                 {item.policyName}
@@ -673,7 +675,10 @@ export default function PolicyContent() {
                             {directivesDraft?.map((item) => (
                               <li
                                 key={item.id}
-                                onClick={() => getPolicyId(item.id)}
+                                onClick={() => {
+                                  getPolicyId(item.id);
+                                  setIsOpenSearch(false);
+                                }}
                                 className={classes.textMontserrat}
                               >
                                 {item.policyName}
@@ -700,7 +705,10 @@ export default function PolicyContent() {
                             {directivesCompleted?.map((item) => (
                               <li
                                 key={item.id}
-                                onClick={() => getPolicyId(item.id)}
+                                onClick={() => {
+                                  getPolicyId(item.id);
+                                  setIsOpenSearch(false);
+                                }}
                                 className={classes.textMontserrat}
                               >
                                 {item.policyName}
@@ -740,7 +748,10 @@ export default function PolicyContent() {
                             {instructionsActive?.map((item) => (
                               <li
                                 key={item.id}
-                                onClick={() => getPolicyId(item.id)}
+                                onClick={() => {
+                                  getPolicyId(item.id);
+                                  setIsOpenSearch(false);
+                                }}
                                 className={classes.textMontserrat}
                               >
                                 {item.policyName}
@@ -767,7 +778,10 @@ export default function PolicyContent() {
                             {instructionsDraft?.map((item) => (
                               <li
                                 key={item.id}
-                                onClick={() => getPolicyId(item.id)}
+                                onClick={() => {
+                                  getPolicyId(item.id);
+                                  setIsOpenSearch(false);
+                                }}
                                 className={classes.textMontserrat}
                               >
                                 {item.policyName}
@@ -794,7 +808,10 @@ export default function PolicyContent() {
                             {instructionsCompleted?.map((item) => (
                               <li
                                 key={item.id}
-                                onClick={() => getPolicyId(item.id)}
+                                onClick={() => {
+                                  getPolicyId(item.id);
+                                  setIsOpenSearch(false);
+                                }}
                                 className={classes.textMontserrat}
                               >
                                 {item.policyName}
@@ -865,9 +882,10 @@ export default function PolicyContent() {
                                   {directiveHeader}
                                   {instructionHeader}
                                   <li
-                                    onClick={() =>
-                                      getPolicyId(element.policy.id)
-                                    }
+                                    onClick={() => {
+                                      getPolicyId(element.policy.id);
+                                      setIsOpenSearch(false);
+                                    }}
                                     className={classes.textMontserrat}
                                   >
                                     {element.policy.policyName}

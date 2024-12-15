@@ -31,7 +31,6 @@ export default function TableProject({
   arraySelectProjects,
   openModal,
 }) {
-  
   const handleOnDragEnd = (result) => {
     const { source, destination } = result;
 
@@ -85,7 +84,7 @@ export default function TableProject({
               />
             )}
 
-          {updateProgramm && nameTable !== "Продукт" && (
+          {updateProgramm && !disabledTable && nameTable !== "Продукт" && (
             <img
               src={addCircle}
               alt={"addCircle"}
@@ -132,6 +131,11 @@ export default function TableProject({
                     key={index}
                     draggableId={`item-${index}`}
                     index={index}
+                    isDragDisabled={
+                      ((createProgram || updateProgramm) &&
+                        nameTable === "Обычная") ||
+                      disabledTable
+                    } // Условие для отключения drag
                   >
                     {(provided) => (
                       <tr
@@ -166,7 +170,6 @@ export default function TableProject({
                               setArray(updated);
                             }}
                             disabled={
-                              item?.isExpired ||
                               disabledTable ||
                               (disabledProject && nameTable === "Обычная")
                             }
@@ -185,7 +188,6 @@ export default function TableProject({
                             }}
                             className={classes.select}
                             disabled={
-                              item?.isExpired ||
                               disabledTable ||
                               (disabledProject && nameTable === "Обычная")
                             }
@@ -219,7 +221,6 @@ export default function TableProject({
                               setArray(updated);
                             }}
                             disabled={
-                              item?.isExpired ||
                               disabledTable ||
                               (disabledProject && nameTable === "Обычная")
                             }
@@ -232,7 +233,7 @@ export default function TableProject({
                         {createProgram && (
                           <>
                             {nameTable === "Обычная" ? (
-                              <td className={classes.deleteTableColumn}>
+                              <td className={classes.checkBox}>
                                 {nameTable !== "Продукт" && (
                                   <input
                                     type="checkbox"
@@ -285,7 +286,7 @@ export default function TableProject({
                                 setArray(updated);
                               }}
                               className={classes.select}
-                              disabled={item?.isExpired || disabledTable}
+                              disabled={disabledTable}
                             >
                               <option value="Активная">Активная</option>
                               <option value="Завершена">Завершена</option>
@@ -307,11 +308,7 @@ export default function TableProject({
                                   setArray(updated);
                                 }}
                                 className={classes.select}
-                                disabled={
-                                  item?.isExpired ||
-                                  disabledTable ||
-                                  (disabledProject && nameTable === "Обычная")
-                                }
+                                disabled={disabledTable}
                               >
                                 <option value="Активная">Активная</option>
                                 <option value="Завершена">Завершена</option>
@@ -320,7 +317,7 @@ export default function TableProject({
                             </td>
 
                             {nameTable === "Обычная" && (
-                              <td className={classes.deleteTableColumn}>
+                              <td className={classes.checkBox}>
                                 {nameTable !== "Продукт" && (
                                   <input
                                     type="checkbox"
@@ -330,6 +327,7 @@ export default function TableProject({
                                     onChange={() => {
                                       handleCheckBox(item.id);
                                     }}
+                                    disabled={disabledTable}
                                   />
                                 )}
                               </td>
@@ -431,7 +429,7 @@ export default function TableProject({
                               </>
                             ) : (
                               <>
-                                <td className={classes.nameTableColumn}>
+                                <td className={classes.nameTableColumn1}>
                                   <input
                                     type="text"
                                     value={item.content}
@@ -484,7 +482,7 @@ export default function TableProject({
                                   />
                                 </td>
 
-                                <td className={classes.deleteTableColumn}>
+                                <td className={classes.deleteTableColumn1}>
                                   {nameTable !== "Продукт" && (
                                     <img
                                       src={deleteGrey}
@@ -500,7 +498,7 @@ export default function TableProject({
                           </>
                         ) : (
                           <>
-                            <td className={classes.nameTableColumn}>
+                            <td className={classes.nameTableColumn1}>
                               <input
                                 type="text"
                                 value={item.content}
@@ -552,7 +550,7 @@ export default function TableProject({
                               />
                             </td>
 
-                            <td className={classes.deleteTableColumn}>
+                            <td className={classes.deleteTableColumn1}>
                               {nameTable !== "Продукт" && (
                                 <img
                                   src={deleteGrey}
@@ -602,7 +600,7 @@ export default function TableProject({
 //               setArray(updated);
 //             }}
 //             disabled={
-//               item?.isExpired ||
+//
 //               disabledTable ||
 //               (disabledProject && nameTable === "Обычная")
 //             }
@@ -620,7 +618,7 @@ export default function TableProject({
 //             }}
 //             className={classes.select}
 //             disabled={
-//               item?.isExpired ||
+//
 //               disabledTable ||
 //               (disabledProject && nameTable === "Обычная")
 //             }
@@ -653,7 +651,7 @@ export default function TableProject({
 //               setArray(updated);
 //             }}
 //             disabled={
-//               item?.isExpired ||
+//
 //               disabledTable ||
 //               (disabledProject && nameTable === "Обычная")
 //             }
@@ -714,7 +712,7 @@ export default function TableProject({
 //                 setArray(updated);
 //               }}
 //               className={classes.select}
-//               disabled={item?.isExpired || disabledTable}
+//               disabled={ disabledTable}
 //             >
 //               <option value="Активная">Активная</option>
 //               <option value="Завершена">Завершена</option>
@@ -736,7 +734,7 @@ export default function TableProject({
 //                 }}
 //                 className={classes.select}
 //                 disabled={
-//                   item?.isExpired ||
+//
 //                   disabledTable ||
 //                   (disabledProject && nameTable === "Обычная")
 //                 }

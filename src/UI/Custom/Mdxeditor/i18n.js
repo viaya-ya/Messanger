@@ -45,6 +45,7 @@ i18n.use(initReactI18next).init({
           "uploadImage.title": "Подпись",
           "uploadImage.uploadInstructions": "Загрузите изображение со своего устройства:",
           "uploadImage.addViaUrlInstructions": "Или добавьте изображение с URL-адреса:",
+          
           "imageEditor.deleteImage": "Удалить",
           "imageEditor.editImage": "Изменить",
 
@@ -63,7 +64,7 @@ i18n.use(initReactI18next).init({
     },
     lng: "ru",
     fallbackLng: "en",
-    debug: true, 
+    // debug: true, 
     interpolation: {
       escapeValue: false,
     },

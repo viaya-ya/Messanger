@@ -27,6 +27,7 @@ import {
 } from "../../../BLL/organizationApi.js";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import { useSelector } from "react-redux";
+import getDateFormatSatatistic from '../../Custom/Function/getDateFormatStatistic.js'
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -410,7 +411,7 @@ export default function StatisticsContent() {
 
         updatedMonthlyPoints.push({
           id: monthlyData[monthKey]?.id || null, // Если id не найден, присваиваем null
-          valueDate: `${year}-${monthValue}-${date}`, // Форматирование в 'год-месяц-день'
+          valueDate: `${year}-${monthValue}-${date}`,
           value: monthlyData[monthKey].valueSum, // Сумма за месяц
           isCorrelation: monthlyData[monthKey].isCorrelation,
         });
@@ -478,7 +479,7 @@ export default function StatisticsContent() {
 
         updatedYearPoints.push({
           id: yearData[yearKey]?.id || null, // Если id не найден, присваиваем null
-          valueDate: `${yearDate.getFullYear()}-01-01`, // Форматирование в 'год-01-01'
+          valueDate: `${yearDate.getFullYear()}-01-01`,
           value: yearData[yearKey].valueSum, // Сумма за год
           isCorrelation: yearData[yearKey].isCorrelation,
         });
@@ -493,7 +494,6 @@ export default function StatisticsContent() {
     }
 
     if (statisticDatas.length > 0 && typeGraphic === "13") {
- 
       const today = new Date();
       const end = new Date(today);
       const start = new Date();
@@ -579,7 +579,7 @@ export default function StatisticsContent() {
       let currentSum = 0;
 
       // Перемещаем currentDate на первый выбранный день недели
-      while (currentDate.getDay() !== selectedDayOfWeek ) {
+      while (currentDate.getDay() !== selectedDayOfWeek) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -1227,7 +1227,7 @@ export default function StatisticsContent() {
 
         updatedYearPoints.push({
           id: yearData[yearKey]?.id || null, // Если id не найден, присваиваем null
-          valueDate: `${yearDate.getFullYear()}-01-01`, // Форматирование в 'год-01-01'
+          valueDate: `${yearDate.getFullYear()}-01-01`,
           value: yearData[yearKey].valueSum, // Сумма за год
           isCorrelation: yearData[yearKey].isCorrelation,
         });
@@ -1885,13 +1885,8 @@ export default function StatisticsContent() {
                                         disabled={disabledPoints}
                                         className={`${classes.date} ${classes.textGrey}`}
                                       >
-                                        {new Date(
-                                          item.valueDate
-                                        ).toLocaleDateString("ru-RU", {
-                                          day: "2-digit",
-                                          month: "2-digit",
-                                          year: "2-digit",
-                                        })}
+                                    
+                                        {getDateFormatSatatistic(item.valueDate,typeGraphic)}
                                       </span>
 
                                       <span
@@ -2022,7 +2017,7 @@ export default function StatisticsContent() {
                                   description || currentStatistic.description
                                 }
                                 onChange={(e) => setDescription(e.target.value)}
-                                className={classes.textMontserrat} 
+                                className={classes.textMontserrat}
                               ></textarea>
                             </div>
                           ) : (
@@ -2122,13 +2117,7 @@ export default function StatisticsContent() {
                                           <span
                                             className={`${classes.date} ${classes.textGrey}`}
                                           >
-                                            {new Date(
-                                              item.valueDate
-                                            ).toLocaleDateString("ru-RU", {
-                                              day: "2-digit",
-                                              month: "2-digit",
-                                              year: "2-digit",
-                                            })}
+                                           {getDateFormatSatatistic(item.valueDate, typeGraphic)}
                                           </span>
                                         </div>
                                       ))}

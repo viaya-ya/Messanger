@@ -51,7 +51,7 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => select(item.id)}
+                onClick={() => {select(item.id); setIsOpenSearch(false);}}
                 className={classes.li}
               >
                 {item.projectName}
@@ -67,7 +67,7 @@ export default function Lupa({
 
           {archivesProjects?.map((item) => {
             return (
-              <li key={item.id} value={item.id} className={classes.li} onClick={() => select(item.id)}>
+              <li key={item.id} value={item.id} className={classes.li}  onClick={() => {select(item.id); setIsOpenSearch(false);}}>
                 {item.projectName}
               </li>
             );
@@ -88,7 +88,7 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => select(item.id)}
+                onClick={() => {select(item.id); setIsOpenSearch(false);}}
                 className={classes.li}
               >
                 {item.projectName}
@@ -111,7 +111,7 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => select(item.id)}
+                onClick={() => {select(item.id); setIsOpenSearch(false);}}
                 className={classes.li}
               >
                 {item.projectName}
@@ -131,7 +131,7 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => select(item.id)}
+                onClick={() => {select(item.id); setIsOpenSearch(false);}}
                 className={classes.li}
               >
                 {item.projectName}
@@ -150,7 +150,7 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => select(item.id)}
+                onClick={() => {select(item.id); setIsOpenSearch(false);}}
                 className={classes.li}
               >
                 {item.projectName}

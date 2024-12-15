@@ -11,7 +11,7 @@
     color: red;
 }
 
-.fonTable{
+.fonTable {
     background-color: #B4B4B4;
 }
 
@@ -58,7 +58,7 @@
         background: #ffff;
     }
 
-   
+
     & tr {
         height: 30px;
     }
@@ -81,8 +81,19 @@
         background-color: #ffff;
     }
 
+    & .nameTableColumn1 {
+        height: 30px;
+        width: 69%;
+        text-align: start;
+        padding-left: 10px;
+        background-color: #ffff;
+    }
+
     & .nameProjectToProgramTableColumn {
         height: 30px;
+        max-height: 30px;
+        overflow: hidden;
+        white-space: nowrap;
         text-align: start;
         width: 20%;
         padding-left: 5px;
@@ -91,7 +102,8 @@
 
     & .imageTableColumn {
         height: 30px;
-        min-width: 8%;
+        /* min-width: 8%; */
+        width: 8%;
     }
 
     & .dateTableColumn {
@@ -103,8 +115,32 @@
 
     & .deleteTableColumn {
         height: 30px;
-        width: 7.65%;
-        min-width: 7.65%;
+        width: 30px;
+        min-width: 30px;
+        /* min-width: 7.65%; */
+        background-color: #ffff;
+
+        & :hover {
+            background-color: rgb(240, 240, 240);
+            border-radius: 20%;
+            cursor: pointer;
+        }
+    }
+
+    & .checkBox {
+        height: 30px;
+        width: 30px;
+        min-width: 30px;
+        background-color: #ffff;
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    & .deleteTableColumn1 {
+        height: 30px;
+        width: 8.7%;
+        /* min-width: 7.65%; */
         background-color: #ffff;
 
         & :hover {
@@ -116,7 +152,7 @@
 
     & .statusTableColumn {
         height: 30px;
-        width: 2%;
-        min-width: 2%;
+        width: 8%;
+        /* min-width: 2%; */
     }
 }

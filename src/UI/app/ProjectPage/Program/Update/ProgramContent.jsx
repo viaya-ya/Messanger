@@ -453,83 +453,66 @@ export default function ProgramContent() {
         ),
       ];
     }
+
     if (event.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...event.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
+      const array = event.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
     }
     if (rules.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...rules.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
+      const array = rules.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
     }
     if (statistics.length > 0) {
-      Data.targetUpdateDtos = [
-        ...Data.targetUpdateDtos,
-        ...statistics.map(
-          ({ isExpired, id, holderUserId, holderUserIdchange, ...rest }) => {
-            if (holderUserId === holderUserIdchange) {
-              return {
-                _id: id,
-                ...rest,
-              };
-            } else {
-              return {
-                _id: id,
-                ...rest,
-                holderUserId,
-              };
-            }
-          }
-        ),
-      ];
+      const array = statistics.map(
+        (
+          { isExpired, id, holderUserId, holderUserIdchange, ...rest },
+          index
+        ) => ({
+          _id: id,
+          ...rest,
+          orderNumber: index + 1,
+          ...(holderUserIdchange !== holderUserId && { holderUserId }),
+        })
+      );
+
+      Data.targetUpdateDtos = [...Data.targetUpdateDtos, ...array];
     }
 
     if (eventCreate.length > 0) {
-      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }) => rest)];
+      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: event.length + index + 1}))];
     }
     if (rulesCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...rulesCreate.map(({ id, ...rest }) => rest),
+        ...rulesCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: rules.length + index + 1})),
       ];
     }
     if (statisticsCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...statisticsCreate.map(({ id, ...rest }) => rest),
+        ...statisticsCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: statistics.length + index + 1})),
       ];
     }
 
@@ -699,6 +682,7 @@ export default function ProgramContent() {
                     setProjectName(e.target.value);
                   }}
                   className={classes.select}
+                  disabled={disabledTable}
                 />
                 <Lupa
                   setIsOpenSearch={setIsOpenSearch}
@@ -786,6 +770,7 @@ export default function ProgramContent() {
                       setStrategy(e.target.value);
                     }}
                     className={classes.select}
+                    disabled={disabledTable}
                   >
                     <option value="null" disabled>
                       Выбрать стратегию
@@ -923,6 +908,7 @@ export default function ProgramContent() {
                           <MyEditor
                             editorState={editorState}
                             setEditorState={setEditorState}
+                            readOnly = {disabledTable}
                           />
                         )}
 

@@ -26,6 +26,8 @@ import {
   setProjectOrganizationId,
 } from "../../../../../BLL/Project/Slice/projectSlice.js";
 
+
+
 export default function ProjectNew() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -159,7 +161,7 @@ export default function ProjectNew() {
   useEffect(() => {
     if (programId !== "null") {
       const obj = programs?.find(
-        (program) => program?.organization?.id === organizationId
+        (program) => program.id === programId
       );
       setStrategy(obj?.strategy?.id);
       setDisabledStrategy(true);
@@ -443,6 +445,7 @@ export default function ProjectNew() {
               })}
             </ul>
           </div>
+
 
           <div className={classes.iconSave}>
             <img

@@ -15,6 +15,19 @@
     background-color: #B4B4B4;
 }
 
+.fonTable__isDraggingOver {
+    border: 2px dashed lightgray;
+    background-color: #DDEBF1;
+    transition: background-color 0.3s ease;
+}
+
+.fonTable__outOfBounds {
+    border: 2px dashed red;
+    background-color: red;
+    transition: background-color 0.3s ease;
+}
+
+
 .table {
     width: 100%;
 
@@ -83,7 +96,7 @@
 
     & .nameTableColumn1 {
         height: 30px;
-        width: 69%;
+        width: 75.5%;
         text-align: start;
         padding-left: 10px;
         background-color: #ffff;
@@ -120,6 +133,10 @@
         /* min-width: 7.65%; */
         background-color: #ffff;
 
+        display: table-cell;
+        vertical-align: middle;
+
+
         & :hover {
             background-color: rgb(240, 240, 240);
             border-radius: 20%;
@@ -142,6 +159,9 @@
         width: 8.7%;
         /* min-width: 7.65%; */
         background-color: #ffff;
+
+        display: table-cell;
+        vertical-align: middle;
 
         & :hover {
             background-color: rgb(240, 240, 240);

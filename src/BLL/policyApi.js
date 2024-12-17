@@ -1,10 +1,15 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {url} from "./baseUrl"
+import {prepareHeaders} from "./Function/prepareHeaders.js"
+
 
 export const policyApi = createApi({
   reducerPath: "policyApi",
   tagTypes: ["Policy"],
-  baseQuery: fetchBaseQuery({ baseUrl: url }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: url, 
+    // prepareHeaders
+  }),
   endpoints: (build) => ({
     getPolicies: build.query({
       query: (userId = "") => ({
@@ -107,8 +112,8 @@ export const policyApi = createApi({
     }),
 
     postImage: build.mutation({
-      query: ({ userId, policyId, formData }) => ({
-        url: `${userId}/file-upload/upload?policyId=${policyId}`,
+      query: ({ userId, formData }) => ({
+        url: `${userId}/file-upload/upload`,
         method: "POST",
         body: formData,
       }),
@@ -124,3 +129,4 @@ export const {
   useUpdatePoliciesMutation,
   usePostImageMutation,
 } = policyApi;
+

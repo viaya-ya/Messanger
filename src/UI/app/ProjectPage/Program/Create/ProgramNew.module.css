@@ -213,6 +213,7 @@
 
 /* <--! ---> */
 .option {
+    z-index: 2;
     position: absolute;
     display: none;
     white-space: nowrap;
@@ -222,11 +223,6 @@
     cursor: pointer;
     padding: 5px;
     padding-bottom: 8px;
-
-    & li {
-        counter-increment: item;
-        margin-bottom: 15px;
-    }
 
     & li:last-child {
         margin-bottom: 0;
@@ -243,7 +239,11 @@
 }
 
 .option li {
-    margin-top: 7px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 5px;
+    padding-bottom: 10px;
     position: relative;
     font-family: 'Montserrat';
     font-weight: 400;
@@ -251,24 +251,17 @@
 }
 
 .option li:hover {
-    height: 20px;
     background-color: rgb(240, 240, 240)
 }
-
-
 
 .option li:before {
     content: '';
     position: absolute;
     height: 1px;
     width: 90%;
-    bottom: -4px;
+    bottom: 1px;
     right: 0;
     background-color: rgb(240, 240, 240);
-}
-
-.blockSelect:hover .option {
-    display: block;
 }
 
 .iconSave {

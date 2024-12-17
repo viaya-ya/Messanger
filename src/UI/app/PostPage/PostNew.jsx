@@ -416,15 +416,7 @@ export default function PostNew() {
 
                             <div className={classes.itemRow2}>
                               <div className={classes.iconSave}>
-                                <img
-                                  src={Blacksavetmp}
-                                  alt="Blacksavetmp"
-                                  className={classes.image}
-                                  style={{ marginLeft: "0.5%" }}
-                                  onClick={() => {
-                                    // saveFolder();
-                                  }}
-                                />
+                               
                               </div>
                             </div>
                           </div>

@@ -120,11 +120,15 @@ export default function TableProject({
       <tbody>
         <DragDropContext onDragEnd={handleOnDragEnd}>
           <Droppable droppableId={nameTable}>
-            {(provided) => (
+            {(provided, snapshot) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={classes.fonTable}
+                className={`${
+                  snapshot.isDraggingOver
+                    ? classes.fonTable__isDraggingOver
+                    : classes.fonTable
+                }`}
               >
                 {array?.map((item, index) => (
                   <Draggable
@@ -192,7 +196,7 @@ export default function TableProject({
                               (disabledProject && nameTable === "Обычная")
                             }
                           >
-                            <option value="">Выберите опцию</option>
+                            <option value="">Выберите сотрудника</option>
                             {workers.map((item) => {
                               return (
                                 <option
@@ -308,7 +312,9 @@ export default function TableProject({
                                   setArray(updated);
                                 }}
                                 className={classes.select}
-                                disabled={disabledTable}
+                                disabled={
+                                  disabledTable || nameTable === "Обычная"
+                                }
                               >
                                 <option value="Активная">Активная</option>
                                 <option value="Завершена">Завершена</option>
@@ -347,11 +353,15 @@ export default function TableProject({
 
         <DragDropContext onDragEnd={_handleOnDragEnd}>
           <Droppable droppableId={nameTable}>
-            {(provided) => (
+            {(provided, snapshot) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={classes.fonTable}
+                className={`${
+                  snapshot.isDraggingOver
+                    ? classes.fonTable__isDraggingOver
+                    : classes.fonTable
+                }`}
               >
                 {_array?.map((item, index) => (
                   <Draggable
@@ -394,7 +404,9 @@ export default function TableProject({
                                     disabled={true}
                                     className={classes.select}
                                   >
-                                    <option value="">Выберите опцию</option>
+                                    <option value="">
+                                      Выберите сотрудника
+                                    </option>
                                     {workers.map((item) => {
                                       return (
                                         <option
@@ -455,7 +467,9 @@ export default function TableProject({
                                     }}
                                     className={classes.select}
                                   >
-                                    <option value="">Выберите опцию</option>
+                                    <option value="">
+                                      Выберите сотрудника
+                                    </option>
                                     {workers.map((item) => {
                                       return (
                                         <option
@@ -523,7 +537,7 @@ export default function TableProject({
                                 }}
                                 className={classes.select}
                               >
-                                <option value="">Выберите опцию</option>
+                                <option value="">Выберите сотрудника</option>
                                 {workers.map((item) => {
                                   return (
                                     <option

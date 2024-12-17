@@ -6,14 +6,15 @@ import vk from "../../../image/vk.svg"; // Путь к иконке VK
 import { io } from "socket.io-client";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
-import {url} from "../../../../BLL/baseUrl"
+import { url } from "../../../../BLL/baseUrl";
 // "http://localhost:5000/auth"
 // "https://24academy.ru/auth"
 
-const socket = io( "http://localhost:5000/auth", {
+const socket = io("https://24academy.ru/auth", {
   cors: {
-    credentials: true
-  },transports : ['websocket']
+    credentials: true,
+  },
+  transports: ["websocket"],
 }); // Подключение к сокету
 
 export default function Content() {
@@ -29,9 +30,8 @@ export default function Content() {
   const [fingerprint, setFingerprint] = useState("");
   const userAgent = navigator.userAgent; // Получение User-Agent
 
-  const a = {_ip: "", _fingerprint: ""};
+  const a = { _ip: "", _fingerprint: "" };
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -108,6 +108,8 @@ export default function Content() {
         console.log(ip);
         console.log(tokenForTG);
         console.log("--------------------");
+        
+        localStorage.setItem("fingerprint", fingerprint);
 
         socket.emit("responseFromClient", {
           fingerprint: fingerprint,
@@ -127,8 +129,28 @@ export default function Content() {
 
   // Перенаправление на другую страницу при наличии userId
   useEffect(() => {
-    if (data.userId !== "false") {
-      window.location.href = `#/${data.userId}/start`;
+    if (data.userId && data.userId !== "false") {
+      // Сохраняем accessToken в localStorage
+      localStorage.setItem("accessToken", data.accessToken);
+      fetch(`${url}auth/set-cookie`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshTokenId: data.refreshTokenId }),
+        credentials: "include", // Включение отправки куки
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Куки установлены");
+            window.location.href = `#/${data.userId}/start`;
+          } else {
+            console.error("Ошибка установки куки");
+            alert("Не удалось выполнить аутентификацию. Попробуйте снова.");
+          }
+        })
+        .catch((error) => {
+          console.error("Ошибка при установке куки:", error);
+          alert("Не удалось установить соединение с сервером.");
+        });
     }
   }, [data]);
 
@@ -143,16 +165,13 @@ export default function Content() {
     }
   }, [socketId, tokenForTG]);
 
-  // console.log("tokenForTG:", tokenForTG);
-  // console.log("socketId:", socketId);
-
   return (
     <div className={classes.body}>
       <span className={classes.text}>Для входа отсканируйте QR-код</span>
       <div className={classes.QR}>
-        {(!socketId) ? (
+        {!socketId ? (
           <div>Подключение к сокету...</div>
-        ) : (tokenForTG && qrUrl) ? (
+        ) : tokenForTG && qrUrl ? (
           <div className={classes.telegram}>
             <QRCode errorLevel="H" value={qrUrl} />
             <a
@@ -171,4 +190,3 @@ export default function Content() {
     </div>
   );
 }
-

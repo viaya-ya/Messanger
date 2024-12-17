@@ -19,48 +19,48 @@ import {
 import i18n from "./i18n";
 import classes from "./Mdxeditor.module.css";
 import { usePostImageMutation } from "../../../BLL/policyApi";
+import { url } from "../../../BLL/baseUrl";
 
-export default function Mdxeditor({ editorState, setEditorState, userId, policyId }) {
+export default function Mdxeditor({ editorState, setEditorState, userId }) {
   const editorRef = useRef(null); // Ссылка на редактор
 
-  // Функция для обновления содержимого редактора и состояния
-  const updateEditorContent = (newContent) => {
-    if (editorRef.current) {
-      editorRef.current.setMarkdown(newContent); // Обновляем содержимое через setMarkdown
-      setEditorState(newContent); // Обновляем состояние редактора
-    }
-  };
+    // Функция для обновления содержимого редактора и состояния
+    const updateEditorContent = (newContent) => {
+        if (editorRef.current) {
+            editorRef.current.setMarkdown(newContent); // Обновляем содержимое через setMarkdown
+            setEditorState(newContent); // Обновляем состояние редактора
+        }
+    };
 
-  const [postImage] = usePostImageMutation();
+    const [postImage] = usePostImageMutation();
 
-  // Функция для обработки загрузки изображений
-  const imageUploadHandler = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      // Вызов postImage для отправки файла на сервер
-      const response = await postImage({
-        userId,
-        policyId,
-        formData,
-      }).unwrap();
+    // Функция для обработки загрузки изображений
+    const imageUploadHandler = async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            // Вызов postImage для отправки файла на сервер
+            const response = await postImage({
+                userId,
+                formData,
+            }).unwrap();
 
-      // Проверка формата ответа
-      const filePath = (response.filePath || response.data?.filePath)?.replace(/\\/g,"/");
+            // Проверка формата ответа
+            const filePath = (response.filePath || response.data?.filePath)?.replace(/\\/g, "/");
 
-      if (!filePath) {
-        throw new Error("filePath не найден в ответе сервера");
-      }
+            if (!filePath) {
+                throw new Error("filePath не найден в ответе сервера");
+            }
 
-      console.log("Успешно загружено:", filePath);
+            console.log("Успешно загружено:", filePath);
 
-      return `http://localhost:5000/${filePath}`;
+            return `${url}${filePath}`;
 
-    } catch (error) {
-      console.error("Ошибка загрузки изображения:", error);
-      return Promise.reject(error);
-    }
-  };
+        } catch (error) {
+            console.error("Ошибка загрузки изображения:", error);
+            return Promise.reject(error);
+        }
+    };
 
 
   return (
@@ -76,7 +76,7 @@ export default function Mdxeditor({ editorState, setEditorState, userId, policyI
           plugins={[
             linkPlugin(),
             linkDialogPlugin(),
-            imagePlugin({ imageUploadHandler }),
+            imagePlugin({imageUploadHandler}),
             tablePlugin(),
             listsPlugin(),
             toolbarPlugin({

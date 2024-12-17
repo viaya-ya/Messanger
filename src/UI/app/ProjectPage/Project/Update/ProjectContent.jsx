@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classes from "./ProjectContent.module.css";
 import icon from "../../../../image/iconHeader.svg";
 import iconBack from "../../../../image/iconBack.svg";
@@ -24,6 +24,7 @@ import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useSelector } from "react-redux";
 import Lupa from "../../../../Custom/Lupa/Lupa.jsx";
+import blockSections from "../../../../Custom/sectionsProject/blockSections.jsx";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -154,7 +155,6 @@ export default function ProjectContent() {
     }
   );
 
-  
   const {
     workers = [],
     strategies = [],
@@ -172,7 +172,6 @@ export default function ProjectContent() {
       isErrorGetNew: isError,
     }),
   });
-
 
   const {
     currentProject = {},
@@ -270,7 +269,7 @@ export default function ProjectContent() {
   useEffect(() => {
     if (programId !== "null") {
       const obj = programs?.find(
-        (program) => program?.organization?.id === organizationId
+        (program) => program.id === programId
       );
       setStrategy(obj?.strategy?.id);
       setDisabledStrategy(true);
@@ -325,20 +324,6 @@ export default function ProjectContent() {
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
-      setEvent(
-        targets
-          .filter((item) => item.type === "Организационные мероприятия")
-          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
-
-      setRules(
-        targets
-          .filter((item) => item.type === "Правила")
-          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
-
       setTasks(
         targets
           .filter((item) => item.type === "Обычная")
@@ -346,12 +331,40 @@ export default function ProjectContent() {
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
-      setStatistics(
-        targets
+      setEvent(() => {
+        const array = targets
+          .filter((item) => item.type === "Организационные мероприятия")
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setShowEvent(array.length > 0);
+        return array;
+      });
+
+      setRules(() => {
+        const array = targets
+          .filter((item) => item.type === "Правила")
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setShowRules(array.length > 0);
+        return array;
+      });
+
+      setStatistics(() => {
+        const array = targets
           .filter((item) => item.type === "Статистика")
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setShowStatistics(array.length > 0);
+        return array;
+      });
+
+      setShowInformation(false);
+    }else{
+      setProducts([]);
+      setEvent([]);
+      setRules([]);
+      setTasks([]);
+      setStatistics([]);
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
 
@@ -471,24 +484,38 @@ export default function ProjectContent() {
     }
 
     if (eventCreate.length > 0) {
-      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: event.length + index + 1}))];
+      Data.targetCreateDtos = [
+        ...eventCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: event.length + index + 1,
+        })),
+      ];
     }
     if (rulesCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...rulesCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: rules.length + index + 1})),
+        ...rulesCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: rules.length + index + 1,
+        })),
       ];
     }
     if (tasksCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...tasksCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: tasks.length + index + 1})),
+        ...tasksCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: tasks.length + index + 1,
+        })),
       ];
     }
     if (statisticsCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...statisticsCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: statistics.length + index + 1})),
+        ...statisticsCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: statistics.length + index + 1,
+        })),
       ];
     }
 
@@ -518,7 +545,7 @@ export default function ProjectContent() {
   const add = (name) => {
     const data = nameTableCreated[name];
     const { _array, _setArray } = data;
-  
+
     _setArray((prevState) => {
       const index = prevState.length + 1;
       return [
@@ -558,13 +585,34 @@ export default function ProjectContent() {
       setManualSuccessReset(true);
       setManualErrorReset(true);
 
-      if (archivesProjects.some((item) => item.id === selectedProjectId) || archivesProjectsWithProgram.some((item) => item.id === selectedProjectId)) {
+      setEventCreate([]);
+      setRulesCreate([]);
+      setTaskCreate([]);
+      setStatisticsCreate([]);
+
+      if (
+        archivesProjects.some((item) => item.id === selectedProjectId) ||
+        archivesProjectsWithProgram.some(
+          (item) => item.id === selectedProjectId
+        )
+      ) {
         disabledFieldsArchive(true);
       } else {
         disabledFieldsArchive(false);
       }
     }
   }, [selectedProjectId]);
+
+  useEffect(() => {
+    if (
+      archivesProjects.some((item) => item.id === selectedProjectId) ||
+      archivesProjectsWithProgram.some((item) => item.id === selectedProjectId)
+    ) {
+      disabledFieldsArchive(true);
+    } else {
+      disabledFieldsArchive(false);
+    }
+  }, [archivesProjects, archivesProjectsWithProgram]);
 
   return (
     <div className={classes.dialog}>
@@ -818,7 +866,7 @@ export default function ProjectContent() {
                           <MyEditor
                             editorState={editorState}
                             setEditorState={setEditorState}
-                            readOnly = {disabledTable}
+                            readOnly={disabledTable}
                           />
                         )}
 

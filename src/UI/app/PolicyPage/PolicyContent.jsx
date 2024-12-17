@@ -1059,7 +1059,6 @@ export default function PolicyContent() {
                           editorState={currentPolicy.content}
                           setEditorState={setEditorState}
                           userId={userId}
-                          policyId={selectedPolicyId}
                         ></Mdxeditor>
 
                         <HandlerMutation

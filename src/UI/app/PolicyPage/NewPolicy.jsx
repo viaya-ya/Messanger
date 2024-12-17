@@ -63,13 +63,6 @@ export default function NewPolicy() {
     },
   ] = usePostPoliciesMutation();
 
-  // useEffect(() => {
-  //   const rawContent = draftToHtml(
-  //     convertToRaw(editorState.getCurrentContent())
-  //   );
-  //   setHtmlContent(rawContent);
-  // }, [editorState]);
-
   const successCreatePolicy = (id) => {
     dispatch(setPolicyCreatedId(id));
     navigate(`/${userId}/policy`);
@@ -80,7 +73,6 @@ export default function NewPolicy() {
     setType("Директива");
     setState("Черновик");
     setOrganizationId("");
-    // setEditorState(EditorState.createEmpty());
   };
 
   const savePolicy = async () => {
@@ -272,12 +264,6 @@ export default function NewPolicy() {
                editorState={editorState}
                setEditorState={setEditorState}
               ></Mdxeditor>
-
-                {/* <MyEditor
-                  editorState={editorState}
-                  setEditorState={setEditorState}
-                  policyContent={true}
-                /> */}
 
                 <HandlerMutation
                   Loading={isLoadingPostPoliciesMutation}

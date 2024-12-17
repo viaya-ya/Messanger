@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classes from "./ProgramContent.module.css";
 import icon from "../../../../image/iconHeader.svg";
 import iconBack from "../../../../image/iconBack.svg";
@@ -358,6 +358,13 @@ export default function ProgramContent() {
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
+    }else{
+      
+      setProducts([]);
+      setEvent([]);
+      setRules([]);
+      setTasks([]);
+      setStatistics([]);
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
 
@@ -501,18 +508,29 @@ export default function ProgramContent() {
     }
 
     if (eventCreate.length > 0) {
-      Data.targetCreateDtos = [...eventCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: event.length + index + 1}))];
+      Data.targetCreateDtos = [
+        ...eventCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: event.length + index + 1,
+        })),
+      ];
     }
     if (rulesCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...rulesCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: rules.length + index + 1})),
+        ...rulesCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: rules.length + index + 1,
+        })),
       ];
     }
     if (statisticsCreate.length > 0) {
       Data.targetCreateDtos = [
         ...Data.targetCreateDtos,
-        ...statisticsCreate.map(({ id, ...rest }, index) => ({...rest, orderNumber: statistics.length + index + 1})),
+        ...statisticsCreate.map(({ id, ...rest }, index) => ({
+          ...rest,
+          orderNumber: statistics.length + index + 1,
+        })),
       ];
     }
 
@@ -609,6 +627,14 @@ export default function ProgramContent() {
       }
     }
   }, [selectedProjectId]);
+
+  useEffect(() => {
+    if (archivesPrograms.some((item) => item.id === selectedProjectId)) {
+      setDisabledTable(true);
+    } else {
+      setDisabledTable(false);
+    }
+  }, [archivesPrograms]);
 
   return (
     <div className={classes.dialog}>
@@ -908,7 +934,7 @@ export default function ProgramContent() {
                           <MyEditor
                             editorState={editorState}
                             setEditorState={setEditorState}
-                            readOnly = {disabledTable}
+                            readOnly={disabledTable}
                           />
                         )}
 

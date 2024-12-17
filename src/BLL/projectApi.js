@@ -175,7 +175,7 @@ export const projectApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { projectId, programId }) => {   
+      invalidatesTags: (result, error, { projectId }) => {   
         return result
           ? [
               { type: "Project1", id: projectId },

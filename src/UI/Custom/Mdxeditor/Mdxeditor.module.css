@@ -1,21 +1,27 @@
 .wrapper {
-  width: 90%;
+  width: 820px;
   height: 100%;
   background-color: #ffff;
   padding: 10px;
   box-sizing: border-box;
   border-radius: 10px;
+  display: flex;
+  justify-content: center;
 }
 
 .editorContainer {
-  width: 100%;
+  position: relative;
+  width: 700px;
+  max-width: 700px;
   height: 100%;
-  overflow: auto; /* Применяем прокрутку только для редактора */
-  padding-left: 10px;
-  padding-right: 10px;
+  overflow: auto;
   line-height: 1.5;
+  cursor: text;
 }
 
 .toolbar-custom {
-  z-index: 1; /* Toolbar остается фиксированным */
+  z-index: 1;
+  position: sticky;
+  width: 100%;
+  margin-bottom: 50px;
 }

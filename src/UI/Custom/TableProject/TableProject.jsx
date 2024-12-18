@@ -136,22 +136,16 @@ export default function TableProject({
                     key={index}
                     draggableId={`item-${index}`}
                     index={index}
-                    isDragDisabled={
-                      ((createProgram || updateProgramm) &&
-                        nameTable === "Обычная") ||
-                      disabledTable
-                    } // Условие для отключения drag
+                    isDragDisabled={disabledTable}
                   >
                     {(provided) => (
                       <tr ref={provided.innerRef} {...provided.draggableProps}>
-                        {!(updateProgramm && nameTable === "Обычная") && (
-                          <td
-                            className={classes.numberTableColumn}
-                            {...provided.dragHandleProps}
-                          >
-                            {index + 1}
-                          </td>
-                        )}
+                        <td
+                          className={classes.numberTableColumn}
+                          {...provided.dragHandleProps}
+                        >
+                          {index + 1}
+                        </td>
 
                         {/*Имя проекта в программе */}
                         {(createProgram || updateProgramm) &&
@@ -375,6 +369,13 @@ export default function TableProject({
                           <>
                             {nameTable === "Обычная" ? (
                               <>
+                                <td
+                                  {...provided.dragHandleProps}
+                                  className={classes.numberTableColumn1}
+                                >
+                                  {lengthReceived + index + 1}
+                                </td>
+
                                 <td
                                   className={
                                     classes.nameProjectToProgramTableColumn

@@ -13,18 +13,15 @@ import { usePostProjectMutation } from "../../../../../BLL/projectApi.js";
 
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
-import MyEditor from "../../../../Custom/MyEditor.jsx";
-import { EditorState } from "draft-js";
-import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
-import { convertToRaw } from "draft-js";
+
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useGetProgramNewQuery } from "../../../../../BLL/projectApi.js";
-import { dispatch } from "d3";
 import { useDispatch } from "react-redux";
 import {
   setProgramCreatedId,
   setProgramOrganizationId,
 } from "../../../../../BLL/Program/Slice/programSlice.js";
+import TextArea from "../../../../Custom/TextArea/TextArea.jsx";
 
 export default function ProgramNew() {
   const navigate = useNavigate();
@@ -51,9 +48,7 @@ export default function ProgramNew() {
   const [statistics, setStatistics] = useState([]);
 
   const [organizationId, setOrganizationId] = useState("");
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
-
+  const [information, setInformation] = useState("");
   const [showEvent, setShowEvent] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
@@ -165,13 +160,6 @@ export default function ProgramNew() {
     }
   }, [organizationId]);
 
-  useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-    console.log(rawContent);
-  }, [editorState]);
 
   const reset = () => {
     setName("");
@@ -191,8 +179,7 @@ export default function ProgramNew() {
     setTasks([]);
     setStatistics([]);
 
-    setHtmlContent(null);
-    setEditorState(EditorState.createEmpty());
+    setInformation("");
   };
 
   const saveProject = async () => {
@@ -207,8 +194,8 @@ export default function ProgramNew() {
       Data.strategyId = strategy;
     }
 
-    if (htmlContent !== null) {
-      Data.content = htmlContent;
+    if (information !== "") {
+      Data.content = information;
     }
 
     if (arraySelectProjects.length > 0) {
@@ -466,10 +453,8 @@ export default function ProgramNew() {
                 ></HandlerMutation>
 
                 {showInformation && (
-                  <MyEditor
-                    editorState={editorState}
-                    setEditorState={setEditorState}
-                  />
+                  <TextArea value={information} onChange={setInformation}>
+                  </TextArea>
                 )}
 
                 {tasks.length > 0 ? (

@@ -15,16 +15,14 @@ import {
 
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
-import MyEditor from "../../../../Custom/MyEditor.jsx";
 import { EditorState } from "draft-js";
-import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
-import { convertToRaw } from "draft-js";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useDispatch } from "react-redux";
 import {
   setProjectCreatedId,
   setProjectOrganizationId,
 } from "../../../../../BLL/Project/Slice/projectSlice.js";
+import TextArea from "../../../../Custom/TextArea/TextArea.jsx";
 
 export default function ProjectNew() {
   const navigate = useNavigate();
@@ -67,8 +65,7 @@ export default function ProjectNew() {
   const [statistics, setStatistics] = useState([]);
 
   const [organizationId, setOrganizationId] = useState("");
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
+  const [information, setInformation] = useState("");
 
   const [showEvent, setShowEvent] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -135,14 +132,6 @@ export default function ProjectNew() {
   ] = usePostProjectMutation();
 
   useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-    console.log(rawContent);
-  }, [editorState]);
-
-  useEffect(() => {
     if (organizationId) {
       const filteredStrategies = strategies?.filter(
         (strategy) => strategy?.organization?.id === organizationId
@@ -197,8 +186,7 @@ export default function ProjectNew() {
     setRules([]);
     setStatistics([]);
 
-    setHtmlContent(null);
-    setEditorState(EditorState.createEmpty());
+    setInformation("");
   };
 
   const saveProject = async () => {
@@ -215,8 +203,8 @@ export default function ProjectNew() {
     if (strategy !== "null") {
       Data.strategyId = strategy;
     }
-    if (htmlContent !== null) {
-      Data.content = htmlContent;
+    if (information !== "") {
+      Data.content = information;
     }
     if (event.length > 0) {
       Data.targetCreateDtos = [...event.map(({ id, ...rest }) => rest)];
@@ -458,10 +446,8 @@ export default function ProjectNew() {
             ) : (
               <>
                 {showInformation && (
-                  <MyEditor
-                    editorState={editorState}
-                    setEditorState={setEditorState}
-                  />
+                  <TextArea value={information} onChange={setInformation}>
+                  </TextArea>
                 )}
 
                 {Object.keys(nameTable).map((key) => {

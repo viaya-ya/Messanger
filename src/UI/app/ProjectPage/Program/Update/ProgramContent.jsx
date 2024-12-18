@@ -16,15 +16,12 @@ import {
 } from "../../../../../BLL/projectApi.js";
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
-import MyEditor from "../../../../Custom/MyEditor.jsx";
-import { EditorState, convertFromHTML, ContentState } from "draft-js";
-import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
-import { convertToRaw } from "draft-js";
 import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import Modal from "../../../../Custom/Modal/Modal.jsx";
 import { useSelector } from "react-redux";
 import Lupa from "../../../../Custom/Lupa/Lupa.jsx";
+import TextArea from "../../../../Custom/TextArea/TextArea.jsx";
 
 export default function ProgramContent() {
   const navigate = useNavigate();
@@ -50,8 +47,7 @@ export default function ProgramContent() {
   const [statistics, setStatistics] = useState([]);
 
   // Все для Editor
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
+  const [information, setInformation] = useState("");
 
   const [showEvent, setShowEvent] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -100,6 +96,7 @@ export default function ProgramContent() {
   const [isOpenSearch, setIsOpenSearch] = useState(false);
 
   const [lengthReceivedEvent, setLengthReceivedEvent] = useState([]);
+  const [lengthReceivedTasks, setLengthReceivedTasks] = useState([]);
   const [lengthReceivedRules, setLengthReceivedRules] = useState([]);
   const [lengthReceivedStatistic, setLengthReceivedStatistic] = useState([]);
 
@@ -123,6 +120,7 @@ export default function ProgramContent() {
     Обычная: {
       _array: tasksCreate,
       _setArray: setTaskCreate,
+      lengthReceived: lengthReceivedTasks,
     },
 
     "Организационные мероприятия": {
@@ -262,13 +260,6 @@ export default function ProgramContent() {
     }
   }, [organizationId, projects, workers, isLoadingProjectMutation]);
 
-  // Обновление html contenta у Editora
-  useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-  }, [editorState]);
 
   // После выбора другой организации обнуляю все переменные
   useEffect(() => {
@@ -286,8 +277,7 @@ export default function ProgramContent() {
       setTaskCreate([]);
       setStatisticsCreate([]);
 
-      setHtmlContent();
-      setEditorState(EditorState.createEmpty());
+      setInformation("");
     }
   }, [organizationId]);
 
@@ -314,20 +304,10 @@ export default function ProgramContent() {
       setStrategy(currentProgram.strategy.id);
     }
 
-    if (currentProgram.content) {
-      const { contentBlocks, entityMap } = convertFromHTML(
-        currentProgram.content
-      );
-      const contentState = ContentState.createFromBlockArray(
-        contentBlocks,
-        entityMap
-      );
-      const oldEditorState = EditorState.createWithContent(contentState);
-      setEditorState(oldEditorState);
-      setShowInformation(currentProgram.content.length > 8);
-    } else {
-      setEditorState(EditorState.createEmpty());
-    }
+    if (currentProgram?.content) {
+      setInformation(currentProgram.content);
+      setShowInformation(currentProgram.content.length > 0);
+    } 
   }, [currentProgram.id]);
 
   useEffect(() => {
@@ -408,6 +388,7 @@ export default function ProgramContent() {
       });
       setTasks(array);
       setArraySelectProjects(array?.map(({ id, ...rest }) => id));
+      setLengthReceivedTasks(array.length);
     }
   }, [currentProjects]);
 
@@ -441,8 +422,8 @@ export default function ProgramContent() {
     if (strategy !== currentProgram.strategyId && strategy !== "null") {
       Data.strategyId = strategy;
     }
-    if (htmlContent !== currentProgram.content && htmlContent !== null) {
-      Data.content = htmlContent;
+    if (information !== currentProgram.content) {
+      Data.content = information;
     }
 
     if (selectProjectsModalId.length > 0) {
@@ -901,19 +882,22 @@ export default function ProgramContent() {
                     {currentProgram.id ? (
                       <>
                         {showInformation && (
-                          <MyEditor
-                            editorState={editorState}
-                            setEditorState={setEditorState}
-                            readOnly={disabledTable}
-                          />
+                          <TextArea
+                          value={information}
+                          onChange={setInformation}
+                          readOnly={disabledTable}
+                        ></TextArea>
                         )}
 
                         {Object.keys(nameTableRecieved).map((key) => {
                           const { array, setArray, isShow } =
                             nameTableRecieved[key];
 
-                          const { _array = [], _setArray = () => {}, lengthReceived } =
-                            nameTableCreated[key] || {};
+                          const {
+                            _array = [],
+                            _setArray = () => {},
+                            lengthReceived,
+                          } = nameTableCreated[key] || {};
 
                           return (
                             isShow && (

@@ -16,15 +16,12 @@ import {
 } from "../../../../../BLL/projectApi.js";
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
-import MyEditor from "../../../../Custom/MyEditor.jsx";
-import { EditorState, convertFromHTML, ContentState } from "draft-js";
-import draftToHtml from "draftjs-to-html"; // Импортируем конвертер
-import { convertToRaw } from "draft-js";
 import WaveLetters from "../../../../Custom/WaveLetters.jsx";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useSelector } from "react-redux";
 import Lupa from "../../../../Custom/Lupa/Lupa.jsx";
 import blockSections from "../../../../Custom/sectionsProject/blockSections.jsx";
+import TextArea from "../../../../Custom/TextArea/TextArea.jsx";
 
 export default function ProjectContent() {
   const navigate = useNavigate();
@@ -53,8 +50,7 @@ export default function ProjectContent() {
   const [statistics, setStatistics] = useState([]);
 
   // Все для Editor
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [htmlContent, setHtmlContent] = useState();
+  const [information, setInformation] = useState("");
 
   const [showEvent, setShowEvent] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -227,14 +223,6 @@ export default function ProjectContent() {
     }
   }, []);
 
-  // Обновление html contenta у Editora
-  useEffect(() => {
-    const rawContent = draftToHtml(
-      convertToRaw(editorState.getCurrentContent())
-    );
-    setHtmlContent(rawContent);
-  }, [editorState]);
-
   useEffect(() => {
     if (organizationId) {
       // Сброс переменных
@@ -254,8 +242,7 @@ export default function ProjectContent() {
       setTaskCreate([]);
       setStatisticsCreate([]);
 
-      setHtmlContent();
-      setEditorState(EditorState.createEmpty());
+      setInformation("");
 
       // Фильтрация массивов
       const filteredStrategies = strategies?.filter(
@@ -308,19 +295,9 @@ export default function ProjectContent() {
       setProgramId("null");
     }
 
-    if (currentProject.content) {
-      const { contentBlocks, entityMap } = convertFromHTML(
-        currentProject.content
-      );
-      const contentState = ContentState.createFromBlockArray(
-        contentBlocks,
-        entityMap
-      );
-      const oldEditorState = EditorState.createWithContent(contentState);
-      setEditorState(oldEditorState);
-      setShowInformation(currentProject.content.length > 8);
-    } else {
-      setEditorState(EditorState.createEmpty());
+    if (currentProject?.content) {
+      setInformation(currentProject.content);
+      setShowInformation(currentProject.content.length > 0);
     }
   }, [currentProject.id]);
 
@@ -404,8 +381,8 @@ export default function ProjectContent() {
       Data.programId = programId === "null" ? null : programId;
     }
 
-    if (htmlContent !== currentProject.content && htmlContent !== null) {
-      Data.content = htmlContent;
+    if (information !== currentProject.content) {
+      Data.content = information;
     }
 
     if (products.length > 0) {
@@ -833,11 +810,11 @@ export default function ProjectContent() {
                     {currentProject.id ? (
                       <>
                         {showInformation && (
-                          <MyEditor
-                            editorState={editorState}
-                            setEditorState={setEditorState}
+                          <TextArea
+                            value={information}
+                            onChange={setInformation}
                             readOnly={disabledTable}
-                          />
+                          ></TextArea>
                         )}
 
                         {Object.keys(nameTableRecieved).map((key) => {

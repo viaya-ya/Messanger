@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect  } from "react";
 import "@mdxeditor/editor/style.css";
 import {
   MDXEditor,
@@ -62,16 +62,18 @@ export default function Mdxeditor({ editorState, setEditorState, userId, readOnl
         }
     };
 
-
+    
   return (
     <div className={classes.wrapper}>
       <div className={classes.editorContainer}>
         <MDXEditor
+          contentEditableClassName={classes.par}
           ref={editorRef}
           markdown={editorState}
           translation={(key, defaultValue, interpolations) =>
             i18n.t(key, { defaultValue, ...interpolations })
           }
+          placeholder="Нажмите, чтобы ввести текст"
           readOnly={readOnly}
           onChange={updateEditorContent}
           plugins={[

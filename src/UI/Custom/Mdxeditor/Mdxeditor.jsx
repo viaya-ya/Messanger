@@ -21,7 +21,7 @@ import classes from "./Mdxeditor.module.css";
 import { usePostImageMutation } from "../../../BLL/policyApi";
 import { url } from "../../../BLL/baseUrl";
 
-export default function Mdxeditor({ editorState, setEditorState, userId }) {
+export default function Mdxeditor({ editorState, setEditorState, userId, readOnly }) {
   const editorRef = useRef(null); // Ссылка на редактор
 
     // Функция для обновления содержимого редактора и состояния
@@ -72,6 +72,7 @@ export default function Mdxeditor({ editorState, setEditorState, userId }) {
           translation={(key, defaultValue, interpolations) =>
             i18n.t(key, { defaultValue, ...interpolations })
           }
+          readOnly={readOnly}
           onChange={updateEditorContent}
           plugins={[
             linkPlugin(),

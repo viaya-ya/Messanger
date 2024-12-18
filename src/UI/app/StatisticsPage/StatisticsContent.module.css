@@ -198,10 +198,28 @@
     column-gap: 5px;
     overflow-y: auto;
     border-top: solid 3px #B4B4B4;
-    min-height: 200px;
+    min-height: 150px;
+}
+
+.row2 {
+    height: 75%;
+    min-height: 75%;
+    width: 99%;
+    min-width: 99%;
+
+    & textarea {
+        width: 100%;
+        min-width: 100%;
+        height: 95%;
+        min-height: 95%;
+        padding: 15px;
+        resize: none;
+        overflow-y: auto;
+    }
 }
 
 .row1 {
+    height: 25%;
     width: 99%;
     display: flex;
     flex-direction: row;
@@ -216,25 +234,6 @@
     height: 25px;
     border-bottom: solid 1px #B4B4B4;
 }
-
-.row2 {
-    height: 85%;
-    min-height: 85%;
-    width: 99%;
-    min-width: 99%;
-
-    & textarea {
-        width: 100%;
-        min-width: 100%;
-        height: 100%;
-        min-height: 100%;
-        padding: 15px;
-        resize: none;
-        overflow-y: auto;
-    }
-}
-
-
 
 
 .addPoint {
@@ -292,6 +291,7 @@
             border-bottom: solid 2px #B4B4B4;
             padding: 2px;
             padding-left: 8px;
+            font-size: 14px !important;
         }
 
         & .number {
@@ -401,6 +401,8 @@
 
 .row {
     height: 25px;
+    width: 100%;
+    overflow: hidden;
     padding: 5px;
     display: flex;
     align-items: center;
@@ -469,7 +471,7 @@
 
 .itemName span {
     font-style: italic;
-    font-size: 12px;
+    font-size: 12px !important;
     font-family: 'Montserrat';
     font-weight: 400;
 }

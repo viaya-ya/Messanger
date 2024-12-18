@@ -62,13 +62,15 @@ export default function ProjectContent() {
   const [showInformation, setShowInformation] = useState(false);
 
   const showTable = {
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+    Продукт: { isShow: true },
     "Организационные мероприятия": {
       isShow: showEvent,
       setIsShow: setShowEvent,
     },
     Правила: { isShow: showRules, setIsShow: setShowRules },
+    Задача: { isShow: true },
     Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
-    Информация: { isShow: showInformation, setIsShow: setShowInformation },
   };
 
   // Для создание массивов хуйни
@@ -90,16 +92,20 @@ export default function ProjectContent() {
   const [disabledProgramId, setDisabledProgramId] = useState(false);
   const [disabledTable, setDisabledTable] = useState(false);
 
+  const [lengthReceivedEvent, setLengthReceivedEvent] = useState([]);
+  const [lengthReceivedTask, setLengthReceivedTask] = useState([]);
+  const [lengthReceivedRules, setLengthReceivedRules] = useState([]);
+  const [lengthReceivedStatistic, setLengthReceivedStatistic] = useState([]);
+
   const nameTableRecieved = {
     Продукт: { array: products, setArray: setProducts, isShow: true },
-    Обычная: { array: tasks, setArray: setTasks, isShow: true },
-
     "Организационные мероприятия": {
       array: event,
       setArray: setEvent,
       isShow: showEvent,
     },
     Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
     Статистика: {
       array: statistics,
       setArray: setStatistics,
@@ -111,19 +117,23 @@ export default function ProjectContent() {
     Обычная: {
       _array: tasksCreate,
       _setArray: setTaskCreate,
+      lengthReceived: lengthReceivedTask,
     },
 
     "Организационные мероприятия": {
       _array: eventCreate,
       _setArray: setEventCreate,
+      lengthReceived: lengthReceivedEvent,
     },
     Правила: {
       _array: rulesCreate,
       _setArray: setRulesCreate,
+      lengthReceived: lengthReceivedRules,
     },
     Статистика: {
       _array: statisticsCreate,
       _setArray: setStatisticsCreate,
+      lengthReceived: lengthReceivedStatistic,
     },
   };
 
@@ -268,9 +278,7 @@ export default function ProjectContent() {
 
   useEffect(() => {
     if (programId !== "null") {
-      const obj = programs?.find(
-        (program) => program.id === programId
-      );
+      const obj = programs?.find((program) => program.id === programId);
       setStrategy(obj?.strategy?.id);
       setDisabledStrategy(true);
     } else {
@@ -310,6 +318,7 @@ export default function ProjectContent() {
       );
       const oldEditorState = EditorState.createWithContent(contentState);
       setEditorState(oldEditorState);
+      setShowInformation(currentProject.content.length > 8);
     } else {
       setEditorState(EditorState.createEmpty());
     }
@@ -324,12 +333,14 @@ export default function ProjectContent() {
           .sort((a, b) => a.orderNumber - b.orderNumber)
       );
 
-      setTasks(
-        targets
+      setTasks(() => {
+        const array = targets
           .filter((item) => item.type === "Обычная")
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setLengthReceivedTask(array.length);
+        return array;
+      });
 
       setEvent(() => {
         const array = targets
@@ -337,6 +348,7 @@ export default function ProjectContent() {
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber);
         setShowEvent(array.length > 0);
+        setLengthReceivedEvent(array.length);
         return array;
       });
 
@@ -346,6 +358,7 @@ export default function ProjectContent() {
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber);
         setShowRules(array.length > 0);
+        setLengthReceivedRules(array.length);
         return array;
       });
 
@@ -355,16 +368,9 @@ export default function ProjectContent() {
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
           .sort((a, b) => a.orderNumber - b.orderNumber);
         setShowStatistics(array.length > 0);
+        setLengthReceivedStatistic(array.length);
         return array;
       });
-
-      setShowInformation(false);
-    }else{
-      setProducts([]);
-      setEvent([]);
-      setRules([]);
-      setTasks([]);
-      setStatistics([]);
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
 
@@ -609,8 +615,6 @@ export default function ProjectContent() {
       archivesProjectsWithProgram.some((item) => item.id === selectedProjectId)
     ) {
       disabledFieldsArchive(true);
-    } else {
-      disabledFieldsArchive(false);
     }
   }, [archivesProjects, archivesProjectsWithProgram]);
 
@@ -764,18 +768,10 @@ export default function ProjectContent() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" />
-                Продукт
-              </li>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" /> Задача
-              </li>
-
               {Object.keys(showTable).map((key) => {
                 const { isShow, setIsShow } = showTable[key];
                 return (
-                  <li onClick={() => setIsShow(!isShow)}>
+                  <li onClick={() => setIsShow?.(!isShow)}>
                     {isShow ? (
                       <img src={glazikBlack} alt="glazikBlack" />
                     ) : (
@@ -836,12 +832,23 @@ export default function ProjectContent() {
                   <>
                     {currentProject.id ? (
                       <>
+                        {showInformation && (
+                          <MyEditor
+                            editorState={editorState}
+                            setEditorState={setEditorState}
+                            readOnly={disabledTable}
+                          />
+                        )}
+
                         {Object.keys(nameTableRecieved).map((key) => {
                           const { array, setArray, isShow } =
                             nameTableRecieved[key];
 
-                          const { _array = [], _setArray = () => {} } =
-                            nameTableCreated[key] || {};
+                          const {
+                            _array = [],
+                            _setArray = () => {},
+                            lengthReceived,
+                          } = nameTableCreated[key] || {};
 
                           return (
                             isShow && (
@@ -857,18 +864,11 @@ export default function ProjectContent() {
                                 deleteRow={deleteRow}
                                 disabledTable={disabledTable}
                                 updateProject={true}
+                                lengthReceived={lengthReceived}
                               />
                             )
                           );
                         })}
-
-                        {showInformation && (
-                          <MyEditor
-                            editorState={editorState}
-                            setEditorState={setEditorState}
-                            readOnly={disabledTable}
-                          />
-                        )}
 
                         <HandlerMutation
                           Loading={isLoadingProjectMutation}

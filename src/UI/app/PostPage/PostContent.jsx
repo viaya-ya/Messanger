@@ -80,6 +80,9 @@ export default function PostContent() {
   const [openModalStatisticWarning, setOpenModalStatisticWarning] =
     useState(false);
 
+    const [openModalStatisticSave, setOpenModalStatisticSave] =
+    useState(false);
+    
   const {
     data = [],
     isLoadingGetPosts,
@@ -155,36 +158,34 @@ export default function PostContent() {
   const {
     statistics = [],
     isLoadingStatistic,
-    isFetchingStatistic,
     isErrorStatistic,
   } = useGetStatisticsQuery(
     { userId, statisticData: false },
     {
-      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+      selectFromResult: ({ data, isLoading, isError }) => ({
         statistics: data || [],
         isLoadingStatistic: isLoading,
-        isFetchingStatistic: isFetching,
         isErrorStatistic: isError,
       }),
       skip: !openModalStatistic,
     }
   );
 
-// Для перехода от статистик к посту
-useEffect(() => {
-  if (paramPostID) {
-    setSelectedPostId(paramPostID);
-  }
-}, []);
-// Конец
+  // Для перехода от статистик к посту
+  useEffect(() => {
+    if (paramPostID) {
+      setSelectedPostId(paramPostID);
+    }
+  }, []);
+  // Конец
 
-// Открыть создавшийся пост
-useEffect(() => {
-  if (createdId) {
-    setSelectedPostId(createdId);
-  }
-}, []);
-// Конец
+  // Открыть создавшийся пост
+  useEffect(() => {
+    if (createdId) {
+      setSelectedPostId(createdId);
+    }
+  }, []);
+  // Конец
 
   useEffect(() => {
     const obj =
@@ -461,6 +462,7 @@ useEffect(() => {
           resetStatisticsId();
           refetchPostIdQuery();
           setOpenModalStatisticWarning(false);
+          setOpenModalStatisticSave(false);
           setManualSuccessResetStatistic(false);
           setManualErrorResetStatistic(false);
         })
@@ -497,8 +499,13 @@ useEffect(() => {
     exitStatistic();
   };
 
+  const btnNoSave = () => {
+    setOpenModalStatisticSave(false);
+    exitStatistic();
+  };
+
   // Переход к созданию статистики
-  const  goToStatisticsNew = () => {
+  const goToStatisticsNew = () => {
     saveUpdatePost(); // сохранить перед тем как  перейти к созданию статистики
     navigate(`/${userId}/statistics/new/${selectedPostId}`);
   };
@@ -937,7 +944,9 @@ useEffect(() => {
                                                 src={iconAdd}
                                                 alt="iconAdd"
                                                 className={classes.image}
-                                                onClick={() => goToStatisticsNew()}
+                                                onClick={() =>
+                                                  goToStatisticsNew()
+                                                }
                                               />
                                             </div>
                                             <div className={classes.iconSave}>
@@ -947,7 +956,7 @@ useEffect(() => {
                                                 className={classes.image}
                                                 style={{ marginLeft: "0.5%" }}
                                                 onClick={() => {
-                                                  saveStatisticsId();
+                                                  setOpenModalStatisticSave(true);
                                                 }}
                                               />
                                             </div>
@@ -1044,10 +1053,21 @@ useEffect(() => {
                           </>
                         )}
 
+                        {openModalStatisticSave && (
+                          <ModalWindow
+                            text={
+                              "При приклеплении статистики к этому посту она отвяжется у предыдущего."
+                            }
+                            close={setOpenModalStatisticSave}
+                            btnYes={btnYes}
+                            btnNo={btnNoSave}
+                          ></ModalWindow>
+                        )}
+
                         {openModalStatisticWarning && (
                           <ModalWindow
                             text={
-                              "У Вас имеются не сохранненые данные, нажмите на Да и даннные сохраняться"
+                              "У Вас имеются не сохранненые данные, нажмите на Да и даннные сохранятся."
                             }
                             close={setOpenModalStatisticWarning}
                             btnYes={btnYes}

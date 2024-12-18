@@ -302,15 +302,6 @@ export default function SpeedGoalContent() {
               ))}
             </select>
           </div>
-
-          {/* <div className={classes.iconAdd}>
-            <img
-              src={iconAdd}
-              alt="iconAdd"
-              className={classes.image}
-              onClick={() => newSpeedGoal()}
-            />
-          </div> */}
           <div className={classes.iconSave}>
             <img
               src={Blacksavetmp}

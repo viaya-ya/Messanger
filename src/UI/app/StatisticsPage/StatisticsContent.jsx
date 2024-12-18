@@ -27,7 +27,7 @@ import {
 } from "../../../BLL/organizationApi.js";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
 import { useSelector } from "react-redux";
-import getDateFormatSatatistic from '../../Custom/Function/getDateFormatStatistic.js'
+import getDateFormatSatatistic from "../../Custom/Function/getDateFormatStatistic.js";
 
 export default function StatisticsContent() {
   const navigate = useNavigate();
@@ -39,9 +39,9 @@ export default function StatisticsContent() {
     navigate("new");
   };
 
-  const [type, setType] = useState("null");
-  const [name, setName] = useState("null");
-  const [postId, setPostId] = useState("null");
+  const [type, setType] = useState();
+  const [name, setName] = useState();
+  const [postId, setPostId] = useState();
   const [description, setDescription] = useState("");
   const [statisticId, setStatisticId] = useState("");
   const [oldReceivedPoints, setOldReceivedPoints] = useState([]);
@@ -749,16 +749,16 @@ export default function StatisticsContent() {
   const saveUpdateStatistics = async () => {
     const Data = {};
 
-    if (type !== "null" && type !== currentStatistic.type) {
+    if (type !== currentStatistic.type) {
       Data.type = type;
     }
-    if (name !== "null" && name !== currentStatistic.name) {
+    if (name !== currentStatistic.name) {
       Data.name = name;
     }
-    if (postId !== "null" && postId !== currentStatistic?.post?.id) {
+    if (postId !== currentStatistic?.post?.id) {
       Data.postId = postId;
     }
-    if (description !== "" && description !== currentStatistic.description) {
+    if (description !== currentStatistic.description) {
       Data.description = description;
     }
     if (createPoints.length > 0) {
@@ -1492,8 +1492,8 @@ export default function StatisticsContent() {
         case 6:
           setShowReportDay("Суббота");
           break;
-          default:
-            break;
+        default:
+          break;
       }
     } else {
       switch (day) {
@@ -1518,8 +1518,8 @@ export default function StatisticsContent() {
         case 6:
           setShowReportDayComes("Суббота");
           break;
-          default:
-            break;
+        default:
+          break;
       }
     }
   };
@@ -1573,6 +1573,24 @@ export default function StatisticsContent() {
       });
   };
 
+  useEffect(() => {
+    if (currentStatistic?.name) {
+      setName(currentStatistic.name);
+    }
+
+    if (currentStatistic?.type) {
+      setType(currentStatistic.type);
+    }
+
+    if (currentStatistic?.description) {
+      setDescription(currentStatistic.description);
+    }
+
+    if (currentStatistic?.post?.id) {
+      setPostId(currentStatistic.post.id);
+    }
+  }, [currentStatistic.id]);
+
   return (
     <div className={classes.dialog}>
       <div className={styles.header}>
@@ -1606,25 +1624,6 @@ export default function StatisticsContent() {
           />
         </div>
         <div className={styles.editText}>
-          {/* {currentStatistic.id && (
-            <div className={classes.block1Arrrow}>
-              <div className={classes.statisticsArrowLeft}>
-                <img
-                  src={statisticsArrowLeft}
-                  alt="statisticsArrowLeftWhite"
-                  onClick={handleArrowLeftClick}
-                />
-              </div>
-
-              <div className={classes.statisticsArrowLeft}>
-                <img
-                  src={statisticsArrowRight}
-                  alt="statisticsArrowRightWhite"
-                  onClick={handleArrowRightClick}
-                />
-              </div>
-            </div>
-          )} */}
           <div className={classes.five}>
             <div className={classes.item}>
               <div className={classes.itemName}>
@@ -1735,11 +1734,7 @@ export default function StatisticsContent() {
                             <>
                               <Graphic
                                 data={[...receivedPoints, ...createPoints]}
-                                name={
-                                  name !== "null"
-                                    ? name
-                                    : currentStatistic?.name
-                                }
+                                name={name}
                                 setName={setName}
                                 typeGraphic={typeGraphic}
                                 type={type}
@@ -1889,8 +1884,10 @@ export default function StatisticsContent() {
                                         disabled={disabledPoints}
                                         className={`${classes.date} ${classes.textGrey}`}
                                       >
-                                    
-                                        {getDateFormatSatatistic(item.valueDate,typeGraphic)}
+                                        {getDateFormatSatatistic(
+                                          item.valueDate,
+                                          typeGraphic
+                                        )}
                                       </span>
 
                                       <span
@@ -1942,38 +1939,25 @@ export default function StatisticsContent() {
                             {statisticId !== "" ? (
                               <>
                                 <select
-                                  value={
-                                    type !== "null"
-                                      ? type
-                                      : currentStatistic.type
-                                  } // Устанавливаем ID, по умолчанию пустая строка
+                                  value={type} // Устанавливаем ID, по умолчанию пустая строка
                                   onChange={(e) => {
                                     setType(e.target.value);
                                   }}
                                   className={classes.element}
                                 >
-                                  <option value="null" disabled>
-                                    Выберите тип
-                                  </option>
-
+                                  <option disabled> Выберите тип</option>
                                   <option value="Прямая">Прямая</option>
                                   <option value="Обратная">Обратная</option>
                                 </select>
 
                                 <select
-                                  value={
-                                    postId !== "null"
-                                      ? postId
-                                      : currentStatistic?.post?.id
-                                  }
+                                  value={postId}
                                   onChange={(e) => {
                                     setPostId(e.target.value);
                                   }}
                                   className={classes.element}
                                 >
-                                  <option value="null" disabled>
-                                    Выберите пост
-                                  </option>
+                                  <option disabled> Выберите пост</option>
                                   {postsToOrganization?.map((item) => {
                                     return (
                                       <option value={item.id}>
@@ -2017,9 +2001,7 @@ export default function StatisticsContent() {
                             <div className={classes.row2}>
                               <textarea
                                 placeholder="Описание статистики: что и как считать"
-                                value={
-                                  description || currentStatistic.description
-                                }
+                                value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className={classes.textMontserrat}
                               ></textarea>
@@ -2121,7 +2103,10 @@ export default function StatisticsContent() {
                                           <span
                                             className={`${classes.date} ${classes.textGrey}`}
                                           >
-                                           {getDateFormatSatatistic(item.valueDate, typeGraphic)}
+                                            {getDateFormatSatatistic(
+                                              item.valueDate,
+                                              typeGraphic
+                                            )}
                                           </span>
                                         </div>
                                       ))}
@@ -2293,10 +2278,6 @@ export default function StatisticsContent() {
                             <textarea
                               disabled
                               placeholder="Описание статистики: что и как считать"
-                              value={
-                                description || currentStatistic.description
-                              }
-                              onChange={(e) => setDescription(e.target.value)}
                             ></textarea>
                           </div>
                         </div>

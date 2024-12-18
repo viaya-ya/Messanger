@@ -26,8 +26,6 @@ import {
   setProjectOrganizationId,
 } from "../../../../../BLL/Project/Slice/projectSlice.js";
 
-
-
 export default function ProjectNew() {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -78,26 +76,29 @@ export default function ProjectNew() {
   const [showInformation, setShowInformation] = useState(false);
 
   const showTable = {
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+    Продукт: { isShow: true },
     "Организационные мероприятия": {
       isShow: showEvent,
       setIsShow: setShowEvent,
     },
     Правила: { isShow: showRules, setIsShow: setShowRules },
+    Задача: { isShow: true },
     Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
-    Информация: { isShow: showInformation, setIsShow: setShowInformation },
   };
+
   const [sortStrategies, setSortStrategies] = useState([]);
   const [sortPrograms, setSortPrograms] = useState([]);
 
   const nameTable = {
     Продукт: { array: products, setArray: setProducts, isShow: true },
-    Обычная: { array: tasks, setArray: setTasks, isShow: true },
     "Организационные мероприятия": {
       array: event,
       setArray: setEvent,
       isShow: showEvent,
     },
     Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
     Статистика: {
       array: statistics,
       setArray: setStatistics,
@@ -160,9 +161,7 @@ export default function ProjectNew() {
 
   useEffect(() => {
     if (programId !== "null") {
-      const obj = programs?.find(
-        (program) => program.id === programId
-      );
+      const obj = programs?.find((program) => program.id === programId);
       setStrategy(obj?.strategy?.id);
       setDisabledStrategy(true);
     } else {
@@ -421,18 +420,10 @@ export default function ProjectNew() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" />
-                Продукт
-              </li>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" /> Задача
-              </li>
-
               {Object.keys(showTable).map((key) => {
                 const { isShow, setIsShow } = showTable[key];
                 return (
-                  <li onClick={() => setIsShow(!isShow)}>
+                  <li onClick={() => setIsShow?.(!isShow)}>
                     {isShow ? (
                       <img src={glazikBlack} alt="glazikBlack" />
                     ) : (
@@ -445,7 +436,6 @@ export default function ProjectNew() {
               })}
             </ul>
           </div>
-
 
           <div className={classes.iconSave}>
             <img
@@ -467,6 +457,31 @@ export default function ProjectNew() {
               <HandlerQeury Loading={isLoadingGetNew}></HandlerQeury>
             ) : (
               <>
+                {showInformation && (
+                  <MyEditor
+                    editorState={editorState}
+                    setEditorState={setEditorState}
+                  />
+                )}
+
+                {Object.keys(nameTable).map((key) => {
+                  const { array, setArray, isShow } = nameTable[key]; // Деструктурируем данные
+                  return (
+                    isShow && (
+                      <TableProject
+                        key={key}
+                        nameTable={key}
+                        add={add}
+                        array={array}
+                        setArray={setArray}
+                        workers={workers}
+                        deleteRow={deleteRow}
+                        createProject={true}
+                      />
+                    )
+                  );
+                })}
+
                 <HandlerMutation
                   Loading={isLoadingProjectMutation}
                   Error={isErrorProjectMutation}
@@ -478,33 +493,6 @@ export default function ProjectNew() {
                       : Error?.data?.message
                   }
                 ></HandlerMutation>
-
-         
-                  {Object.keys(nameTable).map((key) => {
-                    const { array, setArray, isShow } = nameTable[key]; // Деструктурируем данные
-                    return (
-                      isShow && (
-                        <TableProject
-                          key={key}
-                          nameTable={key}
-                          add={add}
-                          array={array}
-                          setArray={setArray}
-                          workers={workers}
-                          deleteRow={deleteRow}
-                          createProject={true}
-                        />
-                      )
-                    );
-                  })}
-          
-
-                {showInformation && (
-                  <MyEditor
-                    editorState={editorState}
-                    setEditorState={setEditorState}
-                  />
-                )}
               </>
             )}
           </>

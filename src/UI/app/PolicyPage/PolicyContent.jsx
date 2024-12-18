@@ -56,7 +56,7 @@ export default function PolicyContent() {
   const [policyName, setPolicyName] = useState(null);
   const [type, setType] = useState(null);
   const [state, setState] = useState(null);
-  // const [policyToOrganizations, setPolicyToOrganizations] = useState([]);
+
   const [organizationId, setOrganizationId] = useState("");
   const selectRef = useRef(null); // Для отслеживания кликов вне компонента
   // Добавляем флаги для управления ручным сбросом состояния успеха и ошибки
@@ -114,6 +114,8 @@ export default function PolicyContent() {
     filterArraySearchModalInstructions,
     setFilterArraySearchModalInstructions,
   ] = useState([]);
+
+  const [disabledArchive, setDisabledArchive] = useState(false);
 
   const {
     instructions = [],
@@ -602,11 +604,11 @@ export default function PolicyContent() {
             <div className={classes.div}>
               <input
                 type="text"
-                // value={policyName ? policyName : currentPolicy.policyName}
                 value={policyName}
                 onChange={(e) => setPolicyName(e.target.value)}
                 title="Название политики"
                 className={classes.textMontserrat14}
+                disabled={disabledArchive}
               ></input>
               <div className={classes.sixth} ref={selectRef}>
                 <img
@@ -707,6 +709,7 @@ export default function PolicyContent() {
                                 key={item.id}
                                 onClick={() => {
                                   getPolicyId(item.id);
+                                  setDisabledArchive(true);
                                   setIsOpenSearch(false);
                                 }}
                                 className={classes.textMontserrat}
@@ -810,6 +813,7 @@ export default function PolicyContent() {
                                 key={item.id}
                                 onClick={() => {
                                   getPolicyId(item.id);
+                                  setDisabledArchive(true);
                                   setIsOpenSearch(false);
                                 }}
                                 className={classes.textMontserrat}
@@ -920,9 +924,9 @@ export default function PolicyContent() {
                   <select
                     className={classes.select}
                     name="type"
-                    // value={type || currentPolicy.type}
                     value={type}
                     onChange={(e) => setType(e.target.value)}
+                    disabled={disabledArchive}
                   >
                     <option value="Директива">Директива</option>
                     <option value="Инструкция">Инструкция</option>
@@ -938,9 +942,9 @@ export default function PolicyContent() {
                   <select
                     className={classes.select}
                     name="state"
-                    // value={state || currentPolicy.state}
                     value={state}
                     onChange={(e) => setState(e.target.value)}
+                    disabled={disabledArchive}
                   >
                     <option value="Черновик">Черновик</option>
                     <option value="Активный">Активный</option>
@@ -952,7 +956,7 @@ export default function PolicyContent() {
               <div className={classes.item}>
                 <div className={classes.itemName}>
                   <span>
-                    Организация <span style={{ color: "red" }}>*</span>
+                    Организация 
                   </span>
                 </div>
                 <div className={classes.div}>
@@ -963,6 +967,7 @@ export default function PolicyContent() {
                     onChange={(e) => {
                       setOrganizationId(e.target.value);
                     }}
+                    disabled={true}
                   >
                     <option value="" disabled>
                       Выберите организацию
@@ -1059,6 +1064,7 @@ export default function PolicyContent() {
                           editorState={currentPolicy.content}
                           setEditorState={setEditorState}
                           userId={userId}
+                          readOnly = {disabledArchive}
                         ></Mdxeditor>
 
                         <HandlerMutation

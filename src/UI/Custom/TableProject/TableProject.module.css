@@ -83,9 +83,19 @@
 
     & .numberTableColumn {
         height: 30px;
-        width: 2%;
+        width: 30px;
+        min-width: 30px;
+        max-width: 30px;
+        background-color: #ffff;
     }
 
+    & .numberTableColumn1 {
+        height: 30px;
+        width:2%;
+        min-width: 30px;
+        max-width: 30px;
+        background-color: #ffff;
+    }
     & .nameTableColumn {
         height: 30px;
         width: 76%;
@@ -96,7 +106,7 @@
 
     & .nameTableColumn1 {
         height: 30px;
-        width: 75.5%;
+        width: 73.5%;
         text-align: start;
         padding-left: 10px;
         background-color: #ffff;

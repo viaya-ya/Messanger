@@ -60,13 +60,15 @@ export default function ProgramNew() {
   const [showInformation, setShowInformation] = useState(false);
 
   const showTable = {
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+    Продукт: { isShow: true },
     "Организационные мероприятия": {
       isShow: showEvent,
       setIsShow: setShowEvent,
     },
     Правила: { isShow: showRules, setIsShow: setShowRules },
-    Статистика: { isShow: showStatistics, setIsShow: setShowStatistics },
-    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+    Задача: { isShow: true },
+    Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
   };
 
   const [sortStrategies, setSortStrategies] = useState([]);
@@ -75,11 +77,19 @@ export default function ProgramNew() {
   const [arraySelectProjects, setArraySelectProjects] = useState([]);
 
   const nameTable = {
-    Продукт: { array: products, setArray: setProducts, isShow: true  },
-    Обычная: { array: tasks, setArray: setTasks, isShow: true  },
-    "Организационные мероприятия": { array: event, setArray: setEvent, isShow: showEvent  },
-    Правила: { array: rules, setArray: setRules, isShow: showRules  },
-    Статистика: { array: statistics, setArray: setStatistics, isShow: showStatistics  },
+    Продукт: { array: products, setArray: setProducts, isShow: true },
+    "Организационные мероприятия": {
+      array: event,
+      setArray: setEvent,
+      isShow: showEvent,
+    },
+    Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
+    Статистика: {
+      array: statistics,
+      setArray: setStatistics,
+      isShow: showStatistics,
+    },
   };
 
   const dispatch = useDispatch();
@@ -405,18 +415,11 @@ export default function ProgramNew() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" />
-                Продукт
-              </li>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" /> Задача
-              </li>
 
               {Object.keys(showTable).map((key) => {
                 const { isShow, setIsShow } = showTable[key];
                 return (
-                  <li onClick={() => setIsShow(!isShow)}>
+                  <li onClick={() => setIsShow?.(!isShow)}>
                     {isShow ? (
                       <img src={glazikBlack} alt="glazikBlack" />
                     ) : (
@@ -462,6 +465,13 @@ export default function ProgramNew() {
                   }
                 ></HandlerMutation>
 
+                {showInformation && (
+                  <MyEditor
+                    editorState={editorState}
+                    setEditorState={setEditorState}
+                  />
+                )}
+
                 {tasks.length > 0 ? (
                   <>
                     {Object.keys(nameTable).map((key) => {
@@ -483,13 +493,6 @@ export default function ProgramNew() {
                         )
                       );
                     })}
-
-                    {showInformation && (
-                      <MyEditor
-                        editorState={editorState}
-                        setEditorState={setEditorState}
-                      />
-                    )}
                   </>
                 ) : (
                   <>

@@ -31,8 +31,8 @@ export const speedGoalApi = createApi({
           (strategy) =>
             strategy.state === "Активный" || strategy.state === "Черновик"
         ).sort((a, b) => {
-          if (a.state === "Черновик" && b.state !== "Черновик") return 1;
-          if (b.state === "Черновик" && a.state !== "Черновик") return -1;
+          if (a.state === "Черновик" && b.state !== "Черновик") return -1;
+          if (b.state === "Черновик" && a.state !== "Черновик") return 1;
           return a.strategyNumber - b.strategyNumber;
         });
 

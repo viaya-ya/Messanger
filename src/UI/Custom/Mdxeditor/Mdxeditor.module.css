@@ -13,6 +13,7 @@
   overflow: auto; /* Применяем прокрутку только для редактора */
   padding-left: 10px;
   padding-right: 10px;
+  line-height: 1.5;
 }
 
 .toolbar-custom {

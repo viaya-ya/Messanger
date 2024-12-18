@@ -59,13 +59,15 @@ export default function ProgramContent() {
   const [showInformation, setShowInformation] = useState(false);
 
   const showTable = {
+    Информация: { isShow: showInformation, setIsShow: setShowInformation },
+    Продукт: { isShow: true },
     "Организационные мероприятия": {
       isShow: showEvent,
       setIsShow: setShowEvent,
     },
     Правила: { isShow: showRules, setIsShow: setShowRules },
+    Задача: { isShow: true },
     Метрика: { isShow: showStatistics, setIsShow: setShowStatistics },
-    Информация: { isShow: showInformation, setIsShow: setShowInformation },
   };
 
   // Для создание массивов хуйни
@@ -97,16 +99,19 @@ export default function ProgramContent() {
   //Лупа
   const [isOpenSearch, setIsOpenSearch] = useState(false);
 
+  const [lengthReceivedEvent, setLengthReceivedEvent] = useState([]);
+  const [lengthReceivedRules, setLengthReceivedRules] = useState([]);
+  const [lengthReceivedStatistic, setLengthReceivedStatistic] = useState([]);
+
   const nameTableRecieved = {
     Продукт: { array: products, setArray: setProducts, isShow: true },
-    Обычная: { array: tasks, setArray: setTasks, isShow: true },
-
     "Организационные мероприятия": {
       array: event,
       setArray: setEvent,
       isShow: showEvent,
     },
     Правила: { array: rules, setArray: setRules, isShow: showRules },
+    Обычная: { array: tasks, setArray: setTasks, isShow: true },
     Статистика: {
       array: statistics,
       setArray: setStatistics,
@@ -123,14 +128,17 @@ export default function ProgramContent() {
     "Организационные мероприятия": {
       _array: eventCreate,
       _setArray: setEventCreate,
+      lengthReceived: lengthReceivedEvent,
     },
     Правила: {
       _array: rulesCreate,
       _setArray: setRulesCreate,
+      lengthReceived: lengthReceivedRules,
     },
     Статистика: {
       _array: statisticsCreate,
       _setArray: setStatisticsCreate,
+      lengthReceived: lengthReceivedStatistic,
     },
   };
 
@@ -251,8 +259,6 @@ export default function ProgramContent() {
         };
       });
       setProjectsToAddProgram(array);
-    } else {
-      setProjectsToAddProgram([]);
     }
   }, [organizationId, projects, workers, isLoadingProjectMutation]);
 
@@ -318,6 +324,7 @@ export default function ProgramContent() {
       );
       const oldEditorState = EditorState.createWithContent(contentState);
       setEditorState(oldEditorState);
+      setShowInformation(currentProgram.content.length > 8);
     } else {
       setEditorState(EditorState.createEmpty());
     }
@@ -331,20 +338,6 @@ export default function ProgramContent() {
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
       );
 
-      setEvent(
-        targets
-          .filter((item) => item.type === "Организационные мероприятия")
-          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
-
-      setRules(
-        targets
-          .filter((item) => item.type === "Правила")
-          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
-
       setTasks(
         targets
           .filter((item) => item.type === "Обычная")
@@ -352,19 +345,35 @@ export default function ProgramContent() {
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
       );
 
-      setStatistics(
-        targets
+      setEvent(() => {
+        const array = targets
+          .filter((item) => item.type === "Организационные мероприятия")
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setLengthReceivedEvent(array.length);
+        setShowEvent(array.length > 0);
+        return array;
+      });
+
+      setRules(() => {
+        const array = targets
+          .filter((item) => item.type === "Правила")
+          .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setLengthReceivedRules(array.length);
+        setShowRules(array.length > 0);
+        return array;
+      });
+
+      setStatistics(() => {
+        const array = targets
           .filter((item) => item.type === "Статистика")
           .map((item) => ({ ...item, holderUserIdchange: item.holderUserId }))
-          .sort((a, b) => a.orderNumber - b.orderNumber)
-      );
-    }else{
-      
-      setProducts([]);
-      setEvent([]);
-      setRules([]);
-      setTasks([]);
-      setStatistics([]);
+          .sort((a, b) => a.orderNumber - b.orderNumber);
+        setLengthReceivedStatistic(array.length);
+        setShowStatistics(array.length > 0);
+        return array;
+      });
     }
   }, [targets, isLoadingGetProjectId, isFetchingGetProjectId]);
 
@@ -631,8 +640,6 @@ export default function ProgramContent() {
   useEffect(() => {
     if (archivesPrograms.some((item) => item.id === selectedProjectId)) {
       setDisabledTable(true);
-    } else {
-      setDisabledTable(false);
     }
   }, [archivesPrograms]);
 
@@ -828,18 +835,11 @@ export default function ProgramContent() {
             />
             <ul className={classes.option}>
               <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" />
-                Продукт
-              </li>
-              <li>
-                <img src={glazikBlack} alt="glazikBlack" /> Задача
-              </li>
 
               {Object.keys(showTable).map((key) => {
                 const { isShow, setIsShow } = showTable[key];
                 return (
-                  <li onClick={() => setIsShow(!isShow)}>
+                  <li onClick={() => setIsShow?.(!isShow)}>
                     {isShow ? (
                       <img src={glazikBlack} alt="glazikBlack" />
                     ) : (
@@ -900,11 +900,19 @@ export default function ProgramContent() {
                   <>
                     {currentProgram.id ? (
                       <>
+                        {showInformation && (
+                          <MyEditor
+                            editorState={editorState}
+                            setEditorState={setEditorState}
+                            readOnly={disabledTable}
+                          />
+                        )}
+
                         {Object.keys(nameTableRecieved).map((key) => {
                           const { array, setArray, isShow } =
                             nameTableRecieved[key];
 
-                          const { _array = [], _setArray = () => {} } =
+                          const { _array = [], _setArray = () => {}, lengthReceived } =
                             nameTableCreated[key] || {};
 
                           return (
@@ -925,18 +933,11 @@ export default function ProgramContent() {
                                 arraySelectProjects={arraySelectProjects}
                                 updateProgramm={true}
                                 openModal={setOpenModalProject}
+                                lengthReceived={lengthReceived}
                               />
                             )
                           );
                         })}
-
-                        {showInformation && (
-                          <MyEditor
-                            editorState={editorState}
-                            setEditorState={setEditorState}
-                            readOnly={disabledTable}
-                          />
-                        )}
 
                         {openModalProject && (
                           <Modal

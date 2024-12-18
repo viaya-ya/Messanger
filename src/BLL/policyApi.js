@@ -8,7 +8,6 @@ export const policyApi = createApi({
   tagTypes: ["Policy"],
   baseQuery: fetchBaseQuery({
     baseUrl: url, 
-    // prepareHeaders
   }),
   endpoints: (build) => ({
     getPolicies: build.query({

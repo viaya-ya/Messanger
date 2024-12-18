@@ -245,6 +245,7 @@
             border-bottom: solid 2px #B4B4B4;
             padding: 2px;
             padding-left: 8px;
+            font-size: 14px !important;
         }
 
         & .number {

@@ -13,7 +13,7 @@
 .row span{
     font-family: 'Montserrat';
     color:#FFFFFF;
-    font-size: 10px;
+    font-size: 12px !important;
     font-weight: 400;
     opacity: 0.64;
     cursor:pointer;

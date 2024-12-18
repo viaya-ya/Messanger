@@ -102,7 +102,7 @@
     max-width:100%;
     white-space: nowrap;
     font-style: italic;
-    font-size: 12px;
+    font-size: 12px !important;
     font-family: 'Montserrat';
     font-weight: 400;
 }

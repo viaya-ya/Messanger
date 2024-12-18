@@ -106,20 +106,30 @@
 
 .item {
     margin-right: 10px;
+    width: 170px;
+    max-width: 170px;
 }
+
 .itemName span {
     font-style: italic;
-    font-size: 12px;
+    font-size: 12px !important;
     font-family: 'Montserrat';
     font-weight: 400;
 }
+
 .select {
+    width:100%;
+    max-width:100%;
     position: relative;
     font-family: 'Montserrat';
+    overflow: hidden;         
+    text-overflow: ellipsis;  
 }
 
 .div {
+    width: 100%;
     position: relative;
+    display: flex;
 }
 
 .div:before {

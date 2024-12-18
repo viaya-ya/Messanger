@@ -93,10 +93,10 @@
 }
 
 .item {
+    margin-right: 10px;
     width:170px;
     max-width: 170px;
 }
-
 
 .nameList {
     color: #3A3A3A;
@@ -264,7 +264,7 @@
 
 .itemName span {
     font-style: italic;
-    font-size: 12px;
+    font-size: 12px !important;
     font-family: 'Montserrat';
     font-weight: 400;
 }

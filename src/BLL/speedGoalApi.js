@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {url} from "./baseUrl"
-
+import {prepareHeaders} from "./Function/prepareHeaders.js"
 export const speedGoalApi = createApi({
   reducerPath: "speedSpeedGoalApi",
   tagTypes: ["SpeedGoal"],
-  baseQuery: fetchBaseQuery({ baseUrl: url }),
+  baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
     getSpeedGoals: build.query({
       query: (userId = "") => ({

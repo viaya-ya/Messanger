@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {url} from "./baseUrl"
-
+import {prepareHeaders} from "./Function/prepareHeaders.js"
 export const statisticsApi = createApi({
   reducerPath: "statisticsApi",
   tagTypes: ["Statistics", "Statistics1"],
-  baseQuery: fetchBaseQuery({ baseUrl: url }),
+  baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
     getStatistics: build.query({
       query: ({ userId, statisticData = true }) => ({

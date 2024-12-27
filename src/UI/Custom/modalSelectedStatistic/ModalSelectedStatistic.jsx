@@ -3,6 +3,7 @@ import classes from "./ModalSelectedStatistic.module.css";
 import Blacksavetmp from "@image/Blacksavetmp.svg";
 import iconAdd from "@image/iconAdd.svg";
 import exitModal from "@image/exitModal.svg";
+import ButtonImage from "@Custom/buttonImage/ButtonImage";
 
 export function ModalSelectedStatistic({
   value,
@@ -14,7 +15,7 @@ export function ModalSelectedStatistic({
   statisticsChecked,
   disabledStatisticsChecked,
   statistics,
-  openStatisticWarning
+  openStatisticWarning,
 }) {
   return (
     <div className={classes.modal}>
@@ -31,23 +32,19 @@ export function ModalSelectedStatistic({
           </div>
 
           <div className={classes.itemRow2}>
-            <div className={classes.icon}>
-              <img
-                src={iconAdd}
-                alt="iconAdd"
-                onClick={() => goToStatisticsNew()}
-              />
-            </div>
-            <div className={classes.icon}>
-              <img
-                src={Blacksavetmp}
-                alt="Blacksavetmp"
-                style={{ marginLeft: "0.5%" }}
-                onClick={() => {
-                  setOpenModalStatisticSave(true);
-                }}
-              />
-            </div>
+            <ButtonImage
+              name={"создать"}
+              icon={iconAdd}
+              onClick={goToStatisticsNew}
+            ></ButtonImage>
+
+            <ButtonImage
+              name={"сохранить"}
+              icon={Blacksavetmp}
+              onClick={() => {
+                setOpenModalStatisticSave(true);
+              }}
+            ></ButtonImage>
           </div>
         </div>
 

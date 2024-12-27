@@ -2,6 +2,7 @@ import React from "react";
 import classes from "./ModalSelectRadio.module.css";
 import exitModal from "@image/exitModal.svg";
 import Blacksavetmp from "@image/Blacksavetmp.svg";
+import ButtonImage from "@Custom/buttonImage/ButtonImage";
 
 export function ModalSelectRadio({
   nameTable,
@@ -32,20 +33,13 @@ export function ModalSelectRadio({
 
             {save && (
               <div className={classes.itemRow2}>
-                <div className={classes.icon}>
-                  <img
-                    src={Blacksavetmp}
-                    alt="Blacksavetmp"
-                    className={classes.image}
-                    style={{ marginLeft: "0.5%" }}
-                    onClick={() => {
-                      save();
-                    }}
-                  />
-                </div>
+                <ButtonImage
+                  name={"сохранить"}
+                  icon={Blacksavetmp}
+                  onClick={save}
+                ></ButtonImage>
               </div>
             )}
-
           </div>
         </div>
 

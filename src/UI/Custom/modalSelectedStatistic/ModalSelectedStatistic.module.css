@@ -126,8 +126,3 @@
     height: 22px;
     border-bottom: 1px solid #ccc;
 }
-.icon:hover {
-    background-color: rgb(240, 240, 240);
-    border-radius: 20%;
-    cursor: pointer;
-}

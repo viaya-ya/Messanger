@@ -2,29 +2,23 @@ import React from "react";
 import classes from "./ButtonAction.module.css";
 import iconAdd from "../../../../image/iconAdd.svg";
 import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
+import ButtonImage from "@Custom/buttonImage/ButtonImage";
 export default function ButtonAction({ create, update }) {
   return (
-    <div className={classes.imageButton}>
+    <div className={classes.wrapper}>
       {create && (
-        <div className={classes.blockIconAdd}>
-          <img
-            src={iconAdd}
-            alt="iconAdd"
-            className={classes.icon}
-            onClick={() => create()}
-          />
-        </div>
+        <ButtonImage
+          name={"создать"}
+          icon={iconAdd}
+          onClick={create}
+        ></ButtonImage>
       )}
 
-      <div className={classes.blockIconSavetmp}>
-        <img
-          src={Blacksavetmp}
-          alt="Blacksavetmp"
-          className={classes.icon}
-          style={{ marginLeft: "0.5%" }}
-          onClick={() => update()}
-        />
-      </div>
+      <ButtonImage
+        name={"обновить"}
+        icon={Blacksavetmp}
+        onClick={update}
+      ></ButtonImage>
     </div>
   );
 }

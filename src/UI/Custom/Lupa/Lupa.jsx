@@ -6,6 +6,7 @@ export default function Lupa({
   setIsOpenSearch,
   isOpenSearch,
   select,
+
   projects,
   archivesProjects,
   projectsWithProgram,
@@ -13,6 +14,9 @@ export default function Lupa({
 
   programs,
   archivesPrograms,
+
+  array,
+  arrayItem
 }) {
   const selectRef = useRef(null);
 
@@ -40,7 +44,7 @@ export default function Lupa({
       />
       {isOpenSearch && (
         <ul className={classes.ul}>
-          {(projects?.length !== 0 && projects) && (
+          {projects?.length !== 0 && projects && (
             <li value="Активные" disabled className={classes.activeText}>
               Активные
             </li>
@@ -51,7 +55,10 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => {select(item.id); setIsOpenSearch(false);}}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
                 className={classes.li}
               >
                 {item.projectName}
@@ -59,7 +66,7 @@ export default function Lupa({
             );
           })}
 
-          {(archivesProjects?.length !== 0 && archivesProjects) && (
+          {archivesProjects?.length !== 0 && archivesProjects && (
             <li value="Завершенные" disabled className={classes.completedText}>
               Завершенные
             </li>
@@ -67,13 +74,21 @@ export default function Lupa({
 
           {archivesProjects?.map((item) => {
             return (
-              <li key={item.id} value={item.id} className={classes.li}  onClick={() => {select(item.id); setIsOpenSearch(false);}}>
+              <li
+                key={item.id}
+                value={item.id}
+                className={classes.li}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
+              >
                 {item.projectName}
               </li>
             );
           })}
 
-          {(projectsWithProgram?.length !== 0 && projectsWithProgram) && (
+          {projectsWithProgram?.length !== 0 && projectsWithProgram && (
             <li
               value="Проекты с программами"
               disabled
@@ -88,7 +103,10 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => {select(item.id); setIsOpenSearch(false);}}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
                 className={classes.li}
               >
                 {item.projectName}
@@ -96,22 +114,26 @@ export default function Lupa({
             );
           })}
 
-          {(archivesProjectsWithProgram?.length !== 0 && archivesProjectsWithProgram) && (
-            <li
-              value="Архивные проекты с программами"
-              disabled
-              className={classes.completedText}
-            >
-              Архивные проекты с программами
-            </li>
-          )}
+          {archivesProjectsWithProgram?.length !== 0 &&
+            archivesProjectsWithProgram && (
+              <li
+                value="Архивные проекты с программами"
+                disabled
+                className={classes.completedText}
+              >
+                Архивные проекты с программами
+              </li>
+            )}
 
           {archivesProjectsWithProgram?.map((item) => {
             return (
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => {select(item.id); setIsOpenSearch(false);}}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
                 className={classes.li}
               >
                 {item.projectName}
@@ -119,8 +141,7 @@ export default function Lupa({
             );
           })}
 
-
-          {(programs?.length !== 0 && programs) && (
+          {programs?.length !== 0 && programs && (
             <li value="Активные" disabled className={classes.activeText}>
               Активные
             </li>
@@ -131,7 +152,10 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => {select(item.id); setIsOpenSearch(false);}}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
                 className={classes.li}
               >
                 {item.projectName}
@@ -139,7 +163,7 @@ export default function Lupa({
             );
           })}
 
-          {(archivesPrograms?.length !== 0 && archivesPrograms) && (
+          {archivesPrograms?.length !== 0 && archivesPrograms && (
             <li value="Завершенные" disabled className={classes.completedText}>
               Завершенные
             </li>
@@ -150,10 +174,29 @@ export default function Lupa({
               <li
                 key={item.id}
                 value={item.id}
-                onClick={() => {select(item.id); setIsOpenSearch(false);}}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
                 className={classes.li}
               >
                 {item.projectName}
+              </li>
+            );
+          })}
+
+          {array?.map((item) => {
+            return (
+              <li
+                key={item.id}
+                value={item.id}
+                onClick={() => {
+                  select(item.id);
+                  setIsOpenSearch(false);
+                }}
+                className={classes.li}
+              >
+                {item[arrayItem]}
               </li>
             );
           })}

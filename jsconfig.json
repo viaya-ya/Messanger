@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "baseUrl": "src",
+      "paths": {
+        "@app/*": ["UI/app/*"],
+        "@constants/*": ["UI/constants/*"],
+        "@Custom/*": ["UI/Custom/*"],
+        "@image/*": ["UI/image/*"]
+      }
+    },
+    "include": [
+      "src/**/*" 
+    ]
+}
+  

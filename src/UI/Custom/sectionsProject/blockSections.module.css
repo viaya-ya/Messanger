@@ -29,7 +29,7 @@
 }
 
 .option {
-    z-index: 2;
+    z-index: 1000;
     position: absolute;
     display: none;
     white-space: nowrap;

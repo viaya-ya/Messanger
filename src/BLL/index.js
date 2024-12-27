@@ -4,14 +4,12 @@ import { goalApi } from './goalApi';
 import { speedGoalApi } from './speedGoalApi';
 import { postApi } from './postApi';
 import { projectApi } from './projectApi';
-import { strategApi } from './strategApi';
+import { strategApi } from './strategy/strategApi';
 import { statisticsApi } from './statisticsApi';
-import { policyDirectoriesApi } from './policyDirectoriesApi';
+import { directoriesApi } from './directoriesApi';
 import { organizationApi } from './organizationApi';
-import strategReducer from "./strategSlice";
 import postReducer from "./postSlice";
-import policyReducer from "./policySlice";
-import statisticReducer from "./statisticsSlice";
+
 
 
 import projectReducer from "./Project/Slice/projectSlice";
@@ -27,12 +25,9 @@ export const store = configureStore({
         [projectApi.reducerPath]: projectApi.reducer,
         [strategApi.reducerPath]: strategApi.reducer,
         [statisticsApi.reducerPath]: statisticsApi.reducer,
-        [policyDirectoriesApi.reducerPath]: policyDirectoriesApi.reducer,
+        [directoriesApi.reducerPath]: directoriesApi.reducer,
         [organizationApi.reducerPath]: organizationApi.reducer,
-        strateg: strategReducer,
         post: postReducer,
-        policy: policyReducer,
-        statistic: statisticReducer,
         project: projectReducer,
         program: programReducer,
     },
@@ -44,7 +39,7 @@ export const store = configureStore({
                                                                 .concat(projectApi.middleware)
                                                                 .concat(strategApi.middleware)
                                                                 .concat(statisticsApi.middleware)
-                                                                .concat(policyDirectoriesApi.middleware)
+                                                                .concat(directoriesApi.middleware)
                                                                 .concat(organizationApi.middleware)
 });
 export default store;

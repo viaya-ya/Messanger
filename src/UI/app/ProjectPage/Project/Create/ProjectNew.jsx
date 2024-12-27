@@ -2,10 +2,6 @@ import React, { useState, useEffect } from "react";
 import classes from "./ProjectNew.module.css";
 import icon from "../../../../image/iconHeader.svg";
 import iconBack from "../../../../image/iconBack.svg";
-
-import Listsetting from "../../../../image/Listsetting.svg";
-import glazikBlack from "../../../../image/glazikBlack.svg";
-import glazikInvisible from "../../../../image/glazikInvisible.svg";
 import Blacksavetmp from "../../../../image/Blacksavetmp.svg";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -15,7 +11,6 @@ import {
 
 import HandlerMutation from "../../../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../../../Custom/HandlerQeury.jsx";
-import { EditorState } from "draft-js";
 import TableProject from "../../../../Custom/TableProject/TableProject.jsx";
 import { useDispatch } from "react-redux";
 import {
@@ -23,6 +18,7 @@ import {
   setProjectOrganizationId,
 } from "../../../../../BLL/Project/Slice/projectSlice.js";
 import TextArea from "../../../../Custom/TextArea/TextArea.jsx";
+import BlockSections from "../../../../Custom/SectionsProject/BlockSections.jsx";
 
 export default function ProjectNew() {
   const navigate = useNavigate();
@@ -31,7 +27,7 @@ export default function ProjectNew() {
   const dispatch = useDispatch();
 
   const back = () => {
-    navigate(`/${userId}/project`);
+    navigate(`/${userId}/pomoshnik/project`);
   };
 
   const [name, setName] = useState("");
@@ -400,30 +396,7 @@ export default function ProjectNew() {
             </div>
           </div>
 
-          <div className={classes.blockSelect}>
-            <img
-              src={Listsetting}
-              alt="Listsetting"
-              className={classes.select}
-            />
-            <ul className={classes.option}>
-              <div className={classes.nameList}>РАЗДЕЛЫ</div>
-              {Object.keys(showTable).map((key) => {
-                const { isShow, setIsShow } = showTable[key];
-                return (
-                  <li onClick={() => setIsShow?.(!isShow)}>
-                    {isShow ? (
-                      <img src={glazikBlack} alt="glazikBlack" />
-                    ) : (
-                      <img src={glazikInvisible} alt="glazikInvisible" />
-                    )}
-
-                    {key}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <BlockSections showTable={showTable}></BlockSections>
 
           <div className={classes.iconSave}>
             <img
@@ -433,6 +406,7 @@ export default function ProjectNew() {
               onClick={() => saveProject()}
             />
           </div>
+          
         </div>
       </div>
 

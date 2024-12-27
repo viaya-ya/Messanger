@@ -1,0 +1,21 @@
+{
+    "remove_empty_rules": true,
+    "sort_order": [
+      "position",
+      "top",
+      "right",
+      "bottom",
+      "left",
+      "display",
+      "width",
+      "height",
+      "margin",
+      "padding",
+      "border",
+      "background",
+      "font",
+      "color",
+      "text-align"
+    ]
+  }
+  

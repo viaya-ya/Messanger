@@ -1,39 +1,45 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {url} from "./baseUrl"
-import {prepareHeaders} from "./Function/prepareHeaders.js"
+import { selectedOrganizationId, url } from "./baseUrl";
+import { prepareHeaders } from "./Function/prepareHeaders.js";
+
 export const postApi = createApi({
   reducerPath: "postApi",
   tagTypes: ["Post", "PostNew", "Statistics"],
   baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
-    
     getPosts: build.query({
-      query: (userId = "") => ({
-        url: `${userId}/posts`,
+      query: () => ({
+        url: `posts/${selectedOrganizationId}`,
       }),
       transformResponse: (response) => {
         return response.sort((a, b) => a.postName.localeCompare(b.postName));
       },
-      providesTags: (result, error, userId) =>  [{ type: "Post", id: "LIST" }],
+      providesTags: (result, error, userId) => [{ type: "Post", id: "LIST" }],
     }),
 
     postPosts: build.mutation({
-      query: ({ userId, addPolicyId = "null", ...body }) => ({
-        url: `${userId}/posts/new?addPolicyId=${addPolicyId}`,
+      query: ({ addPolicyId = "null", ...body }) => ({
+        url: `posts/new?addPolicyId=${addPolicyId}`,
         method: "POST",
-        body,
+        body:{
+          ...body,
+          organizationId: selectedOrganizationId
+        },
       }),
       transformErrorResponse: (response) => {
-        return{
+        return {
           id: response?.id,
-        }
+        };
       },
-      invalidatesTags: [{ type: "Post", id: "LIST" }, { type: "PostNew", id: "NEW" }],
+      invalidatesTags: [
+        { type: "Post", id: "LIST" },
+        { type: "PostNew", id: "NEW" },
+      ],
     }),
 
     getPostNew: build.query({
-      query: (userId = "") => ({
-        url: `${userId}/posts/new`,
+      query: () => ({
+        url: `posts/${selectedOrganizationId}/new`,
       }),
       transformResponse: (response) => {
         console.log(response); // Отладка ответа
@@ -44,26 +50,35 @@ export const postApi = createApi({
           }
           return a.firstName.localeCompare(b.firstName); // Если фамилии одинаковы, сортируем по имени
         });
-        
-        const sortPolicies = response?.policies?.sort((a, b) => a.policyName.localeCompare(b.policyName));
-        const sortPosts = response?.posts?.sort((a, b) => a.postName.localeCompare(b.postName));
-        const sortOrganizations = response?.organizations?.sort((a, b) => a.organizationName.localeCompare(b.organizationName));
+
+        const sortPolicies = response?.policies?.sort((a, b) =>
+          a.policyName.localeCompare(b.policyName)
+        );
+        const sortPosts = response?.posts?.sort((a, b) =>
+          a.postName.localeCompare(b.postName)
+        );
+
         return {
           workers: sortWorkers || [],
           policies: sortPolicies || [],
           posts: sortPosts || [],
-          organizations:sortOrganizations || [],
           maxDivisionNumber: response?.maxDivisionNumber,
         };
       },
-      providesTags: (result, error, userId) => [{ type: "Post", id: "LIST" }, { type: "PostNew", id: "NEW" }],
+      providesTags: (result, error, userId) => [
+        { type: "Post", id: "LIST" },
+        { type: "PostNew", id: "NEW" },
+      ],
     }),
 
     getPostId: build.query({
-      query: ({userId, postId}) => ({
-        url: `${userId}/posts/${postId}`,
+      query: ({ postId }) => ({
+        url: `posts/${postId}/post`,
       }),
-      providesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }, { type: "Statistics", id: "LIST" }],
+      providesTags: (result, error, { postId }) => [
+        { type: "Post", id: postId },
+        { type: "Statistics", id: "LIST" },
+      ],
       transformResponse: (response) => {
         console.log(response); // Отладка ответа
         const sortWorkers = response?.workers?.sort((a, b) => {
@@ -73,18 +88,25 @@ export const postApi = createApi({
           }
           return a.firstName.localeCompare(b.firstName); // Если фамилии одинаковы, сортируем по имени
         });
-        
-        const sortPoliciesActive = response?.policiesActive?.sort((a, b) => a.policyName.localeCompare(b.policyName));
-        const sortPosts = response?.posts?.sort((a, b) => a.postName.localeCompare(b.postName));
-        const sortOrganizations = response?.organizations?.sort((a, b) => a.organizationName.localeCompare(b.organizationName));
+
+        const sortPoliciesActive = response?.policiesActive?.sort((a, b) =>
+          a.policyName.localeCompare(b.policyName)
+        );
+        const sortPosts = response?.posts?.sort((a, b) =>
+          a.postName.localeCompare(b.postName)
+        );
+        const sortOrganizations = response?.organizations?.sort((a, b) =>
+          a.organizationName.localeCompare(b.organizationName)
+        );
 
         return {
           currentPost: response?.currentPost || {},
           parentPost: response?.parentPost || {},
-          policyDB: response?.currentPost?.policy?.id || null,
+          selectedPolicyIDInPost: response?.currentPost?.policy?.id || null,
+          selectedPolicyNameInPost: response?.currentPost?.policy?.policyName || null,
 
           workers: sortWorkers || [],
-          organizations:sortOrganizations || [],
+          organizations: sortOrganizations || [],
           policies: sortPoliciesActive || [],
           posts: sortPosts || [],
 
@@ -94,28 +116,23 @@ export const postApi = createApi({
     }),
 
     updatePosts: build.mutation({
-      query: ({ userId, postId, ...body }) => ({
-        url: `${userId}/posts/${postId}/update`,
+      query: ({ postId, ...body }) => ({
+        url: `posts/${postId}/update`,
         method: "PATCH",
         body,
       }),
       invalidatesTags: (result, error, { postId }) => [
-        { type: "Post", id: "LIST" },  // Инвалидация списка постов
-        { type: "Post", id: postId },  // Инвалидация конкретного поста
+        { type: "Post", id: "LIST" }, // Инвалидация списка постов
+        { type: "Post", id: postId }, // Инвалидация конкретного поста
       ],
     }),
-
-    updateStatisticsToPostId: build.mutation({
-      query: ({ userId, postId, ...body }) => ({
-        url: `${userId}/statistics/${postId}/updateBulk`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: (result) =>
-        result ? [{ type: "Statistics", id: "LIST" }] : [],
-    }),
-
   }),
 });
 
-export const { useGetPostsQuery, useGetPostNewQuery, usePostPostsMutation, useGetPostIdQuery, useUpdatePostsMutation, useUpdateStatisticsToPostIdMutation } = postApi;
+export const {
+  useGetPostsQuery,
+  useGetPostNewQuery,
+  usePostPostsMutation,
+  useGetPostIdQuery,
+  useUpdatePostsMutation,
+} = postApi;

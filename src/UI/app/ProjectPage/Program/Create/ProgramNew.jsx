@@ -22,12 +22,13 @@ import {
   setProgramOrganizationId,
 } from "../../../../../BLL/Program/Slice/programSlice.js";
 import TextArea from "../../../../Custom/TextArea/TextArea.jsx";
+import BlockSections from "../../../../Custom/SectionsProject/BlockSections.jsx";
 
 export default function ProgramNew() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate(`/${userId}/program`);
+    navigate(`/${userId}/pomoshnik/program`);
   };
   const [name, setName] = useState("");
 
@@ -394,31 +395,7 @@ export default function ProgramNew() {
             </div>
           )}
 
-          <div className={classes.blockSelect}>
-            <img
-              src={Listsetting}
-              alt="Listsetting"
-              className={classes.select}
-            />
-            <ul className={classes.option}>
-              <div className={classes.nameList}>РАЗДЕЛЫ</div>
-
-              {Object.keys(showTable).map((key) => {
-                const { isShow, setIsShow } = showTable[key];
-                return (
-                  <li onClick={() => setIsShow?.(!isShow)}>
-                    {isShow ? (
-                      <img src={glazikBlack} alt="glazikBlack" />
-                    ) : (
-                      <img src={glazikInvisible} alt="glazikInvisible" />
-                    )}
-
-                    {key}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+<BlockSections showTable={showTable}></BlockSections>
 
           <div className={classes.iconSave}>
             <img

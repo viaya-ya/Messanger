@@ -47,6 +47,13 @@ ul li{list-style: none;}
 img{vertical-align: top;}
 
 h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight: 400;}
+
+/*цвета*/
+:root {
+    --primary: #005475;
+    --white:#FFFFFF;
+    --grey:#B4B4B4;
+  }
 /*--------------------*/
 ::-webkit-scrollbar{
     background-color:  #FFFFFF;
@@ -131,6 +138,22 @@ input[type="checkbox"]:checked::before {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+input[type="checkbox"]:disabled::before {
+    content: "✓";
+    color: #acddf2;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+}
+
+input[type="radio"]:checked {
+    accent-color: #005475; 
+}
+
 
 input[type="date"] {
     position: relative;

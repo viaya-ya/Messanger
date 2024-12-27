@@ -106,7 +106,7 @@
 
     & .nameTableColumn1 {
         height: 30px;
-        width: 73.5%;
+        width: 64.5%;
         text-align: start;
         padding-left: 10px;
         background-color: #ffff;
@@ -136,23 +136,7 @@
         background-color: #ffff;
     }
 
-    & .deleteTableColumn {
-        height: 30px;
-        width: 30px;
-        min-width: 30px;
-        /* min-width: 7.65%; */
-        background-color: #ffff;
 
-        display: table-cell;
-        vertical-align: middle;
-
-
-        & :hover {
-            background-color: rgb(240, 240, 240);
-            border-radius: 20%;
-            cursor: pointer;
-        }
-    }
 
     & .checkBox {
         height: 30px;
@@ -164,12 +148,10 @@
         text-align: center;
     }
 
-    & .deleteTableColumn1 {
+    & .deleteTableColumn {
         height: 30px;
-        width: 8.7%;
-        /* min-width: 7.65%; */
+        width: 8.5%;
         background-color: #ffff;
-
         display: table-cell;
         vertical-align: middle;
 
@@ -183,6 +165,5 @@
     & .statusTableColumn {
         height: 30px;
         width: 8%;
-        /* min-width: 2%; */
     }
 }

@@ -498,7 +498,7 @@ export default function TableProject({
                                   />
                                 </td>
 
-                                <td className={classes.deleteTableColumn1}>
+                                <td className={classes.deleteTableColumn}>
                                   {nameTable !== "Продукт" && (
                                     <img
                                       src={deleteGrey}
@@ -570,7 +570,7 @@ export default function TableProject({
                               />
                             </td>
 
-                            <td className={classes.deleteTableColumn1}>
+                            <td className={classes.deleteTableColumn}>
                               {nameTable !== "Продукт" && (
                                 <img
                                   src={deleteGrey}

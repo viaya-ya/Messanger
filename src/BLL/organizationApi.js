@@ -1,30 +1,53 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {url} from "./baseUrl"
-import {prepareHeaders} from "./Function/prepareHeaders.js"
+import { selectedOrganizationId, url } from "./baseUrl";
+import { prepareHeaders } from "./Function/prepareHeaders.js";
 
 export const organizationApi = createApi({
   reducerPath: "organizationApi",
   tagTypes: ["Organization"],
   baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
-
     getOrganizations: build.query({
-      query: (userId = "") => ({
-        url: `${userId}/organizations`,
+      query: () => ({
+        url: `organizations`,
       }),
-      providesTags: (result) => result ? [{type: 'Organization', id: "LIST"}] : [],
+      providesTags: (result) =>
+        result ? [{ type: "Organization", id: "LIST" }] : [],
+      transformResponse: (response) => {
+        const organizations = response?.map(
+          ({ createdAt, updatedAt, ...rest }) => ({ ...rest })
+        );
+        return {
+          organizations: organizations,
+        };
+      },
+    }),
+
+    getOrganizationId: build.query({
+      query: () => ({
+        url: `organizations/${selectedOrganizationId}`,
+      }),
+      providesTags: (result) =>
+        result ? [{ type: "Organization", id: "LIST" }] : [],
     }),
 
     updateOrganizations: build.mutation({
-      query: ({userId, organizationId , ...body}) => ({
-        url: `${userId}/organizations/${organizationId}/update`,
+      query: (body) => ({
+        url: `organizations/${selectedOrganizationId}/update`,
         method: "PATCH",
-        body,
+        body:{
+          _id:selectedOrganizationId,
+          ...body
+        },
       }),
-      invalidatesTags: (result, error) => result ? [{type: "Organization", id: "LIST" }] : []
+      invalidatesTags: (result, error) =>
+        result ? [{ type: "Organization", id: "LIST" }] : [],
     }),
-    
   }),
 });
 
-export const {useGetOrganizationsQuery, useUpdateOrganizationsMutation} = organizationApi;
+export const {
+  useGetOrganizationsQuery,
+  useGetOrganizationIdQuery,
+  useUpdateOrganizationsMutation,
+} = organizationApi;

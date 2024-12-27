@@ -9,17 +9,17 @@ export default function StartContent() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const back = () => {
-    navigate(`/${userId}/start`);
+    navigate(`/${userId}/pomoshnik/start`);
   };
 
   const [type, setType] = useState("null");
 
   useEffect(() => {
     if (type === "Проект") {
-      navigate(`/${userId}/project`);
+      navigate(`/${userId}/pomoshnik/project`);
     }
     if (type === "Программа") {
-      navigate(`/${userId}/program`);
+      navigate(`/${userId}/pomoshnik/program`);
     }
   }, [type]);
 

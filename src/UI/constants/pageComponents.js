@@ -3,7 +3,6 @@ import Pomoshnik from "@app/Pomoshnik/Pomoshnik";
 import Goal from "@app/GoalPage/Goal";
 import Policy from "@app/PolicyPage/Policy";
 import Statistic from "@app/StatisticsPage/Statistic";
-import StatisticNew from "@app/StatisticsPage/StatisticNew";
 import SpeedGoal from "@app/SpeedGoalPage/SpeedGoal";
 import Strategy from "@app/StrategyPage/Strategy";
 import StartProject from "@app/ProjectPage/Start/Update/StartContent";
@@ -27,7 +26,6 @@ const pageComponents = {
 
 
     statistic: Statistic,
-    statisticNew: StatisticNew,
 
     speedGoal: SpeedGoal,
 

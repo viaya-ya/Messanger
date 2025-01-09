@@ -637,6 +637,8 @@ export default function Statistic() {
 
       setReceivedPoints(updatedYearPoints);
     }
+    console.log("typeGraphic");
+    console.log(typeGraphic);
     if (typeGraphic === "13" || typeGraphic === "26" || typeGraphic === "52") {
       const today = new Date();
       const end = new Date(today);
@@ -653,11 +655,13 @@ export default function Statistic() {
 
       // Перемещаем currentDate на первый выбранный день недели
       while (currentDate.getDay() !== selectedDayOfWeek) {
+        console.log("11111111111111");
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
       // Цикл по неделям
       while (currentDate <= end) {
+        console.log("2222222222222222");
         const nextDate = new Date(currentDate);
         nextDate.setDate(currentDate.getDate() + 7);
 
@@ -1287,12 +1291,12 @@ export default function Statistic() {
   ];
 
   const selectViewGraphic = [
-    { id: 1, value: "Ежедневный", view: "Ежедневный" },
-    { id: 2, value: "Ежемесячный", view: "Ежемесячный" },
-    { id: 3, value: "Ежегодовой", view: "Ежегодовой" },
-    { id: 4, value: "13", view: "13 недель" },
-    { id: 5, value: "26", view: "26 недель" },
-    { id: 6, value: "52", view: "52 недели" },
+    { id: "Ежедневный", value: "Ежедневный", view: "Ежедневный" },
+    { id:  "Ежемесячный", value: "Ежемесячный", view: "Ежемесячный" },
+    { id: "Ежегодовой", value: "Ежегодовой", view: "Ежегодовой" },
+    { id: "13", value: "13", view: "13 недель" },
+    { id:  "26", value: "26", view: "26 недель" },
+    { id: "52", value: "52", view: "52 недели" },
   ];
 
   const selectStatistics = (id) => {

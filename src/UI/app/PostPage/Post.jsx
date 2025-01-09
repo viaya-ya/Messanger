@@ -394,7 +394,7 @@ export default function Post() {
   // Переход к созданию статистики
   const goToStatisticsNew = () => {
     saveUpdatePost(); // сохранить перед тем как  перейти к созданию статистики
-    navigate(`/statisticNew/${selectedPostId}`);
+    navigate(`/statistic/${selectedPostId}`);
   };
 
   return (

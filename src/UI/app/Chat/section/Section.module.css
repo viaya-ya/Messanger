@@ -56,8 +56,9 @@
 
     background-color: var(--white);
 
-    :hover{
+    :hover {
         background-color: var(--grey);
+
         & span {
             color: var(--white);
         }
@@ -81,6 +82,14 @@
         color: var(--grey);
     }
 
+}
+
+.row_active {
+    background-color: var(--grey);
+
+    & span {
+        color: var(--white);
+    }
 }
 
 .line {

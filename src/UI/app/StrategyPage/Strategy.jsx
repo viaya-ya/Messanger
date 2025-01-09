@@ -36,6 +36,7 @@ export default function Strategy() {
 
 
   const {
+    reduxNewSelectedOrganizationId,
     hasDraftStrategy,
     completedStrategies,
     draftAndActiveStrategies,
@@ -118,6 +119,7 @@ export default function Strategy() {
   const savePostStarteg = async () => {
     await postStarteg({
       content: " ",
+      organizationId:reduxNewSelectedOrganizationId
     })
       .unwrap()
       .then((result) => {

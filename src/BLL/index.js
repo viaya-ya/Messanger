@@ -8,10 +8,9 @@ import { strategApi } from './strategy/strategApi';
 import { statisticsApi } from './statisticsApi';
 import { directoriesApi } from './directoriesApi';
 import { organizationApi } from './organizationApi';
+
+import localStorageReducer from "./localStorage/localStorageSlice";
 import postReducer from "./postSlice";
-
-
-
 import projectReducer from "./Project/Slice/projectSlice";
 import programReducer from "./Program/Slice/programSlice";
 
@@ -27,6 +26,7 @@ export const store = configureStore({
         [statisticsApi.reducerPath]: statisticsApi.reducer,
         [directoriesApi.reducerPath]: directoriesApi.reducer,
         [organizationApi.reducerPath]: organizationApi.reducer,
+        localStorage: localStorageReducer,
         post: postReducer,
         project: projectReducer,
         program: programReducer,

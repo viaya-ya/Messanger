@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import classes from "./Goal.module.css";
 import drag from "../../image/drag.svg";
 import deleteImage from "../../image/delete.svg";
-
 import {
   useGetGoalQuery,
   useUpdateGoalMutation,
@@ -14,6 +13,9 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import TextArea from "../../Custom/TextArea/TextArea.jsx";
 import Headers from "@Custom/Headers/Headers";
 import BottomHeaders from "@Custom/Headers/BottomHeaders/BottomHeaders";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+
+
 
 export default function Goal() {
   const [editorState, setEditorState] = useState([]);
@@ -22,12 +24,15 @@ export default function Goal() {
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
+ const {reduxNewSelectedOrganizationId } =
+    useGetOldAndNewOrganizationId();
+
   const {
     currentGoal = [],
     isErrorGetGoal,
     isLoadingGetGoal,
     isFetchingGetGoal,
-  } = useGetGoalQuery(undefined, {
+  } = useGetGoalQuery({organizationId: reduxNewSelectedOrganizationId}, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
       currentGoal: data?.currentGoal || [],
       isErrorGetGoal: isError,
@@ -35,6 +40,8 @@ export default function Goal() {
       isFetchingGetGoal: isFetching,
     }),
   });
+
+
 
   const [
     postGoal,
@@ -58,6 +65,7 @@ export default function Goal() {
   const saveGoal = async () => {
     await postGoal({
       content: [""],
+      organizationId: reduxNewSelectedOrganizationId,
     })
       .unwrap()
       .then()

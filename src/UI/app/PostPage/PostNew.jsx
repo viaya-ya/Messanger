@@ -18,6 +18,8 @@ import Input from "@Custom/Input/Input";
 import Select from "@Custom/Select/Select";
 import { ModalSelectRadio } from "@Custom/modalSelectRadio/ModalSelectRadio";
 import {useModalSelectRadio} from "UI/hooks/useModalSelectRadio";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+import { organizationApi } from "BLL/organizationApi";
 
 export default function PostNew() {
   const navigate = useNavigate();
@@ -39,6 +41,9 @@ export default function PostNew() {
   const [openModalPolicy, setOpenModalPolicy] = useState(false);
   const [openModalStatistic, setOpenModalStatistic] = useState(false);
 
+   const {reduxNewSelectedOrganizationId } =
+      useGetOldAndNewOrganizationId();
+
   const {
     workers = [],
     policies = [],
@@ -46,7 +51,7 @@ export default function PostNew() {
     maxDivisionNumber,
     isLoadingGetNew,
     isErrorGetNew,
-  } = useGetPostNewQuery(undefined, {
+  } = useGetPostNewQuery({organizationId:reduxNewSelectedOrganizationId}, {
     selectFromResult: ({ data, isLoading, isError }) => ({
       workers: data?.workers || [],
       policies: data?.policies || [],
@@ -93,6 +98,7 @@ export default function PostNew() {
       ...Data,
       product: product,
       purpose: purpose,
+      organizationId:reduxNewSelectedOrganizationId,
     })
       .unwrap()
       .then((result) => {

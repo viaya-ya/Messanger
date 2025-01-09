@@ -19,10 +19,11 @@ import BottomHeaders from "@Custom/Headers/BottomHeaders/BottomHeaders";
 import Select from "@Custom/Select/Select";
 import Input from "@Custom/Input/Input";
 import Lupa from "@Custom/Lupa/Lupa";
-import {useModalSelectRadio} from "UI/hooks/useModalSelectRadio";
+import { useModalSelectRadio } from "UI/hooks/useModalSelectRadio";
 import { ModalSelectRadio } from "@Custom/modalSelectRadio/ModalSelectRadio";
 import { useModalCheckBoxStatistic } from "UI/hooks/useModalCheckBoxStatistic";
-import {ModalSelectedStatistic} from "@Custom/modalSelectedStatistic/ModalSelectedStatistic";
+import { ModalSelectedStatistic } from "@Custom/modalSelectedStatistic/ModalSelectedStatistic";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
 
 export default function Post() {
   const navigate = useNavigate();
@@ -70,17 +71,22 @@ export default function Post() {
   const [manualErrorResetStatistic, setManualErrorResetStatistic] =
     useState(false);
 
+  const { reduxNewSelectedOrganizationId } = useGetOldAndNewOrganizationId();
+
   const {
     data = [],
     isLoadingGetPosts,
     isErrorGetPosts,
-  } = useGetPostsQuery(undefined, {
-    selectFromResult: ({ data, isLoading, isError }) => ({
-      data: data || [],
-      isLoadingGetPosts: isLoading,
-      isErrorGetPosts: isError,
-    }),
-  });
+  } = useGetPostsQuery(
+    { organizationId: reduxNewSelectedOrganizationId },
+    {
+      selectFromResult: ({ data, isLoading, isError }) => ({
+        data: data || [],
+        isLoadingGetPosts: isLoading,
+        isErrorGetPosts: isError,
+      }),
+    }
+  );
 
   const {
     currentPost = {},
@@ -294,10 +300,10 @@ export default function Post() {
   // Политика
   const {
     selectedID: selectedPolicyID,
-    setSelectedID:setSelectedPolicyID,
+    setSelectedID: setSelectedPolicyID,
 
-    selectedName:selectedPolicyName,
-    setSelectedName:setSelectedPolicyName,
+    selectedName: selectedPolicyName,
+    setSelectedName: setSelectedPolicyName,
 
     handleRadioChange,
     handleInputChangeModalSearch,
@@ -324,7 +330,7 @@ export default function Post() {
     searchStatistics,
     resetStatisticsId,
   } = useModalCheckBoxStatistic({ openModalStatistic, setStatisticsChecked });
-  
+
   const saveStatisticsId = async () => {
     setManualSuccessReset(true);
     setManualErrorReset(true);
@@ -570,18 +576,25 @@ export default function Post() {
                               <>
                                 {openModalStatistic && (
                                   <ModalSelectedStatistic
-                                  value={inputSearchModalStatistics}
-                                  onChange={searchStatistics}
-                                  goToStatisticsNew={goToStatisticsNew}
-                                  setOpenModalStatisticSave={setOpenModalStatisticSave}
-                                  filterArraySearchModalStatistics={filterArraySearchModalStatistics}
-                                  handleChecboxChangeStatistics={handleChecboxChangeStatistics}
-                                  statisticsChecked={statisticsChecked}
-                                  disabledStatisticsChecked={disabledStatisticsChecked}
-                                  statistics={statistics}
-                                  openStatisticWarning={openStatisticWarning}
-                                  >
-                                  </ModalSelectedStatistic>
+                                    value={inputSearchModalStatistics}
+                                    onChange={searchStatistics}
+                                    goToStatisticsNew={goToStatisticsNew}
+                                    setOpenModalStatisticSave={
+                                      setOpenModalStatisticSave
+                                    }
+                                    filterArraySearchModalStatistics={
+                                      filterArraySearchModalStatistics
+                                    }
+                                    handleChecboxChangeStatistics={
+                                      handleChecboxChangeStatistics
+                                    }
+                                    statisticsChecked={statisticsChecked}
+                                    disabledStatisticsChecked={
+                                      disabledStatisticsChecked
+                                    }
+                                    statistics={statistics}
+                                    openStatisticWarning={openStatisticWarning}
+                                  ></ModalSelectedStatistic>
                                 )}
                               </>
                             )}

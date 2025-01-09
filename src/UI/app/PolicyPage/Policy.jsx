@@ -23,9 +23,10 @@ import Headers from "../../Custom/Headers/Headers.jsx";
 import BottomHeaders from "../../Custom/Headers/BottomHeaders/BottomHeaders.jsx";
 import Select from "../../Custom/Select/Select.jsx";
 import { useDirectories } from "./hooks/Directories";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+
 
 export default function Policy() {
-
   const selectRef = useRef(null);
 
   const [isOpenSearch, setIsOpenSearch] = useState(false);
@@ -40,8 +41,11 @@ export default function Policy() {
   const [manualSuccessReset, setManualSuccessReset] = useState(false);
   const [manualErrorReset, setManualErrorReset] = useState(false);
 
-  const [manualCreateSuccessReset, setManualCreateSuccessReset] = useState(false);
+  const [manualCreateSuccessReset, setManualCreateSuccessReset] =
+    useState(false);
   const [manualCreateErrorReset, setManualCreateErrorReset] = useState(false);
+
+  const { reduxNewSelectedOrganizationId } = useGetOldAndNewOrganizationId();
 
   const [
     postPolicy,
@@ -57,6 +61,7 @@ export default function Policy() {
     await postPolicy({
       policyName: "Политика",
       content: " ",
+      organizationId: reduxNewSelectedOrganizationId,
     })
       .unwrap()
       .then((result) => {
@@ -70,7 +75,6 @@ export default function Policy() {
       });
   };
 
-
   const {
     instructionsActive = [],
     instructionsDraft = [],
@@ -83,23 +87,28 @@ export default function Policy() {
     isLoadingGetPolicies,
     isErrorGetPolicies,
     isFetchingGetPolicies,
-  } = useGetPoliciesQuery(undefined, {
-    selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
-      isLoadingGetPolicies: isLoading,
-      isErrorGetPolicies: isError,
-      isFetchingGetPolicies: isFetching,
-      directives: data?.directives || [],
-      instructions: data?.instructions || [],
 
-      instructionsActive: data?.instructionsActive || [],
-      instructionsDraft: data?.instructionsDraft || [],
-      instructionsCompleted: data?.instructionsCompleted || [],
+  } = useGetPoliciesQuery(
+    { organizationId: reduxNewSelectedOrganizationId },
+    {
+      selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
+        isLoadingGetPolicies: isLoading,
+        isErrorGetPolicies: isError,
+        isFetchingGetPolicies: isFetching,
+        directives: data?.directives || [],
+        instructions: data?.instructions || [],
 
-      directivesActive: data?.directivesActive || [],
-      directivesDraft: data?.directivesDraft || [],
-      directivesCompleted: data?.directivesCompleted || [],
-    }),
-  });
+        instructionsActive: data?.instructionsActive || [],
+        instructionsDraft: data?.instructionsDraft || [],
+        instructionsCompleted: data?.instructionsCompleted || [],
+
+        directivesActive: data?.directivesActive || [],
+        directivesDraft: data?.directivesDraft || [],
+        directivesCompleted: data?.directivesCompleted || [],
+      }),
+    }
+  );
+
 
   const {
     currentPolicy = {},
@@ -128,8 +137,6 @@ export default function Policy() {
       error: Error,
     },
   ] = useUpdatePoliciesMutation();
-
-
 
   const {
     setCurrentDirectoryInstructions,
@@ -212,7 +219,6 @@ export default function Policy() {
     handleCheckboxChangeUpdate,
   } = useDirectories({ instructionsActive, directivesActive });
 
-
   const saveUpdatePolicy = async () => {
     const Data = {};
 
@@ -261,7 +267,6 @@ export default function Policy() {
     setManualCreateSuccessReset(true);
     setManualCreateErrorReset(true);
   };
-
 
   useEffect(() => {
     if (currentPolicy.policyName) {
@@ -775,8 +780,14 @@ export default function Policy() {
 
                         <HandlerMutation
                           Loading={isLoadingPostPoliciesMutation}
-                          Error={isErrorPostPoliciesMutation && !manualCreateSuccessReset}
-                          Success={isSuccessPostPoliciesMutation && !manualCreateErrorReset}
+                          Error={
+                            isErrorPostPoliciesMutation &&
+                            !manualCreateSuccessReset
+                          }
+                          Success={
+                            isSuccessPostPoliciesMutation &&
+                            !manualCreateErrorReset
+                          }
                           textSuccess={"Политика успешно создана."}
                           textError={
                             ErrorPostPolicies?.data?.errors?.[0]?.errors?.[0]

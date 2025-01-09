@@ -12,8 +12,8 @@ export const policyApi = createApi({
   }),
   endpoints: (build) => ({
     getPolicies: build.query({
-      query: () => ({
-        url: `policies/${selectedOrganizationId}`,
+      query: ({organizationId}) => ({
+        url: `policies/${organizationId}`,
       }),
 
       transformResponse: (response) => {
@@ -83,10 +83,7 @@ export const policyApi = createApi({
       query: (body) => ({
         url: `policies/new`,
         method: "POST",
-        body:{
-          ...body,
-          organizationId: selectedOrganizationId
-        },
+        body
       }),
       invalidatesTags: [{ type: "Policy", id: "LIST" }],
     }),

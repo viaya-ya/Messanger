@@ -1,16 +1,25 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import classes from "./Section.module.css";
 import { useOrganization } from "./hook/getOrganization";
+import { useDispatch } from "react-redux";
 import imgOrganization from "../../../sprite/organization.svg";
+import {
+  setNewSelectedOrganizationId,
+} from "BLL/localStorage/localStorageSlice";
 
 export default function Section() {
-  const { organizations, isLoadingOrganization, isErrorOrganization } = useOrganization();
+  const { organizations, isLoadingOrganization, isErrorOrganization } =
+    useOrganization();
 
   const [activeId, setActiveId] = useState(null); // Храним id выбранного элемента
-
-  const handleOrganizationNameButtonClick = (id) => {
-    setActiveId(id); // Устанавливаем выбранный id
+  const dispatch = useDispatch();
+  
+  const handleOrganizationNameButtonClick = (id, name) => {
     localStorage.setItem("selectedOrganizationId", id);
+    localStorage.setItem("name", name);
+
+    setActiveId(id);
+    dispatch(setNewSelectedOrganizationId(id));
   };
 
   return (
@@ -25,7 +34,7 @@ export default function Section() {
             className={`${classes.row} ${
               activeId === item.id ? classes.row_active : ""
             }`}
-            onClick={() => handleOrganizationNameButtonClick(item.id)}
+            onClick={() => handleOrganizationNameButtonClick(item.id, item.organizationName)}
           >
             <img
               src={imgOrganization}

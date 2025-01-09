@@ -1,6 +1,11 @@
 import { useGetStrategiesQuery } from "BLL/strategy/strategApi";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
 
 export function useGetStrategies() {
+
+   const {reduxNewSelectedOrganizationId } =
+      useGetOldAndNewOrganizationId();
+
   const {
     hasDraftStrategy,
     completedStrategies,
@@ -9,7 +14,7 @@ export function useGetStrategies() {
     isLoadingStrategies,
     isErrorStrategies,
     isFetchingStrategies
-  } = useGetStrategiesQuery(undefined, {
+  } = useGetStrategiesQuery({organizationId:reduxNewSelectedOrganizationId}, {
     selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
       hasDraftStrategy: data?.hasDraftStrategy || [],
       completedStrategies: data?.completedStrategies || [],
@@ -22,6 +27,7 @@ export function useGetStrategies() {
   });
 
   return {
+    reduxNewSelectedOrganizationId,
     hasDraftStrategy,
     completedStrategies,
     draftAndActiveStrategies,

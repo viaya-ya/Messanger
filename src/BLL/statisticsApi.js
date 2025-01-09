@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { selectedOrganizationId, url } from "./baseUrl";
+import { url } from "./baseUrl";
 import { prepareHeaders } from "./Function/prepareHeaders.js";
 
 export const statisticsApi = createApi({
@@ -8,8 +8,8 @@ export const statisticsApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
     getStatistics: build.query({
-      query: ({ statisticData = true }) => ({
-        url: `/statistics/${selectedOrganizationId}/?statisticData=${statisticData}`,
+      query: ({ organizationId, statisticData = true }) => ({
+        url: `/statistics/${organizationId}/?statisticData=${statisticData}`,
       }),
       transformResponse: (response) => {
         return response.sort((a, b) => a.name.localeCompare(b.name));

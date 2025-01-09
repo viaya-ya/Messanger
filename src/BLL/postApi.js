@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { selectedOrganizationId, url } from "./baseUrl";
+import { url } from "./baseUrl";
 import { prepareHeaders } from "./Function/prepareHeaders.js";
 
 export const postApi = createApi({
@@ -8,8 +8,8 @@ export const postApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
     getPosts: build.query({
-      query: () => ({
-        url: `posts/${selectedOrganizationId}`,
+      query: ({organizationId}) => ({
+        url: `posts/${organizationId}`,
       }),
       transformResponse: (response) => {
         return response.sort((a, b) => a.postName.localeCompare(b.postName));
@@ -21,10 +21,7 @@ export const postApi = createApi({
       query: ({ addPolicyId = "null", ...body }) => ({
         url: `posts/new?addPolicyId=${addPolicyId}`,
         method: "POST",
-        body:{
-          ...body,
-          organizationId: selectedOrganizationId
-        },
+        body
       }),
       transformErrorResponse: (response) => {
         return {
@@ -38,8 +35,8 @@ export const postApi = createApi({
     }),
 
     getPostNew: build.query({
-      query: () => ({
-        url: `posts/${selectedOrganizationId}/new`,
+      query: ({organizationId}) => ({
+        url: `posts/${organizationId}/new`,
       }),
       transformResponse: (response) => {
         console.log(response); // Отладка ответа

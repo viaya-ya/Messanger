@@ -31,6 +31,7 @@ import Input from "@Custom/Input/Input";
 import Lupa from "@Custom/Lupa/Lupa";
 import { ModalSelectRadio } from "@Custom/modalSelectRadio/ModalSelectRadio";
 import { useModalSelectRadio } from "UI/hooks/useModalSelectRadio";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
 
 export default function Statistic() {
   
@@ -163,6 +164,7 @@ export default function Statistic() {
 
   
   //Статистика
+  const {reduxNewSelectedOrganizationId} = useGetOldAndNewOrganizationId();
   const {
     statistics = [],
     isLoadingStatistic,
@@ -170,7 +172,7 @@ export default function Statistic() {
     isErrorStatistic,
     refetch,
   } = useGetStatisticsQuery(
-    { undefined, statisticData: true },
+    { organizationId: reduxNewSelectedOrganizationId, statisticData: true },
     {
       selectFromResult: ({ data, isLoading, isError, isFetching }) => ({
         statistics: data || [],

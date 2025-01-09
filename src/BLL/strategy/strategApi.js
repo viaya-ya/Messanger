@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { url, selectedOrganizationId } from "../baseUrl";
+import { url } from "../baseUrl";
 import { prepareHeaders } from "../Function/prepareHeaders.js";
 
 export const strategApi = createApi({
@@ -8,8 +8,8 @@ export const strategApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
     getStrategies: build.query({
-      query: () => ({
-        url: `strategies/${selectedOrganizationId}`,
+      query: ({organizationId}) => ({
+        url: `strategies/${organizationId}`,
       }),
       transformResponse: (response) => {
         const completedStrategies = response
@@ -59,10 +59,7 @@ export const strategApi = createApi({
       query: (body) => ({
         url: `strategies/new`,
         method: "POST",
-        body: {
-          ...body,
-          organizationId: selectedOrganizationId,
-        },
+        body
       }),
       transformResponse: (response) => ({
         id: response.id,

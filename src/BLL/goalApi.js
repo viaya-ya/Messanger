@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { url, selectedOrganizationId } from "./baseUrl";
+import { url } from "./baseUrl";
 import { prepareHeaders } from "./Function/prepareHeaders.js";
 
 export const goalApi = createApi({
@@ -8,9 +8,10 @@ export const goalApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: url, prepareHeaders }),
   endpoints: (build) => ({
     getGoal: build.query({
-      query: () => ({
-        url: `goals/${selectedOrganizationId}`,
+      query: ({ organizationId }) => ({
+        url: `goals/${organizationId}`,
       }),
+
       transformResponse: (response) => {
         console.log(response); // Отладка ответа
         return {
@@ -24,10 +25,7 @@ export const goalApi = createApi({
       query: (body) => ({
         url: `goals/new`,
         method: "POST",
-        body:{
-          ...body,
-          organizationId:selectedOrganizationId
-        },
+        body
       }),
       invalidatesTags: [{ type: "Goal", id: "LIST" }],
     }),
@@ -38,7 +36,7 @@ export const goalApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags:  [{ type: "Goal", id: "LIST" }],
+      invalidatesTags: [{ type: "Goal", id: "LIST" }],
     }),
   }),
 });

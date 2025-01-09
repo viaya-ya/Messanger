@@ -3,18 +3,18 @@ import { createSlice } from '@reduxjs/toolkit';
 const localStorageSlice = createSlice({
   name: 'localStorage',
   initialState: {
-    oldId: localStorage.getItem('selectedOrganizationId') || null,
-    newId: localStorage.getItem('selectedOrganizationId') || null,
+    oldSelectedOrganizationId: localStorage.getItem('selectedOrganizationId') || null,
+    newSelectedOrganizationId: localStorage.getItem('selectedOrganizationId') || null,
   },
   reducers: {
-    setOldId: (state, action) => {
-      state.value = action.payload;
+    setOldSelectedOrganizationId: (state, action) => {
+      state.oldSelectedOrganizationId = action.payload;
     },
-    setNewId: (state, action) => {
-      state.value = action.payload;
+    setNewSelectedOrganizationId: (state, action) => {
+      state.newSelectedOrganizationId = action.payload;
     },
   },
 });
 
-export const { setOldId, setNewId } = localStorageSlice.actions;
+export const { setOldSelectedOrganizationId, setNewSelectedOrganizationId } = localStorageSlice.actions;
 export default localStorageSlice.reducer;

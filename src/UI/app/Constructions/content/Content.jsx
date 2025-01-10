@@ -6,7 +6,7 @@ import Chat from "@app/Chat/Chat";
 
 
 export default function Content() {
-  const { userId, group, route, paramPostID } = useParams();
+  const { group, route } = useParams();
   const Component = pageComponents[group]?.[route];
 
   return (
@@ -16,4 +16,3 @@ export default function Content() {
     </div>
   );
 }
-// http://localhost:3000/#/bc807845-08a8-423e-9976-4f60df183ae2/start

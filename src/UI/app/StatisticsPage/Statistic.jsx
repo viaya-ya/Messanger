@@ -76,12 +76,14 @@ export default function Statistic() {
   const [manualErrorResetOrganization, setManualErrorResetOrganization] =
     useState(true);
 
+ const { reduxNewSelectedOrganizationId } = useGetOldAndNewOrganizationId();
+
   // Получение постов
   const {
     posts = [],
     isLoadingGetPosts,
     isErrorGetPosts,
-  } = useGetPostsQuery(undefined, {
+  } = useGetPostsQuery({organizationId:reduxNewSelectedOrganizationId}, {
     selectFromResult: ({ data, isLoading, isError }) => ({
       posts: data || [],
       isLoadingGetPosts: isLoading,
@@ -164,7 +166,6 @@ export default function Statistic() {
 
   
   //Статистика
-  const {reduxNewSelectedOrganizationId} = useGetOldAndNewOrganizationId();
   const {
     statistics = [],
     isLoadingStatistic,

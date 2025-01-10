@@ -8,7 +8,7 @@ import ButtonImage from "@Custom/buttonImage/ButtonImage";
 export function ModalSelectedStatistic({
   value,
   onChange,
-  goToStatisticsNew,
+  createNewStatistic,
   setOpenModalStatisticSave,
   filterArraySearchModalStatistics,
   handleChecboxChangeStatistics,
@@ -35,7 +35,7 @@ export function ModalSelectedStatistic({
             <ButtonImage
               name={"создать"}
               icon={iconAdd}
-              onClick={goToStatisticsNew}
+              onClick={createNewStatistic}
             ></ButtonImage>
 
             <ButtonImage

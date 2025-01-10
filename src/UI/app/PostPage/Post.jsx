@@ -8,7 +8,10 @@ import {
   useGetPostsQuery,
   useUpdatePostsMutation,
 } from "../../../BLL/postApi.js";
-import { useUpdateStatisticsToPostIdMutation } from "BLL/statisticsApi.js";
+import {
+  usePostStatisticsMutation,
+  useUpdateStatisticsToPostIdMutation,
+} from "BLL/statisticsApi.js";
 import HandlerMutation from "../../Custom/HandlerMutation.jsx";
 import HandlerQeury from "../../Custom/HandlerQeury.jsx";
 import WaveLetters from "../../Custom/WaveLetters.jsx";
@@ -158,14 +161,6 @@ export default function Post() {
   useEffect(() => {
     if (createdId) {
       setSelectedPostId(createdId);
-    }
-  }, []);
-  // Конец
-
-  // Для перехода от статистик к посту
-  useEffect(() => {
-    if (paramPostID) {
-      setSelectedPostId(paramPostID);
     }
   }, []);
   // Конец
@@ -398,9 +393,26 @@ export default function Post() {
   };
 
   // Переход к созданию статистики
-  const goToStatisticsNew = () => {
-    saveUpdatePost(); // сохранить перед тем как  перейти к созданию статистики
-    navigate(`/statistic/${selectedPostId}`);
+  const [
+    postStatistics,
+    {
+      isLoading: isLoadingPostStatisticMutation,
+      isSuccess: isSuccessPostStatisticMutation,
+      isError: isErrorPostStatisticMutation,
+      error: Error,
+    },
+  ] = usePostStatisticsMutation();
+
+  const createNewStatistic = async () => {
+    await postStatistics({
+      name: "Статистика",
+      postId: selectedPostId,
+    })
+      .unwrap()
+      .then(() => {})
+      .catch((error) => {
+        console.error("Ошибка:", JSON.stringify(error, null, 2)); // выводим детализированную ошибку
+      });
   };
 
   return (
@@ -578,7 +590,7 @@ export default function Post() {
                                   <ModalSelectedStatistic
                                     value={inputSearchModalStatistics}
                                     onChange={searchStatistics}
-                                    goToStatisticsNew={goToStatisticsNew}
+                                    createNewStatistic={createNewStatistic}
                                     setOpenModalStatisticSave={
                                       setOpenModalStatisticSave
                                     }

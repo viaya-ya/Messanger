@@ -20,6 +20,12 @@ export function ModalSelectedStatistic({
   return (
     <div className={classes.modal}>
       <div className={classes.modalWindow}>
+        <img
+          src={exitModal}
+          alt="exitStatistic"
+          onClick={openStatisticWarning}
+          className={classes.exitImage}
+        />
         <div className={classes.itemTable}>
           <div className={classes.itemRow1}>
             <input
@@ -49,13 +55,6 @@ export function ModalSelectedStatistic({
         </div>
 
         <table className={classes.modalTable}>
-          <img
-            src={exitModal}
-            alt="exitStatistic"
-            onClick={openStatisticWarning}
-            className={classes.exitImage}
-          />
-
           <thead>
             <tr>
               <th>Название статистики</th>

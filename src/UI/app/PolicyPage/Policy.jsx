@@ -24,7 +24,8 @@ import BottomHeaders from "../../Custom/Headers/BottomHeaders/BottomHeaders.jsx"
 import Select from "../../Custom/Select/Select.jsx";
 import { useDirectories } from "./hooks/Directories";
 import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
-
+import ModalFolder from "@Custom/modalFolder/ModalFolder";
+import ModalWindow from "@Custom/ModalWindow";
 
 export default function Policy() {
   const selectRef = useRef(null);
@@ -87,7 +88,6 @@ export default function Policy() {
     isLoadingGetPolicies,
     isErrorGetPolicies,
     isFetchingGetPolicies,
-
   } = useGetPoliciesQuery(
     { organizationId: reduxNewSelectedOrganizationId },
     {
@@ -108,7 +108,6 @@ export default function Policy() {
       }),
     }
   );
-
 
   const {
     currentPolicy = {},
@@ -326,6 +325,16 @@ export default function Policy() {
     { id: "Отменён", value: "Отменён" },
   ];
 
+  const btnYes = () => {
+    setManualDeleteSuccessResetDirectory(true);
+    setManualDeleteErrorResetDirectory(true);
+    saveDeleteFolder();
+  };
+
+  const btnNo = () => {
+    setOpenModalDeleteDirectory(false);
+  };
+
   return (
     <div className={classes.dialog}>
       <Headers name={"политика"}>
@@ -342,7 +351,7 @@ export default function Policy() {
                 value={policyName}
                 onChange={(e) => setPolicyName(e.target.value)}
                 title="Название политики"
-                className={classes.textMontserrat14}
+                className={`${classes.five} ${classes.textMontserrat14}`}
                 disabled={disabledArchive}
               ></input>
               <div className={classes.sixth} ref={selectRef}>
@@ -878,411 +887,63 @@ export default function Policy() {
                       </>
                     )}
 
-                    {openModalCreateDirectory ? (
-                      <>
-                        <div className={classes.modal}>
-                          <div className={classes.modalWindow}>
-                            <div className={classes.modalTableRow}>
-                              <div className={classes.itemTable}>
-                                <div className={classes.itemRow1}>
-                                  <input
-                                    type="search"
-                                    placeholder="Найти"
-                                    value={inputSearchModalDirectory}
-                                    onChange={handleInputChangeModalSearch}
-                                    className={classes.searchModal}
-                                  />
-                                </div>
-
-                                <div className={classes.itemRow2}>
-                                  <div className={classes.itemRow2Column}>
-                                    <div className={classes.itemName}>
-                                      <span>
-                                        {" "}
-                                        <span style={{ color: "red" }}>
-                                          *
-                                        </span>{" "}
-                                        Название папки
-                                      </span>
-                                    </div>
-
-                                    <div className={classes.div}>
-                                      <input
-                                        type="text"
-                                        placeholder="Название папки"
-                                        value={directoryName}
-                                        onChange={(e) =>
-                                          setDirectoryName(e.target.value)
-                                        }
-                                        className={classes.textMontserrat14}
-                                      />
-                                    </div>
-                                  </div>
-
-                                  <div className={classes.blockIconSavetmp}>
-                                    <img
-                                      src={Blacksavetmp}
-                                      alt="Blacksavetmp"
-                                      className={classes.iconSavetmp}
-                                      style={{ marginLeft: "0.5%" }}
-                                      onClick={() => {
-                                        saveFolder();
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <table className={classes.modalTable}>
-                              <img
-                                src={exitModal}
-                                alt="exitModal"
-                                onClick={exitCreateDirectory}
-                                className={classes.exitImage}
-                              />
-
-                              <thead>
-                                <tr>
-                                  <th>Директивы</th>
-                                  <th>Инструкции</th>
-                                </tr>
-                              </thead>
-
-                              {filterArraySearchModalDirectives.length > 0 ||
-                              filterArraySearchModalInstructions.length > 0 ? (
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      {filterArraySearchModalDirectives?.map(
-                                        (item) => (
-                                          <div
-                                            key={item.id}
-                                            className={classes.row}
-                                            onClick={() =>
-                                              handleCheckboxChange(item.id)
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={directoriesSendBD.includes(
-                                                item.id
-                                              )}
-                                            />
-                                            {item.policyName}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-
-                                    <td>
-                                      {filterArraySearchModalInstructions?.map(
-                                        (item) => (
-                                          <div
-                                            key={item.id}
-                                            className={classes.row}
-                                            onClick={() =>
-                                              handleCheckboxChange(item.id)
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={directoriesSendBD.includes(
-                                                item.id
-                                              )}
-                                            />
-                                            {item.policyName}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              ) : (
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      {directivesActive?.map((item) => (
-                                        <div
-                                          key={item.id}
-                                          className={classes.row}
-                                          onClick={() =>
-                                            handleCheckboxChange(item.id)
-                                          }
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={directoriesSendBD.includes(
-                                              item.id
-                                            )}
-                                          />
-                                          {item.policyName}
-                                        </div>
-                                      ))}
-                                    </td>
-
-                                    <td>
-                                      {instructionsActive?.map((item) => (
-                                        <div
-                                          key={item.id}
-                                          className={classes.row}
-                                          onClick={() =>
-                                            handleCheckboxChange(item.id)
-                                          }
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={directoriesSendBD.includes(
-                                              item.id
-                                            )}
-                                          />
-                                          {item.policyName}
-                                        </div>
-                                      ))}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              )}
-                            </table>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <></>
+              
+                    {openModalCreateDirectory && (
+                      <ModalFolder
+                        searchArrayDirectives={filterArraySearchModalDirectives}
+                        searchArrayInstructions={
+                          filterArraySearchModalInstructions
+                        }
+                        arrayDirectives={directivesActive}
+                        arrayInstructions={instructionsActive}
+                        handleInputChangeModalSearch={
+                          handleInputChangeModalSearch
+                        }
+                        inputSearchModalDirectory={inputSearchModalDirectory}
+                        handleCheckboxChange={handleCheckboxChange}
+                        directoryName={directoryName}
+                        setDirectoryName={setDirectoryName}
+                        save={saveFolder}
+                        setOpenModalDeleteDirectory={
+                          setOpenModalDeleteDirectory
+                        }
+                        exit={exitCreateDirectory}
+                      ></ModalFolder>
                     )}
-                    {openModalUpdateDirectory ? (
-                      <>
-                        <div className={classes.modal}>
-                          <div className={classes.modalWindow}>
-                            <div className={classes.modalTableRow}>
-                              <div className={classes.itemTable}>
-                                <div className={classes.itemRow1}>
-                                  <input
-                                    type="search"
-                                    placeholder="Найти"
-                                    value={inputSearchModalDirectory}
-                                    onChange={handleInputChangeModalSearch}
-                                    className={classes.searchModal}
-                                  />
-                                </div>
 
-                                <div className={classes.itemRow2}>
-                                  <div className={classes.itemRow2Column}>
-                                    <div className={classes.itemName}>
-                                      <span>
-                                        <span style={{ color: "red" }}>*</span>
-                                        Название папки
-                                      </span>
-                                    </div>
-                                    <div className={classes.div}>
-                                      <input
-                                        type="text"
-                                        placeholder="Название папки"
-                                        value={currentDirectoryName}
-                                        onChange={(e) =>
-                                          setCurrentDirectoryName(
-                                            e.target.value
-                                          )
-                                        }
-                                        className={classes.textMontserrat14}
-                                      />
-                                    </div>
-                                  </div>
-
-                                  <div className={classes.modalTableRowIcon}>
-                                    <div className={classes.blockIconSavetmp}>
-                                      <img
-                                        src={Blacksavetmp}
-                                        alt="Blacksavetmp"
-                                        className={classes.iconSavetmp}
-                                        onClick={() => saveUpdateFolder()}
-                                      />
-                                    </div>
-
-                                    <div className={classes.blockIconDeletetmp}>
-                                      <img
-                                        src={deleteGrey}
-                                        alt="deleteGrey"
-                                        className={classes.iconSavetmp}
-                                        onClick={() => {
-                                          setOpenModalDeleteDirectory(true);
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <table className={classes.modalTable}>
-                              <img
-                                src={exitModal}
-                                alt="exitModal"
-                                onClick={exitUpdateDirectory}
-                                className={classes.exitImage}
-                              />
-
-                              <thead>
-                                <tr>
-                                  <th>Директивы</th>
-                                  <th>Инструкции</th>
-                                </tr>
-                              </thead>
-
-                              {filterArraySearchModalDirectives.length > 0 ||
-                              filterArraySearchModalInstructions.length > 0 ? (
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      {filterArraySearchModalDirectives?.map(
-                                        (item) => (
-                                          <div
-                                            key={item.id}
-                                            className={classes.row}
-                                            onClick={() =>
-                                              handleCheckboxChangeUpdate(
-                                                item.id,
-                                                "directives"
-                                              )
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={item.checked}
-                                            />
-                                            {item.policyName}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-
-                                    <td>
-                                      {filterArraySearchModalInstructions?.map(
-                                        (item) => (
-                                          <div
-                                            key={item.id}
-                                            className={classes.row}
-                                            onClick={() =>
-                                              handleCheckboxChangeUpdate(
-                                                item.id,
-                                                "instructions"
-                                              )
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={item.checked}
-                                            />
-                                            {item.policyName}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              ) : (
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      {currentDirectoryDirectives?.map(
-                                        (item) => (
-                                          <div
-                                            key={item.id}
-                                            className={classes.row}
-                                            onClick={() =>
-                                              handleCheckboxChangeUpdate(
-                                                item.id,
-                                                "directives"
-                                              )
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={item.checked}
-                                            />
-                                            {item.policyName}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-
-                                    <td>
-                                      {currentDirectoryInstructions?.map(
-                                        (item) => (
-                                          <div
-                                            key={item.id}
-                                            className={classes.row}
-                                            onClick={() =>
-                                              handleCheckboxChangeUpdate(
-                                                item.id,
-                                                "instructions"
-                                              )
-                                            }
-                                          >
-                                            <input
-                                              type="checkbox"
-                                              checked={item.checked}
-                                            />
-                                            {item.policyName}
-                                          </div>
-                                        )
-                                      )}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              )}
-                            </table>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <></>
+                    {openModalUpdateDirectory && (
+                      <ModalFolder
+                        searchArrayDirectives={filterArraySearchModalDirectives}
+                        searchArrayInstructions={
+                          filterArraySearchModalInstructions
+                        }
+                        arrayDirectives={currentDirectoryDirectives}
+                        arrayInstructions={currentDirectoryInstructions}
+                        handleInputChangeModalSearch={
+                          handleInputChangeModalSearch
+                        }
+                        inputSearchModalDirectory={inputSearchModalDirectory}
+                        handleCheckboxChange={handleCheckboxChangeUpdate}
+                        directoryName={currentDirectoryName}
+                        setDirectoryName={setCurrentDirectoryName}
+                        save={saveUpdateFolder}
+                        setOpenModalDeleteDirectory={
+                          setOpenModalDeleteDirectory
+                        }
+                        exit={exitUpdateDirectory}
+                        buttonDelete={true}
+                      ></ModalFolder>
                     )}
-                    {openModalDeleteDirectory ? (
-                      <>
-                        <div className={classes.modalDelete}>
-                          <div className={classes.modalDeleteElement}>
-                            <img
-                              src={exitModal}
-                              alt="exitModal"
-                              className={classes.exitImage}
-                              onClick={() => setOpenModalDeleteDirectory(false)}
-                            />
-                            <div className={classes.row1}>
-                              <span className={classes.text}>
-                                Вы точно хотите удалить папку{" "}
-                                <span style={{ fontWeight: "700" }}>
-                                  {currentDirectoryName}
-                                </span>
-                              </span>
-                            </div>
 
-                            <div className={classes.row2}>
-                              <button
-                                className={`${classes.btnYes} ${classes.textBtnYes}`}
-                                onClick={() => {
-                                  setManualDeleteSuccessResetDirectory(true);
-                                  setManualDeleteErrorResetDirectory(true);
-                                  saveDeleteFolder();
-                                }}
-                              >
-                                Да
-                              </button>
-                              <button
-                                className={`${classes.btnNo} ${classes.textBtnNo}`}
-                                onClick={() => {
-                                  setOpenModalDeleteDirectory(false);
-                                }}
-                              >
-                                Нет
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <></>
+                    {openModalDeleteDirectory && (
+                      <ModalWindow
+                        text={` Вы точно хотите удалить папку ${currentDirectoryName}`}
+                        close={setOpenModalDeleteDirectory}
+                        btnYes={btnYes}
+                        btnNo={btnNo}
+                      ></ModalWindow>
                     )}
+
                   </>
                 )}
               </>

@@ -78,7 +78,7 @@ export function ModalSelectedStatistic({
                         checked={statisticsChecked.includes(item.id)}
                         disabled={disabledStatisticsChecked.includes(item.id)}
                       />
-                      {item.name}
+                         {item.name}
                     </div>
                   ))}
                 </td>

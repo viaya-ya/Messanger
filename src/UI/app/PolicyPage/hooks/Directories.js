@@ -282,6 +282,7 @@ export function useDirectories({instructionsActive, directivesActive}) {
       });
     }
   };
+
   const handleInputChangeModalSearch = (e) => {
     setInputSearchModalDirectory(e.target.value);
   };

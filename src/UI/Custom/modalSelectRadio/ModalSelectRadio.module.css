@@ -23,9 +23,9 @@
     min-height: 330px;
     height: 75vh;
 
-    min-width: 250px;
-    width: 26vw;
-    max-width: 26vw;
+
+    width: 400px;
+    max-width: 400px;
 
     left: 10%;
 
@@ -97,8 +97,10 @@
 
 .modalTable tbody {
     min-height: 270px;
-    height:50vh;
+    height: calc(75vh - 130px);
+
     width: 100%;
+    max-width: 100%;
 
     border-radius: 10px;
     overflow-y: auto;
@@ -106,8 +108,9 @@
 
 .modalTable tbody tr {
     min-height: 200px;
-    height: 50vh;
+    height: calc(75vh - 130px);
     width: 100%;
+    max-width: 100%;
 
     display: block;
    
@@ -124,12 +127,13 @@
 
 
     font-family: 'Montserrat';
-    white-space: nowrap;
     vertical-align: top;
 
 }
 
 .row {
+
+    max-width: 375px;
 
     display: flex;
     align-items: center;
@@ -139,4 +143,9 @@
 
     background-color: #f0f3f5;
     border-radius: 10px;
+
+
+    overflow: hidden;
+    white-space: normal;
+    word-break: break-word; 
 }

@@ -1,5 +1,6 @@
 .content{
     width: 100%;
+    max-width: 100%;
     grid-area: content;
     background: url('../../../image/background.png');
     display: flex;

@@ -265,8 +265,9 @@ textarea::placeholder {
 }
 
 .post {
-    height: 5vh;
-    width: 30%;
+    height: 40px;
+    width: 400px;
+    max-width: 400px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -291,6 +292,7 @@ textarea::placeholder {
 
 .postNested{
     width: 100%;
+    max-width: 100%;
     white-space: nowrap;   
     overflow: hidden;  
     text-overflow: ellipsis;  

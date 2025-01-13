@@ -23,9 +23,8 @@
     min-height: 330px;
     height: 75vh;
 
-    min-width: 250px;
-    width: 26vw;
-    max-width: 26vw;
+    width: 400px;
+    max-width: 400px;
 
     left: 10%;
 
@@ -34,8 +33,6 @@
     background-color: #fff;
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.6);
     border-radius: 10px;
-
-    overflow: hidden;
 }
 
 
@@ -100,23 +97,26 @@
 .modalTable tbody {
 
     min-height: 270px;
-    height:50vh;
+    height: calc(75vh - 130px);
 
     width: 100%;
     max-width: 100%;
 
     border-radius: 10px;
+
 }
 
 .modalTable tbody tr {
     min-height: 200px;
-    height: 50vh;
+    height: calc(75vh - 130px);
+
     width: 100%;
     max-width: 100%;
 
     display: block;
-   
+
     overflow-y: auto;
+
 }
 
 
@@ -129,13 +129,12 @@
 
 
     font-family: 'Montserrat';
-    white-space: nowrap;
     vertical-align: top;
-
 }
 
 .row {
-        
+    max-width: 375px;
+
     display: flex;
     align-items: center;
     column-gap: 10px;
@@ -143,5 +142,10 @@
     padding: 5px;
 
     background-color: #f0f3f5;
-    border-radius: 10px; 
+    border-radius: 10px;
+
+
+    overflow: hidden;
+    white-space: normal;
+    word-break: break-word;
 }

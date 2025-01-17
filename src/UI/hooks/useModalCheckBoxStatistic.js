@@ -1,7 +1,7 @@
 import { useGetStatisticsQuery } from "BLL/statisticsApi";
 import { __esModule } from "draft-js-utils";
 import { useState, useEffect } from "react";
-import useGetOldAndNewOrganizationId from "./useGetOldAndNewOrganizationId";
+import useGetOrganizationId from "./useGetOrganizationId";
 
 export function useModalCheckBoxStatistic({
   openModalStatistic,
@@ -15,7 +15,7 @@ export function useModalCheckBoxStatistic({
   const [inputSearchModalStatistics, setInputSearchModalStatistics] =
     useState("");
 
-  const { reduxNewSelectedOrganizationId } = useGetOldAndNewOrganizationId();
+  const { reduxNewSelectedOrganizationId } = useGetOrganizationId();
 
   const {
     statistics = [],

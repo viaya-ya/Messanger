@@ -1,52 +1,42 @@
 
-.itemTable {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    row-gap: 10px;
-}
-
-.itemRow1 {
-    margin-left: auto;
-}
-
-.itemRow2 {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
 .modal {
     position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
+
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+
+    left: 0;
+    top: 0;
+
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    z-index: 2000;
 }
 
 .modalWindow {
-    left: 10%;
     position: relative;
-    height: 80vh;
-    max-width: 50vw;
+
+    min-height: 330px;
+    height: 75vh;
+
+    width: 800px;
+    max-width: 800px;
+
+    left: 10%;
+
+    padding: 10px;
+
     background-color: #fff;
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.6);
     border-radius: 10px;
-    padding: 10px;
 }
 
-.modalTable {
-    border-collapse: collapse;
-    display: block;
-}
-
-.exitImage {
+.exit {
     position: absolute;
     float: right;
     top: -27px;
@@ -54,119 +44,110 @@
     cursor: pointer;
 }
 
+.header {
+    width: 100%;
 
-.modalTable {
-    border-collapse: separate;
-}
-
-.modalTable thead,
-.modalTable tbody {
-    display: block;
-    width: calc(50vw - 20px);
-
-}
-
-.modalTable tbody {
-    max-width: 50vw;
-    height: 65vh;
-    margin-top: 5px;
-    border-radius: 10px;
-
-}
-
-.modalTable tbody tr {
     display: flex;
-    column-gap: 5px;
-}
-
-.modalTable th {
-    width: calc(25vw - 13.5px);
-    padding: 10px;
-    white-space: nowrap;
-    vertical-align: top;
-
-}
-
-.modalTable td {
-    width: 25vw;
-    height: calc(65vh - 50px);
-    display: flex;
-    row-gap: 5px;
     flex-direction: column;
-    overflow-y: auto;
-    font-family: 'Montserrat';
-    white-space: nowrap;
-    vertical-align: top;
+    row-gap: 10px;
 
+    margin-bottom: 10px;
 }
 
-.modalTable thead th {
-    color: #005475;
-    font-family: 'Montserrat';
-    background-color: #DDEBF1;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    border-radius: 10px;
+.search {
+    width: 150px;
+    height: 22px;
 }
 
-.row {
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    column-gap: 10px;
-    background-color: #f0f3f5;
-    border-radius: 10px;
+.item1 {
+    margin-left: auto;
 }
 
-
-
-.modalTableRow {
-    padding: 5px;
+.item2 {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
 }
 
-.modalTableRowIcon {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    column-gap: 10px;
-}
 
-.modalDelete {
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
+
+.table {
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
 }
 
-.modalDeleteElement {
-    left: 10%;
-    position: relative;
-    height: 100px;
-    width: 250px;
-    background-color: #fff;
+.table th {
+    height: 35px;
+    width: 50%;
+
+    border-radius: 10px;
+    background-color: #DDEBF1;
+
+    color: #005475;
+    font-family: 'Montserrat';
+
+
+    white-space: nowrap;
+    vertical-align: center;
+}
+
+.table tbody {
+
+    min-height: 270px;
+    height: calc(75vh - 130px);
+
+    width: 100%;
+    max-width: 100%;
+
+    border-radius: 10px;
+
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    row-gap: 20px;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    padding: 10px;
-    top: -10%;
+
 }
 
+.table tbody tr {
+    min-height: 200px;
+    height: calc(75vh - 130px);
+
+    width: 100%;
+    max-width: 100%;
+
+    display: block;
+
+    overflow-y: auto;
+
+}
+
+
+.table td {
+    width: 100%;
+
+    display: flex;
+    row-gap: 5px;
+    flex-direction: column;
+
+
+    font-family: 'Montserrat';
+    vertical-align: top;
+}
+
+.row {
+    max-width: 375px;
+
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+
+    padding: 5px;
+
+    background-color: #f0f3f5;
+    border-radius: 10px;
+
+
+    overflow: hidden;
+    white-space: normal;
+    word-break: break-word;
+}
 
 
 

@@ -1,5 +1,5 @@
 import { useGetStrategiesQuery } from "BLL/strategy/strategApi";
-import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOrganizationId";
 
 export function useGetStrategies() {
 

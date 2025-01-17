@@ -18,7 +18,7 @@ import Input from "@Custom/Input/Input";
 import Select from "@Custom/Select/Select";
 import { ModalSelectRadio } from "@Custom/modalSelectRadio/ModalSelectRadio";
 import {useModalSelectRadio} from "UI/hooks/useModalSelectRadio";
-import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOrganizationId";
 import { organizationApi } from "BLL/organizationApi";
 
 export default function PostNew() {

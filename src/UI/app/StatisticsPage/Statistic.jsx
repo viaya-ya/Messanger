@@ -31,7 +31,7 @@ import Input from "@Custom/Input/Input";
 import Lupa from "@Custom/Lupa/Lupa";
 import { ModalSelectRadio } from "@Custom/modalSelectRadio/ModalSelectRadio";
 import { useModalSelectRadio } from "UI/hooks/useModalSelectRadio";
-import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOrganizationId";
 
 export default function Statistic() {
   
@@ -640,8 +640,6 @@ export default function Statistic() {
 
       setReceivedPoints(updatedYearPoints);
     }
-    console.log("typeGraphic");
-    console.log(typeGraphic);
     if (typeGraphic === "13" || typeGraphic === "26" || typeGraphic === "52") {
       const today = new Date();
       const end = new Date(today);

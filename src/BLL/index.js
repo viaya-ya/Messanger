@@ -8,6 +8,7 @@ import { strategApi } from './strategy/strategApi';
 import { statisticsApi } from './statisticsApi';
 import { directoriesApi } from './directoriesApi';
 import { organizationApi } from './organizationApi';
+import { controlPanelApi } from './controlPanel/controlPanelApi';
 
 import localStorageReducer from "./localStorage/localStorageSlice";
 import postReducer from "./postSlice";
@@ -26,6 +27,7 @@ export const store = configureStore({
         [statisticsApi.reducerPath]: statisticsApi.reducer,
         [directoriesApi.reducerPath]: directoriesApi.reducer,
         [organizationApi.reducerPath]: organizationApi.reducer,
+        [controlPanelApi.reducerPath]: controlPanelApi.reducer,
         localStorage: localStorageReducer,
         post: postReducer,
         project: projectReducer,
@@ -41,5 +43,6 @@ export const store = configureStore({
                                                                 .concat(statisticsApi.middleware)
                                                                 .concat(directoriesApi.middleware)
                                                                 .concat(organizationApi.middleware)
+                                                                .concat(controlPanelApi.middleware)
 });
 export default store;

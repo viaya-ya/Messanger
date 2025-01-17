@@ -24,20 +24,20 @@ export function ModalSelectedStatistic({
           src={exitModal}
           alt="exitStatistic"
           onClick={openStatisticWarning}
-          className={classes.exitImage}
+          className={classes.exit}
         />
-        <div className={classes.itemTable}>
-          <div className={classes.itemRow1}>
+        <div className={classes.header}>
+          <div className={classes.item1}>
             <input
               type="search"
               placeholder="Найти"
               value={value}
               onChange={onChange}
-              className={classes.searchModal}
+              className={classes.search}
             />
           </div>
 
-          <div className={classes.itemRow2}>
+          <div className={classes.item2}>
             <ButtonImage
               name={"создать"}
               icon={iconAdd}
@@ -54,7 +54,7 @@ export function ModalSelectedStatistic({
           </div>
         </div>
 
-        <table className={classes.modalTable}>
+        <table className={classes.table}>
           <thead>
             <tr>
               <th>Название статистики</th>

@@ -51,12 +51,14 @@ h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight: 400;}
 /*цвета*/
 :root {
     --primary: #005475;
+    --primary-light: #DDEBF1;;
     --white:#FFFFFF;
     --grey:#B4B4B4;
+    --grey-light:#F0F0F0;
+    --dark:#3A3A3A;
   }
 /*--------------------*/
 ::-webkit-scrollbar{
-    background-color:  #FFFFFF;
     width: 5px;
 	height: 5px;   
 }
@@ -65,6 +67,10 @@ h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight: 400;}
     border-radius: 10px;
 	width: 3px;
 	height: 3px; 
+}
+
+input[type="search"] {
+    border-bottom: 1px solid var(--grey);
 }
 
 input[type="search"]::-webkit-input-placeholder {
@@ -89,7 +95,6 @@ input[type="search"]:focus {
 input[type="search"]:focus::placeholder {
     position: absolute;
     font-style: normal;
-    font-weight: 100;
     top: -2px;
     left: 5%;
     color: #005475;

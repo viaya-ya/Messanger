@@ -14,11 +14,13 @@ export default function ButtonAction({ create, update }) {
         ></ButtonImage>
       )}
 
-      <ButtonImage
-        name={"обновить"}
-        icon={Blacksavetmp}
-        onClick={update}
-      ></ButtonImage>
+      {update && (
+        <ButtonImage
+          name={"обновить"}
+          icon={Blacksavetmp}
+          onClick={update}
+        ></ButtonImage>
+      )}
     </div>
   );
 }

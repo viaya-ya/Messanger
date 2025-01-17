@@ -1,5 +1,6 @@
 
 import Pomoshnik from "@app/Pomoshnik/Pomoshnik";
+import ControlPanel from "@app/ControlPanel/ControlPanel";
 import Goal from "@app/GoalPage/Goal";
 import Policy from "@app/PolicyPage/Policy";
 import Statistic from "@app/StatisticsPage/Statistic";
@@ -19,6 +20,8 @@ import PostNew from "@app/PostPage/PostNew";
 const pageComponents = {
   pomoshnik: {
     start: Pomoshnik,
+
+    controlPanel: ControlPanel,
 
     goal: Goal,
 

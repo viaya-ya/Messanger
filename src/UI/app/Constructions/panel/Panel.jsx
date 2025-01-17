@@ -1,6 +1,6 @@
 import React from "react";
-import classes from "./ControlPanel.module.css";
-export default function ControlPanel() {
+import classes from "./Panel.module.css";
+export default function Panel() {
   return (
     <div className={classes.block}>
       <div className={classes.row}>

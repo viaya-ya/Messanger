@@ -26,7 +26,7 @@ import { useModalSelectRadio } from "UI/hooks/useModalSelectRadio";
 import { ModalSelectRadio } from "@Custom/modalSelectRadio/ModalSelectRadio";
 import { useModalCheckBoxStatistic } from "UI/hooks/useModalCheckBoxStatistic";
 import { ModalSelectedStatistic } from "@Custom/modalSelectedStatistic/ModalSelectedStatistic";
-import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOrganizationId";
 
 export default function Post() {
   const navigate = useNavigate();

@@ -23,22 +23,22 @@ export function ModalSelectRadio({
           src={exitModal}
           alt="exitModal"
           onClick={() => exit()}
-          className={classes.exitImage}
+          className={classes.exit}
         />
 
-        <div className={classes.itemTable}>
-          <div className={classes.itemRow1}>
+        <div className={classes.header}>
+          <div className={classes.item1}>
             <input
               type="search"
               placeholder="Найти"
               value={handleSearchValue}
               onChange={handleSearchOnChange}
-              className={classes.searchModal}
+              className={classes.search}
             />
           </div>
 
           {save && (
-            <div className={classes.itemRow2}>
+            <div className={classes.item2}>
               <ButtonImage
                 name={"сохранить"}
                 icon={Blacksavetmp}
@@ -48,7 +48,7 @@ export function ModalSelectRadio({
           )}
         </div>
 
-        <table className={classes.modalTable}>
+        <table className={classes.table}>
           <thead>
             <tr>
               <th>{nameTable}</th>

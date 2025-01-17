@@ -10,7 +10,7 @@ export  function useModalSelectRadio({ array, arrayItem }) {
   const handleRadioChange = (id, element) => {
     setSelectedID((prevState) => {
       const newState = prevState === id ? null : id;
-      setSelectedName(newState === null ? null : element.arrayItem);
+      setSelectedName(newState === null ? null : element[arrayItem]);
       return newState;
     });
   };

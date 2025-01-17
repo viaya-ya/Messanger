@@ -1,5 +1,7 @@
 .contact {
     width: 24%;
+    min-width: 24%;
+    max-width: 24%;
     height: 100%;
 
     display: flex;

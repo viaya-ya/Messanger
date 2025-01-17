@@ -23,7 +23,7 @@ import Headers from "../../Custom/Headers/Headers.jsx";
 import BottomHeaders from "../../Custom/Headers/BottomHeaders/BottomHeaders.jsx";
 import Select from "../../Custom/Select/Select.jsx";
 import { useDirectories } from "./hooks/Directories";
-import useGetOldAndNewOrganizationId from "UI/hooks/useGetOldAndNewOrganizationId";
+import useGetOldAndNewOrganizationId from "UI/hooks/useGetOrganizationId";
 import ModalFolder from "@Custom/modalFolder/ModalFolder";
 import ModalWindow from "@Custom/ModalWindow";
 

@@ -36,7 +36,16 @@
 }
 
 
-.itemTable {
+
+.exit {
+    position: absolute;
+    float: right;
+    top: -27px;
+    right: -27px;
+    cursor: pointer;
+}
+
+.header {
     width: 100%;
 
     display: flex;
@@ -46,11 +55,11 @@
     margin-bottom: 10px;
 }
 
-.itemRow1 {
+.item1 {
     margin-left: auto;
 }
 
-.itemRow2 {
+.item2 {
     display: flex;
     flex-direction: row;
     column-gap: 10px;
@@ -58,27 +67,19 @@
     margin-left: auto;
 }
 
-.searchModal {
+.search {
     width: 150px;
     height: 22px;
-
-    border-bottom: 1px solid #ccc;
-}
-
-.exitImage {
-    position: absolute;
-    float: right;
-    top: -27px;
-    right: -27px;
-    cursor: pointer;
 }
 
 
-.modalTable {
+
+
+.table {
     width: 100%;
 }
 
-.modalTable th {
+.table th {
     height: 35px;
     width: 100%;
 
@@ -93,8 +94,7 @@
     vertical-align: center;
 }
 
-
-.modalTable tbody {
+.table tbody {
 
     min-height: 270px;
     height: calc(75vh - 130px);
@@ -106,7 +106,7 @@
 
 }
 
-.modalTable tbody tr {
+.table tbody tr {
     min-height: 200px;
     height: calc(75vh - 130px);
 
@@ -120,7 +120,7 @@
 }
 
 
-.modalTable td {
+.table td {
     width: 100%;
 
     display: flex;

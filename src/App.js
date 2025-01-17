@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Main from "@app/Authorization/Main";
 import Content from "@app/Constructions/content/Content";
-import ControlPanel from "@app/Constructions/controlPanel/ControlPanel";
+import Panel from "@app/Constructions/panel/Panel";
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
           path="/:group/:route"
           element={
             <div className="messages">
-              <ControlPanel></ControlPanel>
+              <Panel></Panel>
               <Content></Content>
             </div>
           }

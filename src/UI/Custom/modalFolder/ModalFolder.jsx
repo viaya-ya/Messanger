@@ -24,53 +24,51 @@ export default function ModalFolder({
   return (
     <div className={classes.modal}>
       <div className={classes.modalWindow}>
-        <div className={classes.modalTableRow}>
-          <div className={classes.itemTable}>
-            <div className={classes.itemRow1}>
-              <input
-                type="search"
-                placeholder="Найти"
-                value={inputSearchModalDirectory}
-                onChange={handleInputChangeModalSearch}
-                className={classes.searchModal}
-              />
-            </div>
+        <img
+          src={exitModal}
+          alt="exitModal"
+          onClick={exit}
+          className={classes.exit}
+        />
 
-            <div className={classes.itemRow2}>
-              <Input
-                name={"Название папки"}
-                value={directoryName}
-                onChange={setDirectoryName}
-              ></Input>
+        <div className={classes.header}>
+          <div className={classes.item1}>
+            <input
+              type="search"
+              placeholder="Найти"
+              value={inputSearchModalDirectory}
+              onChange={handleInputChangeModalSearch}
+              className={classes.search}
+            />
+          </div>
 
-              <div className={classes.modalTableRowIcon}>
+          <div className={classes.item2}>
+            <Input
+              name={"Название папки"}
+              value={directoryName}
+              onChange={setDirectoryName}
+            ></Input>
+
+            <div className={classes.modalTableRowIcon}>
+              <ButtonImage
+                name={"сохранить"}
+                icon={Blacksavetmp}
+                onClick={save}
+              ></ButtonImage>
+              {buttonDelete && (
                 <ButtonImage
-                  name={"сохранить"}
-                  icon={Blacksavetmp}
-                  onClick={save}
+                  name={"удалить"}
+                  icon={deleteGrey}
+                  onClick={() => {
+                    setOpenModalDeleteDirectory(true);
+                  }}
                 ></ButtonImage>
-                {buttonDelete && (
-                  <ButtonImage
-                    name={"удалить"}
-                    icon={deleteGrey}
-                    onClick={() => {
-                      setOpenModalDeleteDirectory(true);
-                    }}
-                  ></ButtonImage>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
 
-        <table className={classes.modalTable}>
-          <img
-            src={exitModal}
-            alt="exitModal"
-            onClick={exit}
-            className={classes.exitImage}
-          />
-
+        <table className={classes.table}>
           <thead>
             <tr>
               <th>Директивы</th>
